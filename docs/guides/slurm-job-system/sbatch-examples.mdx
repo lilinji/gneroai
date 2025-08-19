@@ -1,0 +1,1032 @@
+---
+title: Sbatch 批量提交作业指南
+sidebar_position: 3
+description: >-
+  深入学习Sbatch批量提交作业的完整指南，从基础概念到实际应用，涵盖GPU/CPU作业配置、资源优化和最佳实践。
+---
+
+# Sbatch 批量提交作业指南
+
+Sbatch是Slurm工作负载管理器中用于批量提交作业的核心命令，支持灵活的资源配置和自动化任务调度，是HPC环境中最重要的作业管理工具之一。
+
+## 概述
+
+通过在批处理脚本中设置 `#SBATCH` 选项，用户可以精确配置作业的资源需求、运行环境和执行参数，实现高效的批量计算任务管理。Sbatch特别适用于长时间运行的计算密集型任务，如深度学习训练、科学模拟和大数据处理等场景。
+
+:::info 适用软件
+本指南中的配置方法适用于多种科学计算软件，包括：
+- **量子化学软件**: VASP、Gaussian  
+- **分子动力学**: AMBER、GROMACS
+- **深度学习框架**: PyTorch、TensorFlow
+- **数据分析工具**: R、Python科学计算栈
+:::
+
+## 技术架构
+
+### 命令语法结构
+
+```bash
+# 基本语法
+sbatch [选项] <脚本文件>
+
+# 示例
+sbatch --nodes=2 --time=04:00:00 job_script.sh
+```
+
+### 核心参数详解
+
+#### 基础配置参数
+
+| 参数 | 功能描述 | 示例使用 |
+|------|----------|----------|
+| `--job-name` | 指定作业名称，便于识别和管理 | `--job-name=ml_training` |
+| `--output` | 标准输出文件路径 | `--output=job_%j.out` |
+| `--error` | 标准错误输出文件路径 | `--error=job_%j.err` |
+| `--mail-type` | 邮件通知类型 | `--mail-type=END,FAIL` |
+| `--mail-user` | 接收通知的邮箱地址 | `--mail-user=user@domain.com` |
+
+#### 资源分配参数
+
+| 参数 | 功能描述 | 使用建议 |
+|------|----------|----------|
+| `--nodes` | 申请的节点数量 | 单节点任务使用 `--nodes=1` |
+| `--ntasks` | 总任务数量 | MPI程序使用，通常等于进程数 |
+| `--ntasks-per-node` | 每节点任务数量 | 控制单节点内的并行度 |
+| `--cpus-per-task` | 每任务CPU核心数 | 多线程程序使用 |
+| `--mem` | 内存需求 | 单位：KB、MB、GB，如 `32G` |
+| `--time` | 最大运行时间 | 格式：HH:MM:SS，如 `12:00:00` |
+
+#### 高级调度参数
+
+| 参数 | 功能描述 | 典型场景 |
+|------|----------|----------|
+| `--partition` | 指定计算分区 | `qgpu_3090`, `qcpu_23a` |
+| `--gres` | 通用资源需求 | GPU: `--gres=gpu:2` |
+| `--constraint` | 节点硬件约束 | 特定CPU架构或内存配置 |
+| `--exclusive` | 独占节点访问 | 性能敏感的大型作业 |
+| `--dependency` | 作业依赖关系 | 工作流管道：`afterok:12345` |
+
+### 标准脚本结构
+
+```bash
+#!/bin/bash
+# ===================================================
+# Sbatch作业脚本模板
+# 功能：[描述作业的具体功能]
+# 作者：[姓名/团队]
+# 创建：[日期]
+# ===================================================
+
+# 作业基本信息
+#SBATCH --job-name=job_template
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+
+# 资源配置
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=32G
+#SBATCH --time=04:00:00
+
+# 队列和通知
+#SBATCH --partition=qcpu_23a
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=user@example.com
+
+# 错误处理
+set -e  # 遇到错误立即退出
+trap 'echo "作业在第 $LINENO 行失败，退出码：$?"' ERR
+
+# 作业信息记录
+echo "==================== 作业信息 ===================="
+echo "作业ID: $SLURM_JOB_ID"
+echo "作业名称: $SLURM_JOB_NAME"  
+echo "执行节点: $(hostname)"
+echo "开始时间: $(date)"
+echo "工作目录: $(pwd)"
+echo "=================================================="
+
+# 环境设置
+module purge
+module load gcc/9.3.0
+# 根据需要加载其他模块
+
+# 主要计算任务
+echo "开始执行主要计算任务..."
+# 在此处添加具体的计算命令
+
+# 作业完成
+echo "==================== 作业完成 ===================="
+echo "结束时间: $(date)"
+echo "作业状态: 成功完成"
+echo "=================================================="
+```
+
+## 生产环境应用案例
+
+### GPU计算作业配置
+
+针对深度学习、科学计算等GPU密集型任务的标准配置模板：
+
+```bash
+#!/bin/bash
+# ===================================================
+# GPU计算作业示例 - 深度学习训练
+# 适用队列：qgpu_3090, qgpu_4090, qgpu_a800
+# ===================================================
+
+#SBATCH --job-name=gpu_training
+#SBATCH --output=gpu_%j.out
+#SBATCH --error=gpu_%j.err
+
+# GPU资源配置
+#SBATCH --partition=qgpu_3090       # GPU分区选择
+#SBATCH --nodes=1                   # GPU作业通常单节点
+#SBATCH --ntasks-per-node=1         # 单任务运行
+#SBATCH --cpus-per-task=16          # CPU核心数（建议2-4核/GPU）
+#SBATCH --gres=gpu:1                # GPU卡数量（1-4卡）
+#SBATCH --mem=32G                   # 内存大小（建议16-64GB）
+#SBATCH --time=12:00:00             # 最大运行时间
+
+# 通知设置
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=user@example.com
+
+# 环境初始化
+echo "========== GPU作业开始 =========="
+echo "作业ID: $SLURM_JOB_ID"
+echo "GPU节点: $(hostname)"
+echo "开始时间: $(date)"
+
+# 检查GPU状态
+nvidia-smi
+echo "GPU驱动信息已显示"
+
+# 加载环境模块
+module purge
+module load cuda/11.8
+module load python/3.9.0
+
+# 激活Python环境
+source ~/ml_env/bin/activate
+
+# 执行GPU计算任务
+echo "开始执行深度学习训练..."
+python train_model.py \
+    --gpu-id 0 \
+    --batch-size 64 \
+    --epochs 100 \
+    --model resnet50 \
+    --data-dir /data/imagenet
+
+echo "========== GPU作业完成 =========="
+echo "结束时间: $(date)"
+```
+
+:::tip GPU使用建议
+- GPU作业通常不跨节点，建议使用单节点配置
+- CPU核心数建议为GPU数量的2-4倍
+- 内存建议为16-64GB，根据数据集大小调整
+- 使用`nvidia-smi`监控GPU使用情况
+:::
+
+### CPU密集计算作业配置
+
+针对大规模并行计算、科学模拟等CPU密集型任务的优化配置：
+
+```bash
+#!/bin/bash
+# ===================================================
+# CPU密集计算作业示例 - 科学模拟
+# 适用队列：qcpu_23a, qcpu_intel
+# ===================================================
+
+#SBATCH --job-name=cpu_simulation
+#SBATCH --output=cpu_%j.out
+#SBATCH --error=cpu_%j.err
+
+# CPU资源配置
+#SBATCH --partition=qcpu_23a        # CPU分区选择
+#SBATCH --nodes=1                   # 节点数量
+#SBATCH --ntasks=1                  # 任务数（单进程多线程）
+#SBATCH --cpus-per-task=20          # CPU核心数（建议使用节点全部核心）
+#SBATCH --mem=64G                   # 内存大小（建议2-4GB/核心）
+#SBATCH --time=24:00:00             # 最大运行时间
+
+# 通知设置
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=user@example.com
+
+# 环境初始化
+echo "========== CPU作业开始 =========="
+echo "作业ID: $SLURM_JOB_ID"
+echo "计算节点: $(hostname)"
+echo "CPU核心数: $SLURM_CPUS_PER_TASK"
+echo "内存大小: $SLURM_MEM_PER_NODE MB"
+echo "开始时间: $(date)"
+
+# 显示系统信息
+echo "系统信息："
+lscpu | grep "Model name"
+free -h
+
+# 加载环境模块
+module purge
+module load gcc/9.3.0
+module load openmpi/4.1.1
+module load amber/22
+
+# 设置并行环境变量
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+# 执行CPU密集计算任务
+echo "开始执行分子动力学模拟..."
+pmemd.cuda -O \
+    -i md_production.in \
+    -o md_production.out \
+    -p system.prmtop \
+    -c equilibration.rst7 \
+    -r md_production.rst7 \
+    -x md_production.nc
+
+echo "========== CPU作业完成 =========="
+echo "结束时间: $(date)"
+```
+
+:::warning 资源配置注意事项  
+- 确保内存请求不超过节点可用内存
+- CPU核心数不要超过单节点最大核心数
+- 合理设置时间限制，避免作业被强制终止
+:::
+
+## 作业提交与管理
+
+### 作业提交流程
+
+```bash
+# 1. 准备作业脚本
+vim my_job.sh
+
+# 2. 检查脚本语法
+bash -n my_job.sh
+
+# 3. 提交作业
+sbatch my_job.sh
+# 输出：Submitted batch job 273675
+
+# 4. 查看作业状态
+squeue -u $USER
+```
+
+### 作业状态监控
+
+#### 实时状态查看
+
+```bash
+# 查看所有作业状态
+squeue
+
+# 查看详细信息
+squeue -l
+
+# 查看特定用户作业
+squeue -u $USER
+
+# 查看特定作业详情
+squeue -j 273675
+```
+
+#### 历史作业信息
+
+```bash
+# 查看过去24小时的作业信息
+sacct
+
+# 查看特定作业的详细统计
+sacct -j 273675 --format=JobID,JobName,State,ExitCode,Start,End,Elapsed,MaxRSS
+
+# 查看作业资源使用情况
+seff 273675  # 显示CPU、内存效率等详细信息
+```
+
+#### 作业管理操作
+
+```bash
+# 取消指定作业
+scancel 273675
+
+# 取消用户所有作业
+scancel -u $USER
+
+# 取消特定状态的作业
+scancel -u $USER --state=PENDING
+```
+
+### 常见问题排错
+
+#### 作业状态说明
+
+| 状态 | 描述 | 处理建议 |
+|------|------|----------|
+| `PENDING` | 等待调度 | 正常状态，等待资源分配 |
+| `RUNNING` | 正在运行 | 正常执行中 |
+| `COMPLETED` | 成功完成 | 检查输出结果 |
+| `FAILED` | 执行失败 | 查看错误日志，检查脚本 |
+| `TIMEOUT` | 超时终止 | 增加时间限制重新提交 |
+| `OUT_OF_MEMORY` | 内存不足 | 增加内存请求重新提交 |
+
+#### 常见错误处理
+
+```bash
+# 1. 检查作业输出文件
+cat job_273675.out
+cat job_273675.err
+
+# 2. 查看详细错误信息
+sacct -j 273675 --format=JobID,State,ExitCode,DerivedExitCode
+
+# 3. 资源使用分析
+sstat -j 273675 --format=AveCPU,AveRSS,MaxRSS,AveVMSize,MaxVMSize
+```
+
+## 操作演示视频
+
+下面的动画演示展示了Sbatch作业提交的完整流程，包括脚本编写、作业提交、状态查看和结果获取：
+
+![Sbatch作业提交演示](/static/guides/hpc/sbatch-examples/sbatch.gif)
+
+*动画内容：展示从脚本编写到作业完成的完整操作流程*
+
+## 实际应用示例 (Practical Examples)
+
+### 数据分析作业 (Data Analysis Job)
+
+```bash
+#!/bin/bash
+# data_analysis.sh - 数据分析作业示例
+
+#SBATCH --job-name=data_analysis
+#SBATCH --output=analysis_%j.out
+#SBATCH --error=analysis_%j.err
+#SBATCH --time=04:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=16G
+#SBATCH --partition=cpu
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=user@example.com
+
+# 记录作业信息 / Record job information
+echo "=== 作业信息 Job Information ==="
+echo "作业ID / Job ID: $SLURM_JOB_ID"
+echo "作业名称 / Job Name: $SLURM_JOB_NAME"
+echo "节点名称 / Node Name: $(hostname)"
+echo "开始时间 / Start Time: $(date)"
+echo "工作目录 / Working Directory: $(pwd)"
+
+# 设置环境 / Setup environment
+module purge
+module load python/3.9.0
+module load R/4.1.2
+
+# 检查输入数据 / Check input data
+if [ ! -f "input_data.csv" ]; then
+    echo "错误：找不到输入数据文件 / Error: Input data file not found"
+    exit 1
+fi
+
+# 执行数据分析 / Execute data analysis
+echo "开始数据分析 / Starting data analysis"
+
+# Python数据预处理 / Python data preprocessing
+python << EOF
+import pandas as pd
+import numpy as np
+
+print("加载数据 / Loading data...")
+data = pd.read_csv('input_data.csv')
+print(f"数据形状 / Data shape: {data.shape}")
+
+# 数据清洗 / Data cleaning
+cleaned_data = data.dropna()
+cleaned_data.to_csv('cleaned_data.csv', index=False)
+print("数据预处理完成 / Data preprocessing completed")
+EOF
+
+# R统计分析 / R statistical analysis
+Rscript << EOF
+# 加载数据 / Load data
+data <- read.csv('cleaned_data.csv')
+cat("数据维度 / Data dimensions:", dim(data), "\n")
+
+# 统计分析 / Statistical analysis
+summary_stats <- summary(data)
+write.csv(summary_stats, 'summary_statistics.csv')
+
+# 生成图表 / Generate plots
+png('analysis_plot.png', width=800, height=600)
+plot(data[,1], data[,2], main="数据分析结果 / Analysis Results")
+dev.off()
+
+cat("R分析完成 / R analysis completed\n")
+EOF
+
+# 生成报告 / Generate report
+echo "生成最终报告 / Generating final report"
+python << EOF
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 读取结果 / Read results
+summary = pd.read_csv('summary_statistics.csv')
+print("分析摘要 / Analysis Summary:")
+print(summary)
+
+# 保存结果摘要 / Save result summary
+with open('final_report.txt', 'w') as f:
+    f.write("数据分析报告 / Data Analysis Report\n")
+    f.write("=" * 50 + "\n")
+    f.write(f"分析时间 / Analysis Time: $(date)\n")
+    f.write(f"作业ID / Job ID: $SLURM_JOB_ID\n")
+    f.write("详细结果请查看相关CSV和图像文件\n")
+    f.write("Detailed results available in CSV and image files\n")
+
+print("最终报告已生成 / Final report generated")
+EOF
+
+echo "数据分析完成 / Data analysis completed"
+echo "结束时间 / End Time: $(date)"
+```
+
+### 机器学习训练作业 (Machine Learning Training Job)
+
+```bash
+#!/bin/bash
+# ml_training.sh - 机器学习训练作业
+
+#SBATCH --job-name=ml_training
+#SBATCH --output=training_%j.out
+#SBATCH --error=training_%j.err
+#SBATCH --time=12:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:2
+#SBATCH --mem=64G
+#SBATCH --partition=gpu
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=user@example.com
+
+# 环境设置 / Environment setup
+module purge
+module load cuda/11.8
+module load python/3.9.0
+
+# 检查GPU / Check GPU
+echo "GPU信息 / GPU Information:"
+nvidia-smi
+
+# 激活虚拟环境 / Activate virtual environment
+source ~/ml_env/bin/activate
+
+# 设置训练参数 / Set training parameters
+BATCH_SIZE=64
+EPOCHS=100
+LEARNING_RATE=0.001
+MODEL_NAME="resnet50"
+
+echo "训练参数 / Training Parameters:"
+echo "Batch Size: $BATCH_SIZE"
+echo "Epochs: $EPOCHS"
+echo "Learning Rate: $LEARNING_RATE"
+echo "Model: $MODEL_NAME"
+
+# 创建实验目录 / Create experiment directory
+EXPERIMENT_DIR="experiments/exp_${SLURM_JOB_ID}"
+mkdir -p $EXPERIMENT_DIR
+
+# 执行训练 / Execute training
+python train_model.py \
+    --model $MODEL_NAME \
+    --batch-size $BATCH_SIZE \
+    --epochs $EPOCHS \
+    --lr $LEARNING_RATE \
+    --gpu-count 2 \
+    --output-dir $EXPERIMENT_DIR \
+    --save-checkpoints \
+    --log-interval 100
+
+# 评估模型 / Evaluate model
+echo "开始模型评估 / Starting model evaluation"
+python evaluate_model.py \
+    --model-path $EXPERIMENT_DIR/best_model.pth \
+    --test-data test_dataset.csv \
+    --output $EXPERIMENT_DIR/evaluation_results.json
+
+# 生成训练报告 / Generate training report
+python << EOF
+import json
+import matplotlib.pyplot as plt
+
+# 读取训练日志 / Read training logs
+with open('$EXPERIMENT_DIR/training_log.json', 'r') as f:
+    log_data = json.load(f)
+
+# 绘制训练曲线 / Plot training curves
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(log_data['train_loss'], label='训练损失 / Train Loss')
+plt.plot(log_data['val_loss'], label='验证损失 / Val Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.title('损失曲线 / Loss Curves')
+
+plt.subplot(1, 2, 2)
+plt.plot(log_data['train_acc'], label='训练准确率 / Train Acc')
+plt.plot(log_data['val_acc'], label='验证准确率 / Val Acc')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.title('准确率曲线 / Accuracy Curves')
+
+plt.tight_layout()
+plt.savefig('$EXPERIMENT_DIR/training_curves.png', dpi=300)
+print("训练曲线已保存 / Training curves saved")
+EOF
+
+echo "机器学习训练完成 / Machine learning training completed"
+echo "结果保存在 / Results saved in: $EXPERIMENT_DIR"
+```
+
+### 并行计算作业 (Parallel Computing Job)
+
+```bash
+#!/bin/bash
+# parallel_compute.sh - 并行计算作业
+
+#SBATCH --job-name=parallel_mpi
+#SBATCH --output=parallel_%j.out
+#SBATCH --error=parallel_%j.err
+#SBATCH --time=06:00:00
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=128G
+#SBATCH --partition=cpu
+
+# 计算资源信息 / Compute resource information
+echo "=== 并行计算资源信息 Parallel Computing Resources ==="
+echo "节点数 / Number of nodes: $SLURM_JOB_NUM_NODES"
+echo "总任务数 / Total tasks: $SLURM_NTASKS"
+echo "节点列表 / Node list: $SLURM_JOB_NODELIST"
+
+# 加载MPI环境 / Load MPI environment
+module purge
+module load gcc/9.3.0
+module load openmpi/4.1.1
+module load fftw/3.3.10
+
+# 编译并行程序 / Compile parallel program
+echo "编译并行程序 / Compiling parallel program"
+mpicc -O3 -o parallel_solver parallel_solver.c -lfftw3 -lm
+
+if [ $? -ne 0 ]; then
+    echo "编译失败 / Compilation failed"
+    exit 1
+fi
+
+# 设置运行参数 / Set runtime parameters
+GRID_SIZE=1024
+TIME_STEPS=10000
+OUTPUT_FREQ=100
+
+echo "计算参数 / Computational parameters:"
+echo "Grid size: $GRID_SIZE x $GRID_SIZE"
+echo "Time steps: $TIME_STEPS"
+echo "Output frequency: $OUTPUT_FREQ"
+
+# 创建输出目录 / Create output directory
+OUTPUT_DIR="results_${SLURM_JOB_ID}"
+mkdir -p $OUTPUT_DIR
+
+# 运行并行计算 / Run parallel computation
+echo "开始并行计算 / Starting parallel computation"
+mpirun -np $SLURM_NTASKS ./parallel_solver \
+    --grid-size $GRID_SIZE \
+    --time-steps $TIME_STEPS \
+    --output-freq $OUTPUT_FREQ \
+    --output-dir $OUTPUT_DIR
+
+# 检查计算结果 / Check computation results
+if [ $? -eq 0 ]; then
+    echo "并行计算成功完成 / Parallel computation completed successfully"
+    
+    # 后处理分析 / Post-processing analysis
+    echo "开始后处理分析 / Starting post-processing analysis"
+    
+    python << EOF
+import numpy as np
+import matplotlib.pyplot as plt
+import glob
+
+# 读取结果文件 / Read result files
+result_files = glob.glob('$OUTPUT_DIR/output_*.dat')
+result_files.sort()
+
+print(f"找到 {len(result_files)} 个结果文件 / Found {len(result_files)} result files")
+
+# 分析最终结果 / Analyze final results
+if result_files:
+    final_data = np.loadtxt(result_files[-1])
+    
+    # 生成可视化 / Generate visualization
+    plt.figure(figsize=(10, 8))
+    plt.imshow(final_data, cmap='viridis')
+    plt.colorbar(label='数值 / Value')
+    plt.title('最终计算结果 / Final Computation Result')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.savefig('$OUTPUT_DIR/final_result.png', dpi=300)
+    
+    # 计算统计信息 / Calculate statistics
+    stats = {
+        'min': np.min(final_data),
+        'max': np.max(final_data),
+        'mean': np.mean(final_data),
+        'std': np.std(final_data)
+    }
+    
+    print("计算结果统计 / Computation statistics:")
+    for key, value in stats.items():
+        print(f"{key}: {value:.6f}")
+    
+    # 保存统计信息 / Save statistics
+    with open('$OUTPUT_DIR/statistics.txt', 'w') as f:
+        f.write("并行计算结果统计 / Parallel Computation Statistics\n")
+        f.write("=" * 50 + "\n")
+        for key, value in stats.items():
+            f.write(f"{key}: {value:.6f}\n")
+
+print("后处理分析完成 / Post-processing analysis completed")
+EOF
+
+else
+    echo "并行计算失败 / Parallel computation failed"
+    exit 1
+fi
+
+echo "作业完成时间 / Job completion time: $(date)"
+```
+
+## 作业数组示例 (Job Array Examples)
+
+### 参数扫描作业数组 (Parameter Sweep Job Array)
+
+```bash
+#!/bin/bash
+# parameter_sweep.sh - 参数扫描作业数组
+
+#SBATCH --job-name=param_sweep
+#SBATCH --output=sweep_%A_%a.out
+#SBATCH --error=sweep_%A_%a.err
+#SBATCH --array=1-100%10         # 100个任务，最多同时10个 / 100 tasks, max 10 concurrent
+#SBATCH --time=02:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=4G
+#SBATCH --partition=cpu
+
+# 参数定义 / Parameter definitions
+LEARNING_RATES=(0.001 0.01 0.1 0.2 0.5)
+BATCH_SIZES=(16 32 64 128 256)
+DROPOUT_RATES=(0.1 0.2 0.3 0.4 0.5)
+
+# 计算参数组合 / Calculate parameter combinations
+LR_INDEX=$(( (SLURM_ARRAY_TASK_ID - 1) / 20 ))
+BS_INDEX=$(( ((SLURM_ARRAY_TASK_ID - 1) % 20) / 4 ))
+DR_INDEX=$(( (SLURM_ARRAY_TASK_ID - 1) % 4 ))
+
+LEARNING_RATE=${LEARNING_RATES[$LR_INDEX]}
+BATCH_SIZE=${BATCH_SIZES[$BS_INDEX]}
+DROPOUT_RATE=${DROPOUT_RATES[$DR_INDEX]}
+
+echo "任务 $SLURM_ARRAY_TASK_ID 参数 / Task $SLURM_ARRAY_TASK_ID parameters:"
+echo "Learning Rate: $LEARNING_RATE"
+echo "Batch Size: $BATCH_SIZE"
+echo "Dropout Rate: $DROPOUT_RATE"
+
+# 创建任务特定目录 / Create task-specific directory
+TASK_DIR="task_${SLURM_ARRAY_TASK_ID}"
+mkdir -p $TASK_DIR
+cd $TASK_DIR
+
+# 执行训练 / Execute training
+python ../train_model.py \
+    --lr $LEARNING_RATE \
+    --batch-size $BATCH_SIZE \
+    --dropout $DROPOUT_RATE \
+    --task-id $SLURM_ARRAY_TASK_ID \
+    --output results.json
+
+echo "任务 $SLURM_ARRAY_TASK_ID 完成 / Task $SLURM_ARRAY_TASK_ID completed"
+```
+
+## 作业依赖示例 (Job Dependency Examples)
+
+### 工作流管道 (Workflow Pipeline)
+
+```bash
+#!/bin/bash
+# 提交工作流管道 / Submit workflow pipeline
+
+# 第1步：数据预处理 / Step 1: Data preprocessing
+JOB1=$(sbatch --parsable preprocess_data.sh)
+echo "数据预处理作业ID / Data preprocessing job ID: $JOB1"
+
+# 第2步：模型训练（依赖第1步） / Step 2: Model training (depends on step 1)
+JOB2=$(sbatch --parsable --dependency=afterok:$JOB1 train_model.sh)
+echo "模型训练作业ID / Model training job ID: $JOB2"
+
+# 第3步：模型评估（依赖第2步） / Step 3: Model evaluation (depends on step 2)
+JOB3=$(sbatch --parsable --dependency=afterok:$JOB2 evaluate_model.sh)
+echo "模型评估作业ID / Model evaluation job ID: $JOB3"
+
+# 第4步：结果汇总（依赖前面所有步骤） / Step 4: Results summary (depends on all previous)
+JOB4=$(sbatch --parsable --dependency=afterok:$JOB1:$JOB2:$JOB3 summarize_results.sh)
+echo "结果汇总作业ID / Results summary job ID: $JOB4"
+
+echo "工作流管道已提交 / Workflow pipeline submitted"
+echo "使用 'squeue -u $USER' 监控进度 / Use 'squeue -u $USER' to monitor progress"
+```
+
+## 最佳实践 (Best Practices)
+
+### 脚本模板 (Script Template)
+
+```bash
+#!/bin/bash
+# template.sh - Sbatch脚本模板 / Sbatch script template
+
+#SBATCH --job-name=template_job
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=8G
+#SBATCH --partition=cpu
+
+# 错误处理 / Error handling
+set -e  # 遇到错误立即退出 / Exit immediately on error
+trap 'echo "作业在第 $LINENO 行失败 / Job failed at line $LINENO"' ERR
+
+# 记录作业信息 / Log job information
+echo "=== 作业开始 Job Started ==="
+echo "作业ID / Job ID: $SLURM_JOB_ID"
+echo "作业名称 / Job Name: $SLURM_JOB_NAME"
+echo "节点 / Node: $(hostname)"
+echo "开始时间 / Start time: $(date)"
+echo "工作目录 / Working directory: $(pwd)"
+
+# 环境设置 / Environment setup
+module purge
+# module load your_modules_here
+
+# 主要计算任务 / Main computational task
+echo "开始主要任务 / Starting main task"
+# your_commands_here
+
+# 清理和总结 / Cleanup and summary
+echo "=== 作业完成 Job Completed ==="
+echo "结束时间 / End time: $(date)"
+echo "作业状态：成功 / Job status: Success"
+```
+
+## 生产级最佳实践
+
+### 资源配置优化
+
+#### 内存规划策略
+
+```bash
+# 内存需求评估方法
+# 1. 小规模测试运行
+#SBATCH --mem=8G --time=00:30:00  # 短时间测试
+
+# 2. 监控实际使用量
+sstat -j $SLURM_JOB_ID --format=MaxRSS
+
+# 3. 按实际需求的1.2-1.5倍配置生产环境
+#SBATCH --mem=48G  # 实际需求40GB时的配置
+```
+
+#### CPU核心分配原则
+
+```bash
+# 单进程多线程应用（如深度学习）
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+
+# MPI并行应用
+#SBATCH --ntasks=32
+#SBATCH --cpus-per-task=1
+
+# 混合并行应用（MPI + OpenMP）
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=4
+```
+
+### 脚本编写规范
+
+#### 错误处理与日志记录
+
+```bash
+#!/bin/bash
+# 生产级错误处理示例
+
+# 严格错误处理
+set -euo pipefail
+
+# 自定义错误处理函数
+error_exit() {
+    echo "ERROR: $1" >&2
+    echo "作业在 $(date) 执行失败" >&2
+    exit 1
+}
+
+# 捕获意外错误
+trap 'error_exit "脚本在第 $LINENO 行异常退出"' ERR
+
+# 检查必要文件
+[[ -f input.dat ]] || error_exit "输入文件 input.dat 不存在"
+
+# 创建输出目录
+mkdir -p results || error_exit "无法创建 results 目录"
+
+# 详细日志记录
+exec > >(tee -a job_${SLURM_JOB_ID}.log)
+exec 2> >(tee -a job_${SLURM_JOB_ID}.error)
+
+echo "作业开始执行: $(date)"
+echo "执行参数: $@"
+```
+
+#### 环境清理与资源释放
+
+```bash
+# 作业清理函数
+cleanup() {
+    echo "执行清理操作..."
+    # 保存重要中间结果
+    if [[ -f temp_results.dat ]]; then
+        cp temp_results.dat results/checkpoint_${SLURM_JOB_ID}.dat
+    fi
+    
+    # 清理临时文件
+    rm -f /tmp/job_${SLURM_JOB_ID}_*
+    
+    echo "清理完成: $(date)"
+}
+
+# 注册清理函数
+trap cleanup EXIT
+```
+
+### 性能优化技巧
+
+#### 并发任务管理
+
+```bash
+# 作业数组的高效使用
+#SBATCH --array=1-100%10  # 100个任务，最多同时执行10个
+
+# 数组任务参数化
+TASK_ID=$SLURM_ARRAY_TASK_ID
+PARAM_FILE="params/param_${TASK_ID}.txt"
+
+# 从参数文件读取配置
+if [[ -f $PARAM_FILE ]]; then
+    source $PARAM_FILE
+else
+    error_exit "参数文件 $PARAM_FILE 不存在"
+fi
+```
+
+#### 检查点与恢复机制
+
+```bash
+# 实现作业检查点
+CHECKPOINT_DIR="checkpoints/job_${SLURM_JOB_ID}"
+mkdir -p $CHECKPOINT_DIR
+
+# 定期保存状态
+save_checkpoint() {
+    cp current_state.dat $CHECKPOINT_DIR/checkpoint_$(date +%s).dat
+    echo "检查点已保存: $(date)"
+}
+
+# 从检查点恢复
+restore_checkpoint() {
+    local latest_checkpoint=$(ls -t $CHECKPOINT_DIR/checkpoint_*.dat 2>/dev/null | head -1)
+    if [[ -f $latest_checkpoint ]]; then
+        cp $latest_checkpoint current_state.dat
+        echo "从检查点恢复: $latest_checkpoint"
+        return 0
+    else
+        echo "未找到检查点，从头开始"
+        return 1
+    fi
+}
+```
+
+### 资源监控与优化
+
+#### 实时性能监控
+
+```bash
+# 后台性能监控脚本
+monitor_performance() {
+    local log_file="performance_${SLURM_JOB_ID}.log"
+    while [[ -f /proc/$$ ]]; do
+        echo "$(date): $(ps -p $$ -o %cpu,%mem,etime --no-header)" >> $log_file
+        sleep 60
+    done
+} &
+
+# 获取监控进程ID
+MONITOR_PID=$!
+
+# 作业结束时终止监控
+trap "kill $MONITOR_PID 2>/dev/null" EXIT
+```
+
+#### 资源使用分析
+
+```bash
+# 作业완成后的资源分析
+analyze_usage() {
+    echo "========== 资源使用分析 =========="
+    
+    # 获取作业统计信息
+    local job_stats=$(sacct -j $SLURM_JOB_ID --format=JobID,MaxRSS,AveCPU,State,ExitCode --noheader)
+    echo "作业统计: $job_stats"
+    
+    # 计算资源效率
+    local max_memory=$(echo $job_stats | awk '{print $2}' | sed 's/[^0-9.]//g')
+    local requested_memory=$(echo $SLURM_MEM_PER_NODE)
+    
+    if [[ -n $max_memory && -n $requested_memory ]]; then
+        local memory_efficiency=$(echo "scale=2; $max_memory / $requested_memory * 100" | bc)
+        echo "内存使用效率: ${memory_efficiency}%"
+    fi
+    
+    echo "========== 分析完成 =========="
+}
+
+# 作业完成时执行分析
+trap analyze_usage EXIT
+```
+
+## 进阶学习路径
+
+### 技能提升方向
+
+掌握Sbatch基础后，建议按以下路径深化学习HPC作业调度技术：
+
+#### 核心技能扩展
+- **[Srun 交互式作业](./srun-examples)** - 实时交互和调试技术
+- **[Salloc 资源分配](./salloc-examples)** - 手动资源管理和优化
+- **[Slurm 系统概览](./slurm-overview)** - 深入理解调度器原理
+
+#### 高级应用技能
+- **作业依赖与工作流** - 构建复杂的多步骤计算管道
+- **资源优化策略** - 提升集群利用率和作业效率
+- **故障恢复机制** - 实现可靠的长期计算任务
+
+### 实践建议
+
+1. **从小到大**: 先用小规模任务验证脚本，再扩展到生产规模
+2. **监控优化**: 持续监控资源使用，迭代优化配置参数
+3. **文档管理**: 维护作业脚本库，建立团队最佳实践  
+4. **安全意识**: 注意数据安全和计算资源合理使用
+
+### 技术支持
+
+遇到问题时，可通过以下渠道获取帮助：
+- **平台文档**: 查阅最新的技术文档和FAQ
+- **技术支持**: 提交工单获得专业技术支持
+- **用户社区**: 参与技术交流和经验分享
+
+<head>
+  <title>Sbatch 批量提交作业指南</title>
+  <meta
+    name="description"
+    content="深入学习Sbatch批量提交作业的完整指南，从基础概念到实际应用，涵盖GPU/CPU作业配置、资源优化和最佳实践。"
+  />
+  <meta
+    name="keywords"
+    content="Sbatch, Slurm, HPC, 批量作业, GPU计算, CPU集群, 作业调度, 高性能计算"
+  />
+</head> 

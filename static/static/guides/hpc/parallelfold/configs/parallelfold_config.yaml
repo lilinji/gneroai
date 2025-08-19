@@ -1,0 +1,281 @@
+# ParallelFold 配置文件
+# 用于HPC集群环境的标准配置
+
+# 基本设置
+tool_name: "ParallelFold"
+version: "latest"
+cuda_version: "11.8+"
+container_path: "/hpcfs/fpublic/container/singularity/app/parallelfold/parallelfold.sif"
+database_path: "/hpcfs/fpublic/database/alphafold/data"
+
+# 计算资源配置
+resources:
+  monomer:
+    simple: # < 300 氨基酸
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 16
+      gpus: 1
+      gpu_type: "3090"
+      memory: "32GB"
+      time: "02:00:00"
+      partition: "qgpu_3090"
+      
+    medium: # 300-1000 氨基酸
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 16
+      gpus: 1
+      gpu_type: "3090"
+      memory: "32GB"
+      time: "04:00:00"
+      partition: "qgpu_3090"
+      
+    large: # > 1000 氨基酸
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 32
+      gpus: 2
+      gpu_type: "3090"
+      memory: "64GB"
+      time: "08:00:00"
+      partition: "qgpu_3090"
+  
+  multimer:
+    small: # < 500 总长度
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 32
+      gpus: 2
+      gpu_type: "3090"
+      memory: "64GB"
+      time: "06:00:00"
+      partition: "qgpu_3090"
+      
+    medium: # 500-2000 总长度
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 32
+      gpus: 2
+      gpu_type: "3090"
+      memory: "64GB"
+      time: "12:00:00"
+      partition: "qgpu_3090"
+      
+    large: # > 2000 总长度
+      nodes: 1
+      ntasks_per_node: 1
+      cpus_per_task: 32
+      gpus: 2
+      gpu_type: "3090"
+      memory: "128GB"
+      time: "24:00:00"
+      partition: "qgpu_3090"
+  
+  batch_processing:
+    array_limit: 10  # 同时运行的数组任务数
+    concurrent_jobs: 3
+    nodes: 1
+    ntasks_per_node: 1
+    cpus_per_task: 32
+    gpus: 2
+    memory: "64GB"
+    time: "24:00:00"
+    partition: "qgpu_3090"
+
+# 目录配置
+directories:
+  input: "./input"
+  output: "./output"
+  temp: "./temp"
+  logs: "./logs"
+  cache: "/tmp/pf_cache"
+  work: "/work"
+
+# ParallelFold 参数配置
+parallelfold_settings:
+  default:
+    num_workers: 16
+    batch_size: 1
+    use_cache: true
+    model_parallel: false
+    
+  high_performance:
+    num_workers: 32
+    batch_size: 1
+    use_cache: true
+    model_parallel: true
+    max_recycles: 5
+    
+  memory_optimized:
+    num_workers: 8
+    batch_size: 1
+    use_cache: true
+    model_parallel: false
+    
+  batch_mode:
+    num_workers: 16
+    batch_size: 2
+    use_cache: true
+    parallel_jobs: 4
+
+# 输入格式配置
+input_formats:
+  supported_formats:
+    - "fasta"
+    - "fa"
+  
+  sequence_limits:
+    max_monomer_length: 3000
+    max_multimer_total_length: 4000
+    max_chains_per_complex: 8
+    min_sequence_length: 20
+  
+  validation:
+    check_amino_acid_codes: true
+    allow_non_standard: false
+    remove_gaps: true
+
+# 输出配置
+output_settings:
+  file_formats:
+    - "pdb"     # 主要结构文件
+    - "json"    # 置信度和元数据
+    - "txt"     # 日志和映射文件
+  
+  structure_ranking: true
+  confidence_analysis: true
+  timing_stats: true
+  
+  cleanup:
+    remove_temp_files: true
+    keep_intermediate: false
+    compress_large_files: false
+
+# 性能优化设置
+optimization:
+  gpu:
+    enable_mixed_precision: true
+    memory_growth: true
+    allow_soft_placement: true
+    
+  cpu:
+    use_all_cores: false
+    thread_pool_size: "auto"
+    
+  memory:
+    cache_size: "8GB"
+    swap_usage: false
+    
+  io:
+    async_io: true
+    buffer_size: "64MB"
+
+# 监控配置
+monitoring:
+  enable_logging: true
+  log_level: "INFO"
+  progress_tracking: true
+  resource_monitoring: true
+  
+  alerts:
+    enable: false
+    memory_threshold: 90  # 百分比
+    gpu_threshold: 95     # 百分比
+    disk_threshold: 85    # 百分比
+
+# 错误处理
+error_handling:
+  max_retries: 2
+  retry_delay: 300  # 秒
+  
+  recovery_strategies:
+    memory_error:
+      reduce_batch_size: true
+      enable_checkpointing: true
+      
+    gpu_error:
+      fallback_to_cpu: false
+      restart_worker: true
+      
+    io_error:
+      retry_with_backoff: true
+      use_alternative_path: true
+
+# 集群特定配置
+cluster_settings:
+  scheduler: "slurm"
+  default_account: null
+  default_qos: null
+  
+  partitions:
+    gpu_partitions:
+      - "qgpu_3090"
+    
+    cpu_partitions:
+      - "compute"
+  
+  modules:
+    required:
+      - "singularity"
+    optional:
+      - "cuda/11.8"
+      - "python/3.8"
+
+# 数据库配置
+database_settings:
+  alphafold_databases:
+    - "bfd"
+    - "mgnify"
+    - "pdb70"
+    - "pdb_seqres"
+    - "uniclust30"
+    - "uniref90"
+  
+  msa_settings:
+    max_sequences: 5000
+    sequence_identity_threshold: 0.95
+    coverage_threshold: 0.75
+  
+  template_settings:
+    max_templates: 4
+    template_cutoff: "2021-11-01"
+
+# 质量控制
+quality_control:
+  confidence_thresholds:
+    excellent: 90
+    good: 70
+    acceptable: 50
+    poor: 30
+  
+  validation_checks:
+    structure_clash: true
+    geometry_validation: true
+    confidence_analysis: true
+    
+  output_filtering:
+    min_confidence: 30
+    max_clash_score: 100
+
+# 使用示例
+usage_examples:
+  monomer: "sbatch pf-monomer.slurm input.fasta output/"
+  multimer: "sbatch pf-multimer.slurm complex.fasta output/"
+  batch: "sbatch --array=1-N pf-batch.slurm input_dir/ output_dir/"
+
+# 开发信息
+development:
+  repository: "https://github.com/Zuricho/ParallelFold"
+  authors: "Shanghai Jiao Tong University"
+  license: "Academic Use"
+  paper: "ParallelFold: Accelerating AlphaFold"
+  
+# 版本兼容性
+compatibility:
+  alphafold_versions:
+    - "2.3.2"
+    - "2.3.1" 
+  
+  singularity_min_version: "3.6.0"
+  cuda_min_version: "11.0"

@@ -1,0 +1,445 @@
+---
+title: VASP 集群使用指南
+sidebar_position: 11  
+description: 详细介绍在HPC集群上使用VASP进行第一性原理计算的完整指南
+keywords: [VASP, 第一性原理, 量子计算, DFT, HPC, SLURM]
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# VASP 集群使用指南
+
+本指南详细介绍如何在HPC集群上使用VASP（Vienna Ab-initio Simulation Package）进行第一性原理计算。
+
+## 概述
+
+VASP是由维也纳大学Hafner小组开发的基于密度泛函理论（DFT）的第一性原理计算软件包，广泛应用于：
+
+- 固体物理和材料科学研究
+- 表面和界面问题
+- 分子动力学模拟  
+- 电子结构计算
+- 化学反应机理研究
+
+### 主要特性
+
+- **高效并行算法** - 支持大规模MPI并行计算
+- **多种泛函** - 支持LDA、GGA、杂化泛函等
+- **先进方法** - 包含自旋轨道耦合、范德华修正等
+- **完整工具链** - 从结构建模到结果分析的完整解决方案
+
+## 软件版本与模块
+
+集群中可用的VASP版本：
+
+```bash
+# 查看可用VASP模块
+module avail vasp
+
+# 主要版本
+vasp/6.3.0/oneapi-cpu    # Intel oneAPI编译版本（推荐）
+vasp/6.2.1/gcc           # GCC编译版本
+vasp/5.4.4/intel         # 传统Intel编译版本
+```
+
+## 基础使用方法
+
+### 1. 环境准备
+
+使用VASP前需要加载相应的模块：
+
+```bash
+# 加载VASP和MPI模块
+module load vasp/6.3.0/oneapi-cpu
+module load mpi/openmpi-4.1.6
+
+# 验证加载
+which vasp_std
+module list
+```
+
+### 2. 必需输入文件
+
+VASP计算需要四个基本输入文件：
+
+<Tabs>
+<TabItem value="incar" label="INCAR">
+
+控制文件，定义计算参数：
+
+```bash title="INCAR示例"
+# 基本计算设置
+SYSTEM = Silicon bulk calculation
+ISTART = 0          # 从头开始
+ICHARG = 2          # 原子密度叠加  
+ENCUT = 400         # 截断能量 (eV)
+PREC = Accurate     # 计算精度
+
+# 电子结构参数
+ISMEAR = 0          # 高斯展宽
+SIGMA = 0.05        # 展宽参数
+EDIFF = 1E-6        # 收敛标准
+
+# 结构优化
+IBRION = 2          # 优化算法
+NSW = 100           # 最大步数
+EDIFFG = -0.01      # 力收敛标准
+```
+
+</TabItem>
+<TabItem value="poscar" label="POSCAR">
+
+结构文件，定义原子坐标：
+
+```bash title="POSCAR示例"
+Silicon bulk
+1.0                 # 缩放因子
+5.43 0.00 0.00     # 晶格向量
+0.00 5.43 0.00
+0.00 0.00 5.43
+Si                  # 元素类型
+8                   # 原子数量
+Direct              # 坐标类型
+0.000 0.000 0.000   # 原子坐标
+0.250 0.250 0.000
+# ... 更多坐标
+```
+
+</TabItem>
+<TabItem value="kpoints" label="KPOINTS">
+
+K点文件，定义积分网格：
+
+```bash title="KPOINTS示例"  
+Automatic mesh
+0                   # 自动生成
+Monkhorst-Pack     # MP方法
+8 8 8              # 网格密度
+0 0 0              # 偏移
+```
+
+</TabItem>
+<TabItem value="potcar" label="POTCAR">
+
+赝势文件，包含元素的电子结构信息：
+
+```bash
+# 生成POTCAR文件
+cat ~/vasp_pp/potpaw_PBE/Si/POTCAR > POTCAR
+
+# 或使用脚本生成
+vaspkit           # 选择相应选项生成POTCAR
+```
+
+</TabItem>
+</Tabs>
+
+### 3. SLURM作业提交
+
+#### 基础计算脚本
+
+创建SLURM提交脚本：
+
+```bash title="vasp-basic.slurm"
+#!/bin/bash
+#SBATCH --job-name=vasp_calculation
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16  
+#SBATCH --time=02:00:00
+#SBATCH --partition=qcpu_q18i
+#SBATCH --mem=32GB
+#SBATCH --output=vasp_%j.out
+#SBATCH --error=vasp_%j.err
+
+# 加载模块
+module load vasp/6.3.0/oneapi-cpu
+module load mpi/openmpi-4.1.6
+
+# 环境设置
+export OMP_NUM_THREADS=1
+export I_MPI_PIN=on
+
+# 计算核数
+NP=$(( $SLURM_NNODES * $SLURM_NTASKS_PER_NODE ))
+
+# 检查输入文件
+required_files=("INCAR" "POSCAR" "POTCAR" "KPOINTS")
+for file in "${required_files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+        echo "错误: 缺少文件 $file"
+        exit 1
+    fi
+done
+
+# 运行计算
+echo "开始VASP计算 - 进程数: $NP"
+mpirun -np $NP vasp_std
+echo "计算完成"
+```
+
+#### 提交作业
+
+```bash
+# 检查文件完整性
+ls -la INCAR POSCAR POTCAR KPOINTS
+
+# 提交作业
+sbatch vasp-basic.slurm
+
+# 监控作业状态
+squeue -u $USER
+```
+
+## 高级使用技巧
+
+### 1. 性能优化
+
+#### 并行效率优化
+
+```bash title="优化的SLURM脚本"
+#!/bin/bash
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+
+# 高性能设置
+export I_MPI_PIN_DOMAIN=omp
+export I_MPI_FABRICS=shm:ofi
+export I_MPI_HYDRA_BOOTSTRAP=slurm
+
+# VASP并行优化
+export NCORE=4              # 轨道组大小
+export LREAL=Auto           # 实空间投影
+```
+
+#### 内存管理
+
+```bash
+# 大体系计算的内存设置
+#SBATCH --mem=128GB         # 增大内存
+export LREAL=.TRUE.         # 启用实空间投影
+export LPLANE=.TRUE.        # 平面波并行
+```
+
+### 2. 计算类型选择
+
+<Tabs>
+<TabItem value="scf" label="自洽计算">
+
+```bash title="INCAR - 自洽计算"
+SYSTEM = SCF calculation
+ISTART = 0
+ICHARG = 2
+ENCUT = 400
+ISMEAR = 0
+SIGMA = 0.05
+EDIFF = 1E-6
+NELM = 200
+LWAVE = .TRUE.
+LCHARG = .TRUE.
+```
+
+</TabItem>
+<TabItem value="opt" label="结构优化">
+
+```bash title="INCAR - 结构优化"
+SYSTEM = Geometry optimization  
+IBRION = 2          # CG方法
+NSW = 300           # 最大步数
+EDIFFG = -0.01      # 力收敛
+ISIF = 3            # 优化晶胞和离子
+POTIM = 0.5         # 时间步长
+```
+
+</TabItem>
+<TabItem value="md" label="分子动力学">
+
+```bash title="INCAR - 分子动力学"
+SYSTEM = MD simulation
+IBRION = 0          # MD模式
+MDALGO = 2          # Nose-Hoover
+NSW = 1000          # MD步数  
+POTIM = 1.0         # 时间步长（fs）
+TEBEG = 300         # 初始温度
+TEEND = 300         # 结束温度
+SMASS = 0           # 自动设置质量
+```
+
+</TabItem>
+</Tabs>
+
+### 3. 常见计算任务
+
+#### 能带结构计算
+
+```bash
+# 1. 先进行自洽计算
+# 2. 修改KPOINTS为高对称路径
+# 3. 非自洽计算
+ICHARG = 11
+LWAVE = .FALSE.
+LCHARG = .FALSE.
+```
+
+#### 态密度计算
+
+```bash
+# 使用更密的K点网格
+ICHARG = 11
+LORBIT = 11         # 投影态密度
+NEDOS = 2000        # 能量点数
+```
+
+## 故障排除
+
+### 常见错误及解决方案
+
+#### 1. 内存不足错误
+
+**错误信息：** `VERY BAD NEWS! internal error in EDDRMM`
+
+**解决方案：**
+```bash
+# 增加内存分配
+#SBATCH --mem=64GB
+
+# 或在INCAR中设置
+LREAL = .TRUE.
+LPLANE = .TRUE.  
+```
+
+#### 2. 收敛问题
+
+**错误信息：** `DAV: couldn't converge`
+
+**解决方案：**
+```bash
+# 增加迭代次数
+NELM = 300
+
+# 调整展宽参数
+SIGMA = 0.1
+
+# 使用更严格的收敛标准
+EDIFF = 1E-8
+```
+
+#### 3. K点设置问题
+
+**错误信息：** `VERY BAD NEWS! internal error in CHECK`
+
+**解决方案：**
+```bash
+# 检查KPOINTS文件格式
+# 确保与POSCAR中的晶胞匹配
+# 对于小晶胞，避免过密的K点
+```
+
+#### 4. 节点间通信问题
+
+**错误信息：** MPI相关错误
+
+**解决方案：**
+```bash
+# 优化MPI设置
+export I_MPI_ADJUST_ALLREDUCE=1
+export I_MPI_HYDRA_BOOTSTRAP=slurm
+
+# 检查网络状态
+srun --mpi=pmi2 -n $SLURM_NTASKS hostname
+```
+
+### 性能监控
+
+```bash
+# 监控作业资源使用
+sstat -j $SLURM_JOB_ID --format=JobID,MaxRSS,AveCPU
+
+# 查看作业详细信息  
+scontrol show job $SLURM_JOB_ID
+
+# 分析OUTCAR文件
+grep "LOOP+" OUTCAR          # 查看收敛过程
+grep "Total CPU time" OUTCAR # 查看时间统计
+```
+
+## 结果分析
+
+### 输出文件说明
+
+| 文件名 | 说明 |
+|--------|------|
+| `OUTCAR` | 主输出文件，包含详细计算信息 |
+| `CONTCAR` | 优化后的结构文件 |
+| `CHGCAR` | 电荷密度文件 |
+| `WAVECAR` | 波函数文件 |
+| `DOSCAR` | 态密度文件 |
+| `EIGENVAL` | 能级文件 |
+
+### 常用分析命令
+
+```bash
+# 检查收敛性
+grep "F= " OSZICAR | tail -10
+
+# 提取最终能量
+grep "energy  without entropy" OUTCAR | tail -1
+
+# 查看力的收敛
+grep "FORCES acting on ions" OUTCAR -A 20
+
+# 检查计算完成状态
+grep "General timing and accounting informations" OUTCAR
+```
+
+## 最佳实践
+
+### 1. 作业规划
+
+- **小体系测试：** 使用1-2节点，快速验证参数
+- **生产计算：** 根据体系大小合理分配资源
+- **长时间作业：** 设置检查点，支持断点续算
+
+### 2. 参数设置建议
+
+```bash
+# 收敛测试顺序
+1. ENCUT 收敛测试 (300-600 eV)
+2. KPOINTS 收敛测试 (从稀疏到密集)  
+3. SIGMA 优化 (金属0.1-0.2, 绝缘体0.05)
+4. 几何优化参数调整
+```
+
+### 3. 数据管理
+
+```bash
+# 建议的目录结构
+project/
+├── 01-relaxation/     # 结构优化
+├── 02-scf/           # 自洽计算  
+├── 03-band/          # 能带计算
+├── 04-dos/           # 态密度
+└── analysis/         # 结果分析
+```
+
+## 参考资源
+
+- **官方文档：** [https://www.vasp.at/](https://www.vasp.at/)
+- **VASP Wiki：** [https://www.vasp.at/wiki/](https://www.vasp.at/wiki/)
+- **本地示例文件：** 位于 `/static/guides/hpc/vasp/examples/` 目录
+- **脚本模板：** 位于 `/static/guides/hpc/vasp/scripts/` 目录
+
+---
+
+<head>
+  <title>VASP 集群使用指南 | HPC文档</title>
+  <meta
+    name="description"  
+    content="详细介绍在HPC集群上使用VASP进行第一性原理计算的完整指南，包括环境设置、作业提交、性能优化和故障排除。"
+  />
+  <meta
+    name="keywords"
+    content="VASP, DFT, 第一性原理, 量子计算, HPC, SLURM, 材料计算"
+  />
+</head> 

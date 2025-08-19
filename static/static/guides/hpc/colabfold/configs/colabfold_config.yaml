@@ -1,0 +1,90 @@
+# ColabFold配置文件示例
+# 用于集群环境的标准配置
+
+# 基本设置
+tool_name: "ColabFold"
+version: "1.5.5"
+cuda_version: "12.2.2"
+container_path: "/hpcfs/fpublic/container/singularity/app/colabfold/colabfold_1.5.5-cuda12.2.2.sif"
+params_path: "/hpcfs/fpublic/container/singularity/app/cobafold/params"
+
+# 计算资源配置
+resources:
+  single_protein:
+    nodes: 1
+    ntasks_per_node: 1
+    cpus_per_task: 16
+    gpus: 1
+    memory: "32GB"
+    time: "02:00:00"
+    partition: "qgpu_3090"
+  
+  protein_complex:
+    nodes: 1
+    ntasks_per_node: 1
+    cpus_per_task: 32
+    gpus: 2
+    memory: "64GB"
+    time: "08:00:00"
+    partition: "qgpu_3090"
+  
+  large_protein:
+    nodes: 1
+    ntasks_per_node: 1
+    cpus_per_task: 32
+    gpus: 2
+    memory: "128GB"
+    time: "24:00:00"
+    partition: "qgpu_3090"
+
+# 目录配置
+directories:
+  input: "./input"
+  output: "./output"
+  temp: "./temp"
+  cache: "/cache"
+  work: "/work"
+
+# 模型参数配置
+model_settings:
+  default:
+    num_models: 5
+    num_recycle: 3 
+    model_type: "auto"
+    num_seeds: 1
+    
+  high_quality:
+    num_models: 5
+    num_recycle: 5
+    model_type: "AlphaFold2-ptm"
+    num_seeds: 5
+    amber: true
+    templates: true
+    
+  multimer:
+    num_models: 5
+    num_recycle: 5
+    model_type: "AlphaFold2-multimer-v3"
+    num_seeds: 1
+    amber: true
+    templates: true
+
+# 优化设置
+optimization:
+  use_gpu_relax: true
+  zip_results: true
+  save_all: false
+  overwrite: false
+
+# 序列长度限制
+sequence_limits:
+  max_single_length: 4000
+  max_multimer_length: 3000
+  recommended_single: 1000
+  recommended_multimer: 800
+
+# 输出格式
+output_formats:
+  - "pdb"
+  - "json"
+  - "png"  # 可选图片输出

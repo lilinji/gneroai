@@ -1,0 +1,307 @@
+---
+title: 科学计算软件应用指南
+sidebar_position: 1
+description: >-
+  全面介绍HPC集群上的各类科学计算软件使用方法，涵盖数据分析、生物信息学、量子化学、分子动力学等专业领域的应用实践。
+---
+
+# 科学计算软件应用指南
+
+太行I号智算平台为科研用户提供了丰富的科学计算软件生态系统，支撑跨学科的前沿科研工作。本指南详细介绍了平台上各类专业软件的使用方法、最佳实践和性能优化策略，帮助研究人员高效利用HPC资源，加速科学发现和技术创新。
+
+该平台集成了从传统数值计算工具到前沿AI算法的全套解决方案，满足数据科学、生物信息学、量子化学、材料科学、分子模拟等多个领域的计算需求。
+
+<CardSection id="software-applications-tools" description="" HeadingTag="h2">
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        💠
+      </span>
+    }
+    title="R 统计分析环境"
+    to="./r-usage"
+    description="专业的统计计算和数据科学分析平台，支持复杂统计建模、机器学习和数据可视化"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        ⏱️
+      </span>
+    }
+    title="AlphaFold 2 蛋白质结构预测"
+    to="./alphafold2"
+    description="基于AI的高精度蛋白质三维结构预测工具，支持单序列和复合物结构预测"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        💠
+      </span>
+    }
+    title="Jupyter 交互式计算平台"
+    to="./jupyter-usage"
+    description="基于Web的交互式计算环境，支持数据科学、机器学习和原型开发"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🔧
+      </span>
+    }
+    title="MATLAB 数值计算平台"
+    to="./matlab-usage"
+    description="专业的数值计算、算法开发和工程仿真软件，支持并行计算和大规模数据处理"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🔧
+      </span>
+    }
+    title="VS Code 远程开发环境"
+    to="./vscode-usage"
+    description="现代化的代码编辑器，支持远程HPC开发、调试和协作编程"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🔧
+      </span>
+    }
+    title="Gaussian 量子化学计算"
+    to="./gaussian-usage"
+    description="领先的量子化学计算软件包，支持分子轨道理论、密度泛函理论和多种量子化学方法"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🔧
+      </span>
+    }
+    title="AMBER 分子动力学模拟"
+    to="./amber-usage"
+    description="强大的分子动力学模拟软件套件，专注于生物大分子系统的建模和分析"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        💠
+      </span>
+    }
+    title="Foldseek 结构搜索引擎"
+    to="./foldseek-usage"
+    description="高速蛋白质结构搜索和比较工具，支持大规模结构数据库的快速检索"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        💠
+      </span>
+    }
+    title="OpenMPI 并行计算框架"
+    to="./openmpi-usage"
+    description="开源高性能并行计算标准，支持大规模集群上的分布式计算应用"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🍀
+      </span>
+    }
+    title="VASP 第一性原理计算"
+    to="./vasp-usage"
+    description="基于密度泛函理论的材料科学计算软件，专业用于电子结构和原子模拟"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🚖
+      </span>
+    }
+    title="生物信息学工具集"
+    to="./bioinformatics-tools"
+    description="集成常用生物信息学分析工具的容器镜像，支持基因组学、转录组学和蛋白质组学分析"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🍌
+      </span>
+    }
+    title="ColabFold 快速折叠预测"
+    to="./colabfold-usage"
+    description="基于ColabFold的快速蛋白质折叠预测平台，提供高效的结构预测解决方案"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        ⛸️
+      </span>
+    }
+    title="AlphaFold 3 批量预测"
+    to="./alphafold3-batch"
+    description="最新一代AI蛋白质结构预测系统，支持大规模批量处理和高精度预测"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🍌
+      </span>
+    }
+    title="ParallelFold 并行预测"
+    to="./parallelfold-usage"
+    description="并行化的蛋白质结构预测框架，显著提升大规模结构预测的计算效率"
+  />
+  <Card
+    icon={
+      <span className="text-3xl" style={{ fontFamily: 'Inter' }}>
+        🍌
+      </span>
+    }
+    title="Boltz-2 高级结构预测"
+    to="./boltz2-usage"
+    description="先进的深度学习蛋白质结构预测方法，提供超高精度的三维结构建模"
+  />
+</CardSection>
+
+## 专业软件分类体系
+
+太行I号智算平台按照学科领域和应用特点，将科学计算软件划分为四个核心类别，每类软件都针对特定的科研需求进行了深度优化：
+
+### 📊 **数据科学与统计分析**
+高性能数据处理和统计建模工具，支持大规模数据分析和机器学习应用：
+
+- **💠 R 统计环境** - 专业统计计算平台，集成丰富的统计包和可视化工具，支持高级统计建模
+- **💠 Jupyter 交互平台** - 基于Web的交互式计算环境，支持多语言编程和实时数据分析
+- **🔧 MATLAB 数值平台** - 工业级数值计算和算法开发软件，提供强大的工程仿真能力
+
+### 🧬 **生物信息学与结构生物学**
+前沿的生物大分子分析和结构预测工具，涵盖从序列分析到三维结构预测的完整工作流：
+
+- **⏱️ AlphaFold 2** - 革命性的AI蛋白质结构预测系统，提供近实验精度的三维结构预测
+- **💠 Foldseek** - 超高速蛋白质结构搜索引擎，支持百万级结构数据库的毫秒级检索
+- **🍌 ColabFold** - 优化的快速折叠预测平台，显著降低计算时间和资源消耗
+- **⛸️ AlphaFold 3** - 最新一代多模态结构预测系统，支持蛋白质、核酸和小分子复合物预测
+- **🍌 ParallelFold** - 并行化结构预测框架，专为大规模批量处理设计
+- **🍌 Boltz-2** - 基于扩散模型的新一代结构预测方法，达到前所未有的预测精度
+- **🚖 生信工具集** - 集成化生物信息学分析平台，涵盖基因组学、转录组学和蛋白质组学工具
+
+### ⚛️ **量子化学与分子模拟**
+专业的量子力学计算和分子动力学模拟软件，支持从原子尺度到生物分子的多层次建模：
+
+- **🔧 Gaussian** - 世界领先的量子化学计算软件，支持全谱系量子力学方法和激发态计算
+- **🔧 AMBER** - 专业的生物分子模拟套件，提供完整的分子动力学模拟解决方案
+- **🍀 VASP** - 基于DFT的第一性原理计算平台，专业用于材料科学和表面物理研究
+
+### 💻 **开发工具与并行计算**
+现代化的开发环境和高性能并行计算框架，提供从代码开发到大规模并行执行的完整支持：
+
+- **🔧 VS Code** - 云原生代码编辑器，支持远程开发、实时协作和智能调试
+- **💠 OpenMPI** - 业界标准的并行计算接口，支持大规模分布式计算和高性能集群应用
+
+## 软件使用指导方针
+
+### 🚀 **快速上手流程**
+高效使用平台软件的标准化流程，确保研究工作的顺利开展：
+
+1. **需求分析与软件选择** - 根据研究领域特点和计算复杂度选择最适合的软件工具
+2. **文档深度学习** - 系统学习软件手册、最佳实践和性能优化指南
+3. **小规模验证测试** - 使用代表性小数据集进行功能验证和参数调优
+4. **生产环境部署** - 在验证成功基础上提交大规模计算任务
+
+### 📋 **资源申请策略**
+根据软件特性和计算需求，制定合理的资源申请策略：
+
+- **CPU密集型应用**: R统计分析、MATLAB数值计算、Gaussian量子化学、VASP第一性原理计算
+- **内存密集型应用**: 大规模基因组分析、复杂分子动力学模拟、高维数据处理
+- **GPU加速应用**: AlphaFold系列结构预测、深度学习模型训练、并行数值计算
+- **分布式并行应用**: OpenMPI大规模并行、AMBER分子模拟、多节点VASP计算
+
+### 🔧 **环境配置管理**
+标准化的软件环境配置和管理方法：
+
+```bash
+# 系统环境初始化
+module purge && module load gcc/9.3.0 python/3.9.0 cuda/11.8
+
+# 专业领域环境激活
+conda activate bioinformatics     # 生物信息学环境
+conda activate quantum_chemistry  # 量子化学环境
+conda activate data_science       # 数据科学环境
+
+# 容器化软件运行
+singularity exec /software/containers/alphafold2.sif python run_alphafold.py
+singularity exec /software/containers/vasp.sif mpirun vasp_std
+```
+
+## 企业级最佳实践
+
+### 计算性能优化策略
+
+专业的性能调优方法，最大化计算资源利用效率：
+
+- ✅ **智能资源配置**: 基于软件特性和数据规模，采用科学的资源申请方法
+- ✅ **并行策略优化**: 充分利用多核CPU、多GPU和多节点的并行计算能力
+- ✅ **数据管理优化**: 实施高效的数据存储、传输和缓存策略
+- ✅ **作业调度优化**: 利用Slurm高级特性实现智能任务调度和资源管理
+
+### 软件生命周期管理
+
+确保科研工作可重现性和环境一致性的管理规范：
+
+- ✅ **精确版本控制**: 详细记录所有软件版本、参数配置和依赖关系
+- ✅ **环境隔离管理**: 为不同项目和研究阶段建立独立的软件环境
+- ✅ **依赖关系维护**: 系统管理软件包依赖，避免版本冲突和兼容性问题
+- ✅ **容器化部署**: 使用Singularity容器确保跨平台环境一致性
+
+## 技术支持体系
+
+### 多层次支持服务
+
+平台提供全方位的技术支持，确保用户能够充分发挥软件潜力：
+
+- 📖 **专业文档库**: 提供详尽的软件使用指南、API参考和最佳实践案例
+- 💬 **即时技术支持**: 专业技术团队提供7×24小时技术咨询和问题解决
+- 👥 **用户社区平台**: 活跃的用户交流社区，分享经验和解决方案
+- 🎓 **专业培训计划**: 定期举办软件培训、工作坊和学术交流活动
+
+### 常见问题快速解决
+
+针对平台使用中的典型问题，提供标准化解决方案：
+
+| 问题类型 | 症状表现 | 解决策略 |
+|---------|----------|----------|
+| **软件环境问题** | 命令未找到、库缺失 | 检查module load状态，重新加载环境模块 |
+| **权限访问问题** | 文件无法读写、目录拒绝访问 | 确认文件权限设置，联系管理员调整访问权限 |
+| **内存资源不足** | OOM错误、计算中断 | 增加内存申请量，优化数据处理算法 |
+| **计算时间超限** | 作业被系统终止 | 合理设置时间限制，优化算法或分解任务 |
+
+## 专业应用导航
+
+根据您的研究方向，选择相应的软件工具开始深入学习：
+
+### 🔬 **计算科学研究**
+- **数据科学分析**: [R统计分析环境](./r-usage) • [Jupyter交互式平台](./jupyter-usage)
+- **量子化学计算**: [Gaussian量子化学计算](./gaussian-usage) • [VASP第一性原理计算](./vasp-usage)
+- **分子动力学**: [AMBER分子动力学模拟](./amber-usage)
+
+### 🧬 **生物信息学研究**
+- **结构预测技术**: [AlphaFold 2蛋白质结构预测](./alphafold2) • [ColabFold快速折叠预测](./colabfold-usage)
+- **结构分析工具**: [Foldseek结构搜索引擎](./foldseek-usage) • [生物信息学工具集](./bioinformatics-tools)
+- **批量预测系统**: [AlphaFold 3批量预测](./alphafold3-batch) • [ParallelFold并行预测](./parallelfold-usage)
+
+### 💻 **开发工具平台**
+- **远程开发环境**: [VS Code远程开发环境](./vscode-usage)
+- **并行计算框架**: [OpenMPI并行计算框架](./openmpi-usage)
+
+<head>
+  <title>科学计算软件应用指南</title>
+  <meta
+    name="description"
+    content="全面介绍HPC集群上的各类科学计算软件使用方法，涵盖数据分析、生物信息学、量子化学、分子动力学等专业领域的应用实践。"
+  />
+  <meta
+    name="keywords"
+    content="科学计算软件, HPC集群, 数据分析, 生物信息学, 量子化学, 分子模拟, AlphaFold, R语言, MATLAB, Gaussian"
+  />
+</head> 

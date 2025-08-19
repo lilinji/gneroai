@@ -1,0 +1,203 @@
+---
+title: 💠 OpenMPI 集群使用方法
+sidebar_position: 10
+description: >-
+  Parallel computing with OpenMPI on HPC clusters.
+---
+
+# 💠 OpenMPI 集群使用方法
+
+OpenMPI 是一个高性能、可扩展、开源的消息传递接口（MPI）实现，广泛应用于高性能计算（HPC）集群环境。它支持 MPI-1、MPI-2 和 MPI-3 标准，适用于多种硬件和操作系统平台。
+
+本手册将指导您在集群环境下高效地编译、运行和管理基于 OpenMPI 的并行程序。
+
+---
+
+## 目录
+- [OpenMPI 简介](#openmpi-简介)
+- [环境准备](#环境准备)
+- [示例程序编写](#示例程序编写)
+- [作业脚本与提交](#作业脚本与提交)
+- [运行与输出](#运行与输出)
+- [动画演示](#动画演示)
+- [常见问题与排查](#常见问题与排查)
+- [参考资料](#参考资料)
+
+---
+
+## OpenMPI 简介
+
+OpenMPI（Open Message Passing Interface）是由多个开源项目联合开发的 MPI 实现，具有如下特点：
+- 支持多种网络互连（如 InfiniBand、Ethernet 等）
+- 高可扩展性和高性能
+- 丰富的调试与性能分析工具
+- 社区活跃、文档完善
+
+更多信息请参考 [OpenMPI 官网](https://www.open-mpi.org/)。
+
+---
+
+## 环境准备
+
+1. **加载 OpenMPI 模块**
+
+集群通常通过模块系统（如 Lmod、Environment Modules）管理软件环境。请先加载所需的编译器和 OpenMPI 版本：
+
+```bash
+module load gcc
+module load mpi/openmpi-4.1.6
+```
+
+2. **检查 MPI 版本**
+
+```bash
+mpirun --version
+```
+
+---
+
+## 示例程序编写
+
+以下示例展示了如何结合 OpenMPI 与 OpenMP 实现混合并行，计算圆周率 π 的近似值。
+
+1. **创建工作目录并进入**
+
+```bash
+mkdir openmpitest
+cd openmpitest
+```
+
+2. **编写测试程序 `openmpitest.c`**
+
+```c
+#include <stdio.h>
+#include <mpi.h>
+#include <omp.h>
+#include <math.h>
+
+#define NUM_THREADS 8
+long int n = 10000000;
+
+int main(int argc, char *argv[])
+{
+    int my_rank, numprocs;
+    long int i, my_n, my_first_i, my_last_i;
+    double my_pi = 0.0, pi, h, x;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    h = 1.0 / n;
+    my_n = n / numprocs;
+    my_first_i = my_rank * my_n;
+    my_last_i = my_first_i + my_n;
+
+    omp_set_num_threads(NUM_THREADS);
+#pragma omp parallel for reduction(+ : my_pi) private(x, i)
+    for (i = my_first_i; i < my_last_i; i++)
+    {
+        x = (i + 0.5) * h;
+        my_pi = my_pi + 4.0 / (1.0 + x * x);
+    }
+
+    MPI_Reduce(&my_pi, &pi, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (my_rank == 0)
+    {
+        printf("Approximation of pi:%15.13f\n", pi * h);
+    }
+
+    MPI_Finalize();
+    return 0;
+}
+```
+
+---
+
+## 作业脚本与提交
+
+在集群上建议通过作业调度系统（如 Slurm）提交 MPI 作业。
+
+1. **编写 Slurm 作业脚本 `openmpitest.slurm`**
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=openmpitest
+#SBATCH --partition=64c512g
+#SBATCH --ntasks-per-node=1
+#SBATCH -n 4
+#SBATCH --output=%j.out
+#SBATCH --error=%j.err
+
+ulimit -s unlimited
+ulimit -l unlimited
+
+module load gcc
+module load mpi/openmpi-4.1.6
+
+mpicc openmpitest.c -o openmpitest -fopenmp
+
+mpirun -np 4 ./openmpitest
+```
+
+2. **提交作业**
+
+```bash
+sbatch openmpitest.slurm
+```
+
+---
+
+## 运行与输出
+
+作业完成后，可在输出文件（如 `123456.out`）中查看结果：
+
+```text
+Approximation of pi:3.1415926535898
+```
+
+---
+
+## 动画演示
+
+下方为 OpenMPI 作业提交与运行的实际操作演示：
+
+![openmpi.gif](/static/guides/hpc/software-applications/openmpi.gif)
+
+
+---
+
+## 常见问题与排查
+
+### 1. 作业未正常运行/无输出
+- 检查作业脚本中的模块加载、路径、参数设置是否正确
+- 查看 `.err` 文件获取详细报错信息
+
+### 2. mpirun 报错“command not found”
+- 确认已正确加载 OpenMPI 模块
+- 使用 `which mpirun` 检查路径
+
+### 3. 性能不理想
+- 合理设置 `--ntasks`、`--cpus-per-task` 等参数
+- 检查节点间网络状况
+- 使用 OpenMPI 自带的 `--report-bindings`、`--map-by` 等参数优化进程绑定
+
+### 4. 版本兼容性问题
+- 确认编译和运行时加载的 OpenMPI 版本一致
+
+---
+
+## 参考资料
+- [OpenMPI 官方文档](https://www.open-mpi.org/doc/)
+- [Slurm 官方文档](https://slurm.schedmd.com/documentation.html)
+- [HPC Best Practices](https://docs.nersc.gov/development/parallel-computing/mpi/)
+
+---
+
+<head>
+  <title>OpenMPI 集群使用方法 Guide</title>
+  <meta
+    name="description"
+    content="Parallel computing with OpenMPI on HPC clusters."
+  />
+</head> 

@@ -1,0 +1,592 @@
+---
+title: 🏅 Slurm 作业调度系统概览
+sidebar_position: 2
+description: >-
+  深入了解Slurm工作负载管理器的架构原理和核心概念，掌握HPC作业调度的基础知识和最佳实践。
+---
+
+# 🏅 Slurm 作业调度系统概览
+
+Slurm（Simple Linux Utility for Resource Management）是业界领先的开源作业调度器和集群资源管理系统，为高性能计算环境提供高效的资源分配、作业调度和系统管理功能。作为现代HPC集群的核心组件，Slurm支撑着从小型科研集群到世界顶级超级计算机的各类计算环境。
+
+## 系统架构与核心特性
+
+### Slurm核心功能
+
+Slurm作为企业级集群管理平台，提供以下核心能力：
+
+- **智能资源分配**: 为用户作业分配最优的计算资源组合，支持独占和共享模式
+- **高级作业调度**: 基于优先级、公平性和资源策略的智能作业队列管理
+- **实时监控管理**: 全方位监控作业执行状态、资源使用率和系统性能
+- **精细账户控制**: 支持多层级用户管理、资源配额和成本核算
+
+### 分布式系统架构
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Slurm 分布式集群架构                   │
+├─────────────────────────────────────────────────────────┤
+│  登录节点集群 (Login Node Cluster)                       │
+│  ├── 用户接入点: SSH、Web界面、客户端工具                │
+│  ├── 作业管理: squeue、sbatch、srun、scancel            │
+│  └── 开发环境: 编译工具、调试器、性能分析工具             │
+├─────────────────────────────────────────────────────────┤
+│  管控节点集群 (Control Node Cluster)                     │
+│  ├── slurmctld: 主控调度服务，负责作业调度和资源分配      │
+│  ├── slurmdbd: 数据库管理服务，存储作业历史和账户信息     │
+│  ├── 高可用性: 主备切换、故障检测和自动恢复              │
+│  └── API服务: REST接口、监控集成、第三方系统对接          │
+├─────────────────────────────────────────────────────────┤
+│  计算节点集群 (Compute Node Cluster)                     │
+│  ├── slurmd: 节点代理服务，执行作业和资源监控            │
+│  ├── 作业执行: 进程管理、资源隔离、性能监控               │
+│  ├── 硬件管理: CPU、内存、GPU、存储设备管理               │
+│  └── 网络通信: 高速Interconnect、数据传输优化             │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 核心概念详解
+
+### 集群资源层次结构
+
+| 资源层级 | 概念定义 | 技术特征 | 应用示例 |
+|---------|----------|----------|----------|
+| **集群 (Cluster)** | 完整的计算系统 | 统一管理、资源池化 | TaiHang-I 智算平台 |
+| **分区 (Partition)** | 逻辑资源组 | 访问控制、资源策略 | qgpu_3090、qcpu_23a |
+| **节点 (Node)** | 物理计算单元 | 独立系统、资源隔离 | bnode1、gnode12 |
+| **核心 (Core)** | 计算处理单元 | 并行处理、超线程 | 8核心、16线程 |
+| **作业 (Job)** | 用户计算任务 | 资源申请、执行管理 | 模型训练、数据分析 |
+| **作业步 (Step)** | 作业内任务 | 并行执行、MPI通信 | 多进程、多线程 |
+
+### 作业生命周期管理
+
+Slurm作业执行遵循严格的状态转换机制，确保资源的有效利用和系统稳定性：
+
+```bash
+# 作业状态查询和管理命令
+squeue -u $USER                    # 查看当前用户作业队列
+squeue -t RUNNING,PENDING          # 查看特定状态作业
+scontrol show job <job_id>         # 查看作业详细信息
+sacct -j <job_id>                  # 查看作业历史记录
+
+# 核心作业状态说明：
+# PD (PENDING)     - 资源等待：作业已提交，等待资源分配
+# R  (RUNNING)     - 正在执行：作业获得资源，正在计算节点运行
+# CG (COMPLETING)  - 完成中：作业主要任务完成，正在清理资源
+# CD (COMPLETED)   - 执行完成：作业正常结束，释放所有资源
+# CA (CANCELLED)   - 用户取消：作业被用户或管理员主动终止
+# F  (FAILED)      - 执行失败：作业因错误异常退出
+# TO (TIMEOUT)     - 超时终止：作业超过时间限制被系统终止
+# NF (NODE_FAIL)   - 节点故障：计算节点硬件故障导致作业失败
+```
+
+## 系统管理命令详解
+
+### 集群信息查询
+
+集群状态监控是高效使用HPC资源的基础，通过以下命令可以全面了解系统资源状态：
+
+```bash
+# 集群节点信息查询
+sinfo                              # 显示集群概览信息
+sinfo -N                           # 详细节点列表，显示每个节点状态
+sinfo -p qgpu_3090                 # 查看指定分区的节点信息
+sinfo -s                           # 分区汇总视图
+sinfo -o "%P %A %D %T %N %G"       # 自定义输出格式
+
+# 节点详细信息查询
+scontrol show node bnode1          # 查看特定节点详细配置
+scontrol show partition qgpu_3090  # 查看分区详细配置
+sinfo -o "%P %C %m %t %N" -p qgpu_3090  # 查看分区CPU、内存信息
+
+# 资源使用统计
+sinfo -o "%P %F"                   # 查看分区资源使用率统计信息
+sinfo -R                           # 显示故障节点和原因
+```
+
+### 作业队列管理
+
+高效的作业队列管理帮助用户合理安排计算任务，优化资源利用效率：
+
+```bash
+# 作业队列查询
+squeue                             # 显示所有用户的作业队列
+squeue -u $USER                    # 查看当前用户的作业
+squeue -p qgpu_3090                # 查看特定分区的作业
+squeue -t RUNNING                  # 查看正在运行的作业
+squeue -t PENDING                  # 查看等待中的作业
+squeue -l                          # 详细格式显示作业信息
+
+# 作业详细信息查询
+scontrol show job 273377           # 查看作业详细状态和配置
+scontrol show job 273377 | grep Reason  # 查看作业等待原因
+sacct -j 273377                    # 查看作业历史和资源使用
+sacct -j 273377 --format=JobID,JobName,State,ElapsedRaw,MaxRSS
+
+# 作业管理操作
+scancel 273377                     # 取消指定作业
+scancel -u $USER                   # 取消当前用户所有作业  
+scancel -p qgpu_3090               # 取消指定分区的作业
+scancel -t PENDING                 # 取消所有等待作业
+scontrol hold 273377               # 暂停作业（保持在队列但不调度）
+scontrol release 273377            # 释放暂停的作业
+```
+
+## 作业提交方式对比
+
+### Slurm三大作业提交工具
+
+Slurm提供三种不同的作业提交方式，每种方式适合不同的使用场景和工作流程：
+
+| 提交工具 | 主要用途 | 执行特点 | 适用场景 |
+|---------|----------|----------|----------|
+| **sbatch** | 批处理作业提交 | 脚本提交，后台执行，排队调度 | 生产作业、长时间计算、自动化流程 |
+| **srun** | 交互式作业执行 | 即时执行，前台运行，实时输出 | 程序调试、单次任务、应用测试 |
+| **salloc** | 资源分配管理 | 分配资源后手动管理 | 交互式开发、资源预留、复杂工作流 |
+
+### 标准作业脚本结构
+
+Slurm作业脚本采用标准化的结构设计，确保资源配置的准确性和执行的可靠性：
+
+```bash
+#!/bin/bash
+# standard_job_template.sh - 标准作业脚本模板
+
+#SBATCH --job-name=data_processing    # 作业名称：用于识别和管理作业
+#SBATCH --output=job_%j.out           # 标准输出：%j代表作业ID
+#SBATCH --error=job_%j.err            # 错误输出：单独文件便于问题诊断
+#SBATCH --time=02:00:00               # 时间限制：HH:MM:SS格式
+#SBATCH --nodes=1                     # 节点数量：申请的计算节点数
+#SBATCH --ntasks-per-node=8           # 每节点任务数：控制并行度
+#SBATCH --mem=16G                     # 内存需求：总内存量
+#SBATCH --partition=qcpu_23a          # 计算分区：选择合适硬件类型
+
+# 环境准备阶段
+echo "===== 作业环境初始化 ====="
+echo "作业开始时间: $(date)"
+echo "执行节点: $(hostname)"  
+echo "工作目录: $(pwd)"
+echo "作业ID: $SLURM_JOB_ID"
+
+# 加载必要的环境模块
+module purge                          # 清理环境模块
+module load gcc/9.3.0                # 编译器环境
+module load python/3.9.0             # Python环境
+source ~/anaconda3/envs/myproject/bin/activate  # 激活虚拟环境
+
+# 主要计算任务
+echo "===== 开始数据处理任务 ====="
+python data_analysis.py \
+    --input /data/input.csv \
+    --output /results/output.csv \
+    --threads $SLURM_CPUS_PER_TASK
+
+# 任务结束清理
+echo "===== 作业执行完成 ====="
+echo "结束时间: $(date)"
+echo "任务状态: 成功完成"
+```
+
+## 资源配置策略
+
+### 核心资源参数详解
+
+合理的资源配置是作业高效执行的关键，需要根据应用特性选择最适合的参数组合：
+
+```bash
+# =============================================================================
+# 计算资源配置
+# =============================================================================
+
+# 节点和任务配置
+#SBATCH --nodes=2                     # 申请节点数：多节点用于MPI并行
+#SBATCH --ntasks=16                   # 总任务数：MPI进程数
+#SBATCH --ntasks-per-node=8           # 每节点任务数：控制节点内并行度
+#SBATCH --cpus-per-task=4             # 每任务CPU数：OpenMP线程数
+
+# 内存资源配置  
+#SBATCH --mem=64G                     # 每节点总内存：适用于内存密集型应用
+#SBATCH --mem-per-cpu=4G              # 每CPU内存：灵活的内存分配模式
+
+# 时间资源配置
+#SBATCH --time=04:30:00               # 4小时30分钟：精确时间控制
+#SBATCH --time=2-12:00:00             # 2天12小时：长时间计算任务
+
+# =============================================================================
+# 硬件资源配置
+# =============================================================================
+
+# GPU资源配置
+#SBATCH --gres=gpu:2                  # 申请2块GPU
+#SBATCH --gres=gpu:tesla_v100:1       # 指定GPU型号
+#SBATCH --gres=gpu:tesla_v100:2,mem:64G  # GPU和内存组合配置
+
+# 节点特性约束
+#SBATCH --constraint=intel            # Intel CPU节点
+#SBATCH --constraint="intel&infiniband"  # 多重约束条件
+#SBATCH --exclude=node01,node02       # 排除特定节点
+
+# =============================================================================
+# 网络和存储配置
+# =============================================================================
+
+# 网络配置
+#SBATCH --network=IB                  # 使用InfiniBand网络
+#SBATCH --switches=1                  # 限制网络交换机数量
+
+# 本地存储配置
+#SBATCH --tmp=100G                    # 申请本地临时存储空间
+```
+
+### 分区配置和选择策略
+
+不同分区针对特定的硬件配置和使用场景，选择合适的分区可以显著提升作业执行效率：
+
+```bash
+# 查看集群分区信息
+sinfo -s                              # 分区概览信息
+sinfo -p qgpu_3090 -o "%P %A %D %T %G"  # 详细GPU分区信息
+
+# =============================================================================
+# 通用计算分区
+# =============================================================================
+#SBATCH --partition=qcpu_23a          # 高性能CPU计算分区
+#SBATCH --partition=qcpu_18i          # 标准CPU计算分区
+
+# =============================================================================
+# GPU计算分区  
+# =============================================================================
+#SBATCH --partition=qgpu_3090         # RTX 3090 GPU 计算分区
+#SBATCH --partition=qgpu_a40          # A40 工作站GPU分区
+#SBATCH --partition=qgpu_v100         # Tesla V100 高性能GPU分区
+
+# =============================================================================
+# 特殊用途分区
+# =============================================================================
+#SBATCH --partition=debug             # 调试分区：快速测试，短时间限制
+#SBATCH --partition=interactive       # 交互式分区：支持实时交互操作
+#SBATCH --partition=bigmem            # 大内存分区：内存密集型应用
+#SBATCH --partition=preempt           # 抢占式分区：低优先级，可被抢占
+```
+
+## 企业级应用实例
+
+### 串行计算任务示例
+
+适用于单线程应用、数据预处理和轻量级计算任务：
+
+```bash
+#!/bin/bash
+# serial_computation.sh - 企业级串行计算作业
+
+#SBATCH --job-name=data_preprocessing
+#SBATCH --output=serial_%j.out
+#SBATCH --error=serial_%j.err
+#SBATCH --time=03:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=8G
+#SBATCH --partition=qcpu_23a
+
+echo "===== 串行计算作业开始 ====="
+echo "作业ID: $SLURM_JOB_ID"
+echo "执行节点: $(hostname)"
+echo "开始时间: $(date)"
+
+# 环境配置
+module purge
+module load python/3.9.0 gcc/9.3.0
+
+# 数据预处理任务
+echo "开始数据预处理..."
+python preprocess_data.py \
+    --input /data/raw_dataset.csv \
+    --output /data/processed_dataset.csv \
+    --workers 1
+
+echo "串行计算任务完成"
+echo "结束时间: $(date)"
+```
+
+### 并行计算任务示例
+
+适用于MPI应用、大规模数值模拟和分布式计算：
+
+```bash
+#!/bin/bash
+# parallel_simulation.sh - 企业级并行计算作业
+
+#SBATCH --job-name=climate_simulation
+#SBATCH --output=parallel_%j.out
+#SBATCH --error=parallel_%j.err
+#SBATCH --time=12:00:00
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=16
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=64G
+#SBATCH --partition=qcpu_23a
+
+echo "===== 并行计算作业开始 ====="
+echo "总节点数: $SLURM_NNODES"
+echo "总任务数: $SLURM_NTASKS"
+echo "节点列表: $SLURM_JOB_NODELIST"
+
+# 加载并行计算环境
+module purge
+module load gcc/9.3.0 openmpi/4.1.1 netcdf/4.7.4
+
+# 设置并行环境变量
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+# 编译并行程序
+echo "编译并行模拟程序..."
+make clean && make
+
+# 运行大规模并行模拟
+echo "开始并行气候模拟..."
+mpirun -np $SLURM_NTASKS ./climate_model \
+    --config simulation.conf \
+    --output /results/climate_output \
+    --timesteps 1000000
+
+echo "并行计算任务完成"
+```
+
+### GPU加速计算示例
+
+适用于深度学习训练、科学计算和AI推理任务：
+
+```bash
+#!/bin/bash
+# gpu_deep_learning.sh - GPU深度学习训练作业
+
+#SBATCH --job-name=model_training
+#SBATCH --output=gpu_%j.out
+#SBATCH --error=gpu_%j.err
+#SBATCH --time=24:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:2
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=128G
+#SBATCH --partition=qgpu_3090
+
+echo "===== GPU计算作业开始 ====="
+echo "GPU数量: 2"
+echo "CPU核心数: $SLURM_CPUS_PER_TASK"
+echo "分配内存: 128GB"
+
+# 加载GPU计算环境
+module purge
+module load cuda/11.8 python/3.9.0 gcc/9.3.0
+
+# 检查GPU状态
+echo "GPU硬件信息:"
+nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
+
+# 激活深度学习环境
+source ~/anaconda3/envs/pytorch/bin/activate
+
+# 多GPU模型训练
+echo "开始深度学习模型训练..."
+python -m torch.distributed.launch \
+    --nproc_per_node=2 \
+    train_model.py \
+    --data /data/training_set \
+    --model resnet101 \
+    --batch-size 64 \
+    --epochs 100 \
+    --lr 0.001
+
+echo "GPU计算任务完成"
+```
+
+## 高级监控与性能调优
+
+### 实时作业监控
+
+全面的作业监控体系确保计算任务的高效执行和问题及时发现：
+
+```bash
+# =============================================================================
+# 作业状态实时监控
+# =============================================================================
+
+# 动态监控用户作业队列
+watch -n 10 "squeue -u $USER -o '%.10i %.20j %.8u %.10T %.10M %.6D %R'"
+
+# 查看作业详细执行信息
+scontrol show job 273377
+sstat -j 273377 --format=AveCPU,AvePages,AveRSS,MaxRSS,AveDiskRead,AveDiskWrite
+
+# 实时监控作业输出
+tail -f slurm-273377.out
+
+# 监控节点资源使用情况
+ssh bnode1 'htop -u $USER'
+ssh gnode12 'nvidia-smi -l 5'  # GPU使用监控
+```
+
+### 作业性能分析
+
+通过详细的性能分析优化资源配置和作业效率：
+
+```bash
+# =============================================================================
+# 历史作业性能分析
+# =============================================================================
+
+# 查看用户历史作业统计
+sacct -u $USER --starttime=2024-01-01 \
+    --format=JobID,JobName,State,ElapsedRaw,CPUTimeRAW,MaxRSS,MaxVMSize
+
+# 分析作业资源利用效率
+seff 273377  # 显示CPU、内存利用率和效率指标
+
+# 详细资源使用报告
+sacct -j 273377 \
+    --format=JobID,JobName,State,ExitCode,Start,End,ElapsedRaw,CPUTimeRAW,MaxRSS,MaxVMSize,AveCPU,TotalCPU
+
+# 基于使用历史优化资源申请
+# 如果MaxRSS=16GB，建议下次申请 --mem=24G（预留50%缓冲）
+# 如果AveCPU利用率<50%，可以减少CPU申请数量
+```
+
+### 批量作业管理
+
+高效管理大规模作业数组和工作流：
+
+```bash
+#!/bin/bash
+# batch_processing.sh - 企业级批量数据处理
+
+#SBATCH --job-name=batch_analysis
+#SBATCH --output=batch_%A_%a.out
+#SBATCH --error=batch_%A_%a.err
+#SBATCH --array=1-1000%50        # 1000个任务，最多同时运行50个
+#SBATCH --time=02:00:00
+#SBATCH --mem=4G
+#SBATCH --partition=qcpu_23a
+
+echo "===== 批量处理任务 $SLURM_ARRAY_TASK_ID ====="
+
+# 根据数组索引处理不同数据文件
+input_file="/data/dataset_${SLURM_ARRAY_TASK_ID}.csv"
+output_file="/results/analysis_${SLURM_ARRAY_TASK_ID}.json"
+
+# 执行数据分析
+python analyze_data.py \
+    --input "$input_file" \
+    --output "$output_file" \
+    --task-id $SLURM_ARRAY_TASK_ID
+
+echo "任务 $SLURM_ARRAY_TASK_ID 完成"
+```
+
+## 故障诊断与问题解决
+
+### 常见问题快速诊断
+
+| 故障类型 | 症状描述 | 诊断命令 | 解决策略 |
+|---------|----------|----------|----------|
+| **作业长时间等待** | 作业状态为PENDING | `scontrol show job <job_id> \| grep Reason` | 检查资源需求，调整分区或减少资源申请 |
+| **作业执行失败** | 作业状态为FAILED | `sacct -j <job_id> --format=JobID,State,ExitCode` | 查看错误日志，检查程序逻辑和资源配置 |
+| **资源不足错误** | OOM或资源限制 | `sstat -j <job_id> --format=MaxRSS,MaxVMSize` | 增加内存申请或优化程序内存使用 |
+| **节点故障** | 作业异常中断 | `sinfo -R` | 联系管理员，重新提交到其他节点 |
+
+### 性能优化最佳实践
+
+企业级Slurm使用的核心原则和优化策略：
+
+#### 资源配置优化原则
+
+- ✅ **精准资源估算**: 基于历史数据和测试结果精确申请资源
+- ✅ **合理时间规划**: 设置适当的时间限制，避免资源浪费
+- ✅ **分层错误处理**: 实施完善的错误检测和恢复机制
+- ✅ **检查点机制**: 长时间作业定期保存中间结果
+- ✅ **数据本地化**: 优化数据访问模式，减少网络I/O
+
+#### 高级脚本优化模板
+
+```bash
+#!/bin/bash
+# enterprise_optimized_job.sh - 企业级优化作业模板
+
+#SBATCH --job-name=optimized_computation
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+#SBATCH --time=06:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --mem=32G
+#SBATCH --partition=qcpu_23a
+
+# 错误处理和日志记录
+set -euo pipefail
+exec 1> >(tee -a "${SLURM_SUBMIT_DIR}/job_${SLURM_JOB_ID}.log")
+exec 2>&1
+
+echo "===== 企业级优化作业开始 ====="
+echo "作业信息: $SLURM_JOB_ID @ $(hostname)"
+echo "资源配置: ${SLURM_NTASKS}任务, ${SLURM_MEM_PER_NODE}MB内存"
+
+# 性能优化配置
+export TMPDIR=${SLURM_TMPDIR:-/tmp}
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+# 数据本地化策略
+if [ -n "$SLURM_TMPDIR" ]; then
+    echo "复制数据到本地临时存储..."
+    cp -r "$HOME/data/" "$TMPDIR/"
+    cd "$TMPDIR"
+fi
+
+# 模块化环境配置
+source /opt/software/init_env.sh
+load_modules python/3.9.0 gcc/9.3.0
+
+# 主计算任务
+echo "开始优化计算任务..."
+python optimized_computation.py \
+    --threads $SLURM_CPUS_PER_TASK \
+    --memory ${SLURM_MEM_PER_NODE}M \
+    --checkpoint-freq 3600
+
+# 结果同步
+if [ "$PWD" = "$TMPDIR" ]; then
+    echo "同步计算结果..."
+    rsync -av results/ "$SLURM_SUBMIT_DIR/results/"
+fi
+
+echo "===== 作业成功完成 ====="
+```
+
+## 进阶学习路径
+
+掌握Slurm系统概览后，建议按照以下路径深入学习HPC作业管理技能：
+
+### 核心技能提升方向
+
+- **[Sbatch 批处理作业系统](./sbatch-examples)** - 掌握生产环境批处理作业的设计与优化
+- **[Srun 交互式作业执行](./srun-examples)** - 学习交互式计算和实时调试技术  
+- **[Salloc 资源分配管理](./salloc-examples)** - 深入理解资源分配策略和手动管理技巧
+
+### 高级应用技能
+
+- **工作流管理**: 设计复杂的多阶段计算管道
+- **资源监控分析**: 建立完善的性能监控和优化体系
+- **容器化计算**: 集成Docker/Singularity容器技术
+- **云原生扩展**: Kubernetes与Slurm的混合部署
+
+<head>
+  <title>Slurm 作业调度系统概览</title>
+  <meta
+    name="description"
+    content="深入了解Slurm工作负载管理器的架构原理和核心概念，掌握HPC作业调度的基础知识和最佳实践。"
+  />
+  <meta
+    name="keywords"
+    content="Slurm, 作业调度系统, HPC, 高性能计算, 资源管理, 集群管理, 批处理作业"
+  />
+</head> 

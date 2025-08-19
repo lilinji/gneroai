@@ -1,0 +1,1846 @@
+---
+title: Boltz-2 智能生物分子建模平台使用指南
+sidebar_position: 16
+description: Boltz-2是新一代结构生物学基础模型，集成结构预测、结合亲和力评估与分子生成能力，为药物设计和分子发现提供企业级解决方案
+keywords: [Boltz-2, 蛋白质结构预测, 分子建模, 结合亲和力, 药物设计, 机器学习, 结构生物学]
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Boltz-2 智能生物分子建模平台使用指南
+
+本指南详细介绍如何在HPC集群上使用Boltz-2进行高精度生物分子结构预测和结合亲和力分析，助力加速药物发现和分子设计流程。
+
+## 平台概述
+
+### 什么是Boltz-2
+
+Boltz-2作为新一代结构生物学基础模型，在生物分子建模领域实现了突破性进展。它有效弥合了结构预测与功能建模之间的鸿沟，为药物发现和分子设计提供了强大的计算工具。
+
+**核心技术优势：**
+
+| 功能模块 | 技术特点 | 性能表现 | 应用场景 |
+|----------|----------|----------|----------|
+| **结构预测** | 深度学习驱动的折叠预测 | 超越AlphaFold2精度 | 单体蛋白、复合物建模 |
+| **亲和力评估** | 物理原理与AI结合 | 接近FEP精度 | 药物-靶点相互作用 |
+| **分子生成** | 基于约束的序列设计 | 高成功率设计 | 新药候选分子发现 |
+| **计算效率** | 优化推理算法 | 比传统方法快1000倍+ | 大规模虚拟筛选 |
+
+### 技术创新与突破
+
+**1. 精度提升**
+- 相比前代Boltz-1在结构预测精度上进一步优化
+- 在小分子-蛋白质结合亲和力预测任务中首次达到接近自由能微扰（FEP）方法的精度水平
+- 集成多尺度物理约束，确保预测结果的生物学合理性
+
+**2. 效率革命**
+- 推理速度相比传统FEP方法提升超过1000倍
+- 支持大规模并行计算和批量处理
+- 优化的GPU加速算法，降低计算资源需求
+
+**3. 功能集成**
+- 统一框架整合结构预测、功能评估和分子设计
+- 端到端的药物发现流水线支持
+- 从靶点结构到先导化合物的闭环设计
+
+### 应用场景与价值
+
+Boltz-2在以下研究领域具有重要应用价值：
+
+<Tabs>
+<TabItem value="drug-discovery" label="药物发现">
+
+**靶向药物设计：**
+- 靶点蛋白结构快速预测与验证
+- 小分子药物与蛋白质结合模式分析
+- 结合亲和力精确评估与优化排序
+- 先导化合物结构改造指导
+
+**优势特点：**
+- 显著缩短从靶点到候选药物的发现周期
+- 降低湿实验验证成本和失败风险
+- 支持大规模化合物库虚拟筛选
+- 提供可解释的分子设计指导
+
+</TabItem>
+<TabItem value="structural-biology" label="结构生物学">
+
+**生物大分子研究：**
+- 未知结构蛋白质的高精度建模
+- 蛋白质-蛋白质复合物相互作用预测
+- 动态构象变化分析
+- 突变效应结构预测
+
+**技术支持：**
+- 实验结构验证前的理论预测
+- 低分辨率结构信息补全
+- 膜蛋白等难结晶蛋白建模
+- 进化保守性分析与功能注释
+
+</TabItem>
+<TabItem value="biotechnology" label="生物技术">
+
+**酶工程与蛋白设计：**
+- 酶活性位点优化设计
+- 稳定性改良工程
+- 新型生物催化剂开发
+- 蛋白质功能改造
+
+**产业应用：**
+- 工业酶定向进化指导
+- 生物制药蛋白优化
+- 诊断试剂分子设计
+- 生物传感器开发
+
+</TabItem>
+</Tabs>
+
+## 平台部署与环境
+
+### 集群集成架构
+
+我所智算平台已完成Boltz-2模型的生产级部署，提供高可用、高性能的计算服务：
+
+**系统配置：**
+```bash
+模型版本: Boltz-2 Latest
+计算节点: 高性能GPU集群
+支持格式: FASTA, YAML, PDB
+队列管理: 自动SLURM调度
+并发支持: 多任务并行处理
+```
+
+**技术架构特点：**
+- ✅ 容器化部署确保环境一致性
+- ✅ 智能资源调度优化GPU利用率
+- ✅ 自动任务队列管理无需手动配置
+- ✅ 实时监控与日志记录
+- ✅ 结果自动归档与管理
+
+### 输入格式支持
+
+Boltz-2支持多种标准的生物信息学输入格式：
+
+<Tabs>
+<TabItem value="fasta" label="FASTA格式">
+
+**适用场景：** 单纯序列信息的结构预测
+
+```fasta title="蛋白质序列示例"
+>protein_target|Example target protein
+MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATP
+QSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEP
+
+>protein_ligand|Small peptide ligand
+GKPILFFRLKQMVKETYVGGGVPQT
+```
+
+**格式要求：**
+- 标准20种氨基酸字母编码
+- 支持多序列批量处理
+- 描述行以`>`开头包含唯一标识符
+- 每行建议不超过80个字符
+
+</TabItem>
+<TabItem value="yaml" label="YAML配置">
+
+**适用场景：** 复杂分子建模任务配置
+
+```yaml title="复合物建模配置示例"
+version: 1.0
+job:
+  name: "protein-ligand-docking"
+  description: "Binding affinity prediction"
+  
+sequences:
+  - id: "target_protein"
+    type: "protein"
+    sequence: "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQ..."
+    
+  - id: "small_molecule"
+    type: "ligand" 
+    smiles: "CCO" # 乙醇分子示例
+    
+parameters:
+  prediction_type: "binding_affinity"
+  confidence_threshold: 0.7
+  num_models: 5
+  
+output:
+  format: ["pdb", "json"]
+  include_confidence: true
+  include_contacts: true
+```
+
+**配置项说明：**
+- `sequences`: 定义参与建模的分子序列
+- `parameters`: 设置预测参数和质量控制阈值
+- `output`: 指定输出格式和内容详细程度
+
+</TabItem>
+<TabItem value="batch" label="批量处理">
+
+**目录结构示例：**
+```bash
+batch_input/
+├── protein_targets/
+│   ├── target_001.fasta
+│   ├── target_002.fasta
+│   └── target_003.fasta
+├── ligand_library/
+│   ├── compounds_set1.yaml
+│   └── compounds_set2.yaml
+└── batch_config.yaml
+```
+
+**批量配置：**
+```yaml title="批量处理配置"
+batch:
+  mode: "high_throughput"
+  max_parallel: 10
+  timeout: "24h"
+  
+input:
+  protein_dir: "./protein_targets"
+  ligand_dir: "./ligand_library"
+  
+processing:
+  chunk_size: 100
+  priority: "normal"
+```
+
+</TabItem>
+</Tabs>
+
+## 使用方法详解
+
+### 方法一：CHESS图形界面（推荐）
+
+基于Web的图形界面提供直观的操作体验，特别适合新手用户和快速原型验证：
+
+<Tabs>
+<TabItem value="login" label="平台访问">
+
+![CHESS登录界面](/static/guides/hpc/boltz2/images/chess_login_page.png)
+
+**访问步骤：**
+
+1. **平台登录**
+   - 访问地址：https://webhpc.tibhpc.net/#/login
+   - 使用分配的HPC集群账户凭证登录
+   - 确保账户具有GPU计算资源访问权限
+
+2. **环境验证**
+   - 检查账户资源配额和使用情况
+   - 验证网络连接和文件系统访问
+   - 确认GPU队列可用性状态
+
+**账户要求：**
+- 有效的HPC集群账户
+- GPU计算资源访问权限
+- 足够的存储空间配额（推荐≥10GB）
+
+</TabItem>
+<TabItem value="download" label="应用部署">
+
+![应用中心界面](/static/guides/hpc/boltz2/images/chess_app_center.png)
+
+**应用获取流程：**
+
+1. **进入应用中心**
+   - 成功登录后点击左侧导航"应用中心"
+   - 浏览可用的科学计算应用列表
+   - 使用搜索功能快速定位Boltz-2
+
+2. **下载部署应用**
+
+![Boltz-2下载页面](/static/guides/hpc/boltz2/images/boltz2_download.png)
+
+   - 找到Boltz-2应用并点击"下载"按钮
+   - 系统自动处理应用部署和环境配置
+   - 应用图标将出现在个人桌面环境中
+
+3. **启动应用**
+   - 双击桌面Boltz-2图标启动应用
+   - 等待应用初始化和环境检查
+   - 进入Boltz-2工作界面
+
+</TabItem>
+<TabItem value="submission" label="任务提交">
+
+![文件提交界面](/static/guides/hpc/boltz2/images/input_file_submission.png)
+
+**任务配置与提交：**
+
+1. **输入文件选择**
+   - **单文件模式**: 选择单个FASTA或YAML文件进行处理
+   - **批量模式**: 选择包含多个输入文件的目录进行批量处理
+   - **文件格式验证**: 系统自动检查文件格式和内容有效性
+
+2. **参数配置选项**
+   ```yaml
+   # 基础配置参数
+   prediction_mode: "structure_prediction" | "binding_affinity" | "molecular_design"
+   quality_level: "fast" | "balanced" | "high_accuracy"
+   confidence_threshold: 0.7
+   max_runtime: "24h"
+   ```
+
+3. **资源分配设置**
+   - 系统根据输入复杂度自动选择合适的GPU资源
+   - 支持用户手动指定计算优先级和时间限制
+   - 智能队列调度确保资源使用效率
+
+4. **提交确认**
+   - 预览任务配置和预估计算时间
+   - 确认输出目录和文件命名规则
+   - 点击提交按钮启动计算任务
+
+</TabItem>
+<TabItem value="monitoring" label="任务监控">
+
+![作业队列监控](/static/guides/hpc/boltz2/images/job_queue_status.png)
+
+**实时监控功能：**
+
+1. **队列状态查看**
+   - 实时显示任务在队列中的位置
+   - 显示预计开始时间和完成时间
+   - 监控资源分配和使用情况
+
+2. **详细进度跟踪**
+
+![作业详情监控](/static/guides/hpc/boltz2/images/job_details_monitoring.png)
+
+   - 点击任务名称查看详细执行信息
+   - 监控各计算阶段的进度和状态
+   - 实时查看计算日志和错误信息
+
+3. **资源使用统计**
+   - GPU利用率和内存使用情况
+   - 网络I/O和存储访问统计
+   - 预计剩余完成时间
+
+**状态说明：**
+- **PENDING**: 任务排队等待资源分配
+- **RUNNING**: 任务正在执行计算
+- **COMPLETED**: 任务成功完成
+- **FAILED**: 任务执行失败，查看错误日志
+
+</TabItem>
+</Tabs>
+
+### 方法二：命令行接口
+
+适用于高级用户和自动化流程集成的命令行操作方式：
+
+<Tabs>
+<TabItem value="basic" label="基础命令">
+
+```bash title="基本使用方式"
+# 1. 环境准备
+module load boltz2
+source activate boltz2-env
+
+# 2. 单个文件处理
+boltz2-predict \
+  --input protein_sequence.fasta \
+  --output ./results \
+  --mode structure_prediction \
+  --quality high
+
+# 3. YAML配置文件处理  
+boltz2-predict \
+  --config complex_task.yaml \
+  --output ./complex_results \
+  --verbose
+
+# 4. 批量处理
+boltz2-batch \
+  --input_dir ./input_sequences \
+  --output_dir ./batch_results \
+  --parallel 4 \
+  --queue gpu_normal
+```
+
+**参数说明：**
+- `--input`: 指定输入文件或目录路径
+- `--output`: 设置输出结果目录
+- `--mode`: 选择预测模式（structure_prediction/binding_affinity/molecular_design）
+- `--quality`: 设置质量级别（fast/balanced/high_accuracy）
+
+</TabItem>
+<TabItem value="slurm" label="SLURM脚本">
+
+```bash title="SLURM作业脚本示例"
+#!/bin/bash
+#SBATCH --job-name=boltz2_prediction
+#SBATCH --partition=gpu_queue
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32GB
+#SBATCH --time=12:00:00
+#SBATCH --output=boltz2_%j.out
+#SBATCH --error=boltz2_%j.err
+
+# 环境设置
+module load boltz2/latest
+module load cuda/11.8
+
+# 设置输入输出路径
+INPUT_FILE="/path/to/input/protein.fasta"
+OUTPUT_DIR="/path/to/output/results"
+CONFIG_FILE="/path/to/config/task_config.yaml"
+
+# 创建输出目录
+mkdir -p "$OUTPUT_DIR"
+
+# 执行Boltz-2预测
+echo "开始Boltz-2预测任务..."
+echo "输入文件: $INPUT_FILE"
+echo "输出目录: $OUTPUT_DIR"
+echo "开始时间: $(date)"
+
+boltz2-predict \
+  --input "$INPUT_FILE" \
+  --output "$OUTPUT_DIR" \
+  --config "$CONFIG_FILE" \
+  --gpu-id 0 \
+  --batch-size 1 \
+  --num-workers 4 \
+  --log-level INFO
+
+# 检查结果
+if [[ $? -eq 0 ]]; then
+    echo "预测任务成功完成: $(date)"
+    echo "结果文件位置: $OUTPUT_DIR"
+else
+    echo "预测任务失败: $(date)"
+    exit 1
+fi
+
+# 结果后处理
+echo "执行结果验证和整理..."
+python3 /path/to/scripts/validate_results.py "$OUTPUT_DIR"
+```
+
+</TabItem>
+<TabItem value="advanced" label="高级配置">
+
+```yaml title="高级任务配置示例"
+# advanced_config.yaml
+version: "1.2"
+
+job:
+  name: "advanced_boltz2_prediction"
+  description: "Multi-target binding affinity prediction"
+  priority: "high"
+
+input:
+  sequences:
+    - id: "target_protein_1"
+      type: "protein"
+      source: "./sequences/target1.fasta"
+      modifications: []
+      
+    - id: "target_protein_2" 
+      type: "protein"
+      source: "./sequences/target2.fasta"
+      mutations: ["A123V", "R45K"]
+      
+    - id: "ligand_set"
+      type: "small_molecule"
+      source: "./ligands/compound_library.sdf"
+      filter_criteria:
+        mw_max: 500
+        logp_max: 5
+        rotatable_bonds_max: 10
+
+algorithms:
+  structure_prediction:
+    method: "boltz2_v2.1"
+    confidence_threshold: 0.8
+    max_iterations: 100
+    refinement: true
+    
+  binding_prediction:
+    method: "integrated_scoring"
+    include_entropy: true
+    solvent_model: "implicit"
+    temperature: 298.15
+    
+  analysis:
+    compute_contacts: true
+    interaction_fingerprint: true
+    export_pymol_session: true
+
+output:
+  formats: ["pdb", "json", "csv"]
+  compression: "gzip"
+  include_intermediate: false
+  quality_metrics: true
+  
+resources:
+  gpu_memory: "24GB"
+  cpu_cores: 16
+  wall_time: "48:00:00"
+  checkpoint_interval: "2h"
+
+notifications:
+  email: "user@institution.edu"
+  webhook: "https://api.example.com/boltz2/notify"
+```
+
+**高级功能说明：**
+- **多靶点批处理**: 同时处理多个蛋白质靶点
+- **突变体分析**: 支持蛋白质序列修饰和突变体建模  
+- **化合物库筛选**: 集成分子过滤和筛选功能
+- **结果多样化输出**: 支持多种格式和可视化选项
+
+</TabItem>
+</Tabs>
+
+## 输出结果分析
+
+### 结果文件结构
+
+Boltz-2的输出采用标准化的目录结构，便于结果管理和后续分析：
+
+<Tabs>
+<TabItem value="structure" label="目录组织">
+
+```bash title="典型输出目录结构"
+boltz2_results/
+├── metadata/
+│   ├── job_info.json              # 任务配置和执行信息
+│   ├── input_summary.yaml         # 输入文件汇总
+│   └── computation_log.txt        # 详细计算日志
+├── predictions/
+│   ├── structures/
+│   │   ├── target_protein.pdb     # 预测的3D结构
+│   │   ├── complex_model.pdb      # 复合物结构模型
+│   │   └── refined_structure.pdb  # 精细化结构
+│   ├── confidence/
+│   │   ├── plddt_scores.json      # 每残基置信度
+│   │   ├── pae_matrix.npy         # 预测对齐误差矩阵
+│   │   └── global_confidence.json # 整体置信度评估
+│   └── binding/
+│       ├── affinity_predictions.csv   # 结合亲和力预测
+│       ├── interaction_map.json       # 相互作用分析
+│       └── binding_site_analysis.pdb  # 结合位点注释
+├── analysis/
+│   ├── quality_assessment.html    # 质量评估报告
+│   ├── visualization/
+│   │   ├── structure_view.pml     # PyMOL可视化脚本
+│   │   ├── confidence_plot.png    # 置信度分布图
+│   │   └── interaction_2d.svg     # 2D相互作用图
+│   └── comparative/
+│       ├── experimental_comparison.csv
+│       └── benchmark_results.json
+└── exports/
+    ├── summary_report.pdf          # 综合分析报告
+    ├── machine_readable.json      # 机器可读结果
+    └── publication_figures/       # 发表级图表
+        ├── figure_1_structure.png
+        └── figure_2_binding.png
+```
+
+**关键文件说明：**
+- **target_protein.pdb**: 主要预测结构，可直接用于分子可视化
+- **confidence/*.json**: 详细置信度数据，用于质量评估
+- **affinity_predictions.csv**: 结合亲和力数值结果
+- **summary_report.pdf**: 人类可读的综合分析报告
+
+</TabItem>
+<TabItem value="confidence" label="置信度数据">
+
+**置信度评估体系：**
+
+```json title="置信度数据结构示例"
+{
+  "global_metrics": {
+    "overall_confidence": 0.847,
+    "structure_quality": "high",
+    "prediction_class": "very_high_confidence"
+  },
+  
+  "per_residue_confidence": {
+    "plddt_scores": [
+      85.2, 89.1, 82.7, 91.3, 76.8, 88.9, 92.1, 87.4, ...
+    ],
+    "confidence_categories": {
+      "very_high": [1, 2, 5, 7, 10, ...],    # pLDDT > 90
+      "high": [3, 6, 8, 11, 15, ...],        # pLDDT 70-90  
+      "medium": [4, 9, 13, ...],             # pLDDT 50-70
+      "low": [12, 14, ...]                   # pLDDT < 50
+    }
+  },
+  
+  "domain_analysis": {
+    "structured_regions": [
+      {"start": 1, "end": 156, "confidence": 0.89},
+      {"start": 180, "end": 340, "confidence": 0.92}
+    ],
+    "disordered_regions": [
+      {"start": 157, "end": 179, "confidence": 0.45}
+    ]
+  },
+  
+  "binding_confidence": {
+    "site_identification": 0.94,
+    "pose_prediction": 0.78,
+    "affinity_estimation": 0.82,
+    "interaction_details": {
+      "hydrogen_bonds": 0.91,
+      "hydrophobic_contacts": 0.86,
+      "electrostatic": 0.73
+    }
+  }
+}
+```
+
+**置信度解读标准：**
+
+| 置信度范围 | 质量等级 | 建议用途 | 注意事项 |
+|------------|----------|----------|----------|
+| **> 90** | 极高置信 | 直接用于药物设计 | 可替代实验结构 |
+| **70-90** | 高置信 | 功能分析和假说验证 | 关键区域需实验验证 |
+| **50-70** | 中等置信 | 初步分析和筛选 | 需要额外计算验证 |
+| **< 50** | 低置信 | 仅作参考 | 建议重新实验定 |
+
+</TabItem>
+<TabItem value="binding" label="结合分析">
+
+**结合亲和力预测结果：**
+
+```csv title="结合亲和力预测数据"
+compound_id,target_protein,binding_affinity_pred,confidence,experimental_value,error_estimate
+COMP_001,TARGET_A,-8.2,0.89,-8.1,±0.3
+COMP_002,TARGET_A,-6.7,0.82,-6.9,±0.4
+COMP_003,TARGET_A,-9.1,0.95,-9.0,±0.2
+COMP_004,TARGET_B,-7.8,0.86,N/A,±0.3
+COMP_005,TARGET_B,-5.9,0.74,N/A,±0.5
+```
+
+**相互作用分析详情：**
+
+```json title="分子间相互作用分析"
+{
+  "binding_site": {
+    "center_coordinates": [12.5, 34.8, -7.2],
+    "volume": 1250.3,
+    "surface_area": 856.7,
+    "hydrophobic_ratio": 0.62
+  },
+  
+  "key_interactions": [
+    {
+      "type": "hydrogen_bond",
+      "protein_residue": "ASP123",
+      "ligand_atom": "N1",
+      "distance": 2.1,
+      "angle": 168.5,
+      "strength": "strong"
+    },
+    {
+      "type": "hydrophobic",
+      "protein_residue": "PHE156",
+      "ligand_fragment": "benzyl",
+      "contact_area": 45.2,
+      "strength": "medium"
+    },
+    {
+      "type": "electrostatic",
+      "protein_residue": "ARG89",
+      "ligand_atom": "O2",
+      "distance": 3.5,
+      "charge_interaction": -0.8
+    }
+  ],
+  
+  "pharmacophore": {
+    "hydrogen_bond_donors": [
+      {"coords": [10.1, 30.5, -5.8], "vector": [0.2, -0.8, 0.6]}
+    ],
+    "hydrogen_bond_acceptors": [
+      {"coords": [15.2, 38.1, -8.9], "vector": [-0.3, 0.6, -0.7]}
+    ],
+    "hydrophobic_centers": [
+      {"coords": [18.7, 35.2, -4.1], "radius": 3.2}
+    ],
+    "aromatic_rings": [
+      {"coords": [13.8, 32.7, -6.5], "normal": [0.1, 0.9, 0.4]}
+    ]
+  }
+}
+```
+
+**结果可视化要素：**
+- 分子结合模式的3D可视化
+- 相互作用指纹图谱
+- 结合位点表面特征分析
+- 药效团模型映射
+
+</TabItem>
+</Tabs>
+
+### 质量控制与验证
+
+<Tabs>
+<TabItem value="validation" label="结果验证">
+
+```python title="自动结果验证脚本"
+#!/usr/bin/env python3
+"""Boltz-2结果质量验证工具"""
+
+import json
+import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
+from Bio.PDB import PDBParser
+
+class Boltz2ResultValidator:
+    def __init__(self, results_dir):
+        self.results_dir = Path(results_dir)
+        self.validation_criteria = {
+            'min_confidence': 0.7,
+            'max_clash_score': 5.0,
+            'required_files': [
+                'target_protein.pdb',
+                'confidence/global_confidence.json',
+                'binding/affinity_predictions.csv'
+            ]
+        }
+    
+    def validate_structure_quality(self, pdb_file):
+        """验证结构质量指标"""
+        parser = PDBParser(QUIET=True)
+        structure = parser.get_structure('protein', pdb_file)
+        
+        # 检查原子坐标合理性
+        atoms = list(structure.get_atoms())
+        coords = np.array([atom.coord for atom in atoms])
+        
+        # 计算几何指标
+        bond_lengths = self._calculate_bond_lengths(structure)
+        angle_deviations = self._calculate_angle_deviations(structure)
+        clash_score = self._calculate_clash_score(coords)
+        
+        return {
+            'total_atoms': len(atoms),
+            'avg_bond_length': np.mean(bond_lengths),
+            'bond_length_std': np.std(bond_lengths),
+            'angle_rmsd': np.sqrt(np.mean(angle_deviations**2)),
+            'clash_score': clash_score,
+            'geometry_quality': 'good' if clash_score < 5.0 else 'poor'
+        }
+    
+    def validate_confidence_scores(self, confidence_file):
+        """验证置信度分数分布"""
+        with open(confidence_file) as f:
+            confidence_data = json.load(f)
+        
+        plddt_scores = confidence_data['per_residue_confidence']['plddt_scores']
+        
+        analysis = {
+            'mean_confidence': np.mean(plddt_scores),
+            'median_confidence': np.median(plddt_scores),
+            'high_confidence_fraction': sum(1 for s in plddt_scores if s > 90) / len(plddt_scores),
+            'low_confidence_fraction': sum(1 for s in plddt_scores if s < 50) / len(plddt_scores),
+            'confidence_distribution': np.histogram(plddt_scores, bins=10)[0].tolist()
+        }
+        
+        return analysis
+    
+    def generate_validation_report(self):
+        """生成完整验证报告"""
+        report = {
+            'timestamp': str(datetime.now()),
+            'results_directory': str(self.results_dir),
+            'validation_status': 'PASS',
+            'issues_found': [],
+            'recommendations': []
+        }
+        
+        # 文件完整性检查
+        missing_files = []
+        for required_file in self.validation_criteria['required_files']:
+            if not (self.results_dir / required_file).exists():
+                missing_files.append(required_file)
+        
+        if missing_files:
+            report['validation_status'] = 'FAIL'
+            report['issues_found'].append(f"缺少必需文件: {missing_files}")
+        
+        # 结构质量验证
+        pdb_file = self.results_dir / 'target_protein.pdb'
+        if pdb_file.exists():
+            structure_quality = self.validate_structure_quality(pdb_file)
+            report['structure_quality'] = structure_quality
+            
+            if structure_quality['clash_score'] > self.validation_criteria['max_clash_score']:
+                report['validation_status'] = 'WARNING'
+                report['issues_found'].append(
+                    f"结构冲突分数过高: {structure_quality['clash_score']:.2f}"
+                )
+        
+        # 置信度分析
+        conf_file = self.results_dir / 'confidence/global_confidence.json'
+        if conf_file.exists():
+            confidence_analysis = self.validate_confidence_scores(conf_file)
+            report['confidence_analysis'] = confidence_analysis
+            
+            if confidence_analysis['mean_confidence'] < self.validation_criteria['min_confidence']:
+                report['validation_status'] = 'WARNING'
+                report['issues_found'].append(
+                    f"平均置信度偏低: {confidence_analysis['mean_confidence']:.3f}"
+                )
+        
+        return report
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("用法: python3 validate_boltz2_results.py <results_directory>")
+        sys.exit(1)
+    
+    results_dir = sys.argv[1]
+    validator = Boltz2ResultValidator(results_dir)
+    report = validator.generate_validation_report()
+    
+    print("=== Boltz-2结果验证报告 ===")
+    print(f"状态: {report['validation_status']}")
+    if report['issues_found']:
+        print("发现问题:")
+        for issue in report['issues_found']:
+            print(f"  - {issue}")
+    
+    # 保存详细报告
+    with open(f"{results_dir}/validation_report.json", 'w') as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+```
+
+</TabItem>
+<TabItem value="benchmarking" label="性能基准">
+
+**与实验数据比较分析：**
+
+```python title="基准测试分析"
+import pandas as pd
+import numpy as np
+from scipy.stats import pearsonr, spearmanr
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def benchmark_binding_predictions(predictions_file, experimental_file):
+    """对比预测值与实验值的性能基准"""
+    
+    # 读取数据
+    pred_df = pd.read_csv(predictions_file)
+    exp_df = pd.read_csv(experimental_file)
+    
+    # 合并数据
+    merged = pd.merge(pred_df, exp_df, on=['compound_id', 'target_protein'])
+    
+    # 计算统计指标
+    pearson_r, pearson_p = pearsonr(merged['binding_affinity_pred'], 
+                                   merged['experimental_value'])
+    spearman_r, spearman_p = spearmanr(merged['binding_affinity_pred'], 
+                                      merged['experimental_value'])
+    
+    mae = np.mean(np.abs(merged['binding_affinity_pred'] - merged['experimental_value']))
+    rmse = np.sqrt(np.mean((merged['binding_affinity_pred'] - merged['experimental_value'])**2))
+    
+    # 评估分类性能（活性/非活性）
+    threshold = -7.0  # -7.0 kcal/mol作为活性阈值
+    pred_active = merged['binding_affinity_pred'] < threshold
+    exp_active = merged['experimental_value'] < threshold
+    
+    tp = np.sum(pred_active & exp_active)
+    fp = np.sum(pred_active & ~exp_active)
+    tn = np.sum(~pred_active & ~exp_active)
+    fn = np.sum(~pred_active & exp_active)
+    
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    
+    benchmark_results = {
+        'correlation': {
+            'pearson_r': pearson_r,
+            'pearson_p_value': pearson_p,
+            'spearman_r': spearman_r,
+            'spearman_p_value': spearman_p
+        },
+        'error_metrics': {
+            'mae': mae,
+            'rmse': rmse,
+            'mean_error': np.mean(merged['binding_affinity_pred'] - merged['experimental_value'])
+        },
+        'classification': {
+            'sensitivity': sensitivity,
+            'specificity': specificity,
+            'precision': precision,
+            'f1_score': 2 * (precision * sensitivity) / (precision + sensitivity) if (precision + sensitivity) > 0 else 0
+        },
+        'data_statistics': {
+            'total_compounds': len(merged),
+            'prediction_range': [merged['binding_affinity_pred'].min(), merged['binding_affinity_pred'].max()],
+            'experimental_range': [merged['experimental_value'].min(), merged['experimental_value'].max()]
+        }
+    }
+    
+    # 生成对比图
+    plt.figure(figsize=(12, 5))
+    
+    # 散点图
+    plt.subplot(1, 2, 1)
+    plt.scatter(merged['experimental_value'], merged['binding_affinity_pred'], 
+                alpha=0.6, s=50)
+    plt.plot([-12, -4], [-12, -4], 'r--', alpha=0.8)
+    plt.xlabel('实验值 (kcal/mol)')
+    plt.ylabel('预测值 (kcal/mol)')
+    plt.title(f'预测 vs 实验 (R = {pearson_r:.3f})')
+    plt.grid(True, alpha=0.3)
+    
+    # 误差分布
+    plt.subplot(1, 2, 2)
+    errors = merged['binding_affinity_pred'] - merged['experimental_value']
+    plt.hist(errors, bins=20, alpha=0.7, edgecolor='black')
+    plt.axvline(0, color='red', linestyle='--', alpha=0.8)
+    plt.xlabel('预测误差 (kcal/mol)')
+    plt.ylabel('频次')
+    plt.title(f'误差分布 (MAE = {mae:.2f})')
+    plt.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig('benchmark_analysis.png', dpi=300, bbox_inches='tight')
+    
+    return benchmark_results
+```
+
+**性能评估标准：**
+
+| 评估指标 | 优秀 | 良好 | 可接受 | 需改进 |
+|----------|------|------|--------|--------|
+| **Pearson相关系数** | > 0.85 | 0.75-0.85 | 0.65-0.75 | < 0.65 |
+| **平均绝对误差 (kcal/mol)** | < 0.5 | 0.5-1.0 | 1.0-1.5 | > 1.5 |
+| **分类准确率** | > 90% | 80-90% | 70-80% | < 70% |
+
+</TabItem>
+</Tabs>
+
+## 完整演示流程
+
+### 端到端操作演示
+
+以下演示展示了从登录平台到获取结果的完整工作流程：
+
+![Boltz-2完整操作演示](/static/guides/hpc/boltz2/images/boltz2_demo.gif)
+
+**演示流程要点：**
+
+**阶段1: 平台准备 (0:00-0:30)**
+1. 访问CHESS平台并完成身份验证
+2. 进入应用中心搜索并下载Boltz-2应用
+3. 验证应用成功部署到个人桌面环境
+
+**阶段2: 任务配置 (0:30-1:15)**
+1. 启动Boltz-2应用进入工作界面
+2. 选择输入模式：单文件或批量目录
+3. 上传蛋白质序列文件（FASTA/YAML格式）
+4. 配置预测参数和计算资源需求
+5. 确认任务设置并提交到计算队列
+
+**阶段3: 监控执行 (1:15-2:00)**
+1. 在队列管理界面查看任务状态
+2. 实时监控计算进度和资源使用
+3. 查看详细日志和中间结果输出
+
+**阶段4: 结果分析 (2:00-2:30)**
+1. 任务完成后访问结果目录
+2. 下载并查看生成的结构文件
+3. 分析置信度评估和质量指标
+4. 导出可视化结果和分析报告
+
+**关键操作技巧：**
+- **文件格式验证**: 上传前确认输入文件格式正确性
+- **资源预估**: 根据序列长度合理估计计算时间
+- **中间检查**: 定期查看日志文件确认任务正常进行
+- **结果备份**: 及时下载重要结果避免存储清理
+
+## 最佳实践指南
+
+### 1. 工作流程优化
+
+<Tabs>
+<TabItem value="preparation" label="前期准备">
+
+**输入数据质量控制：**
+
+```python title="序列质量检查工具"
+def validate_protein_sequence(sequence):
+    """蛋白质序列质量检查"""
+    
+    # 标准氨基酸字母
+    valid_aa = set('ACDEFGHIKLMNPQRSTVWY')
+    
+    # 清理序列
+    clean_seq = ''.join(c.upper() for c in sequence if c.isalpha())
+    
+    # 质量检查
+    checks = {
+        'length_check': 20 <= len(clean_seq) <= 3000,
+        'valid_characters': all(c in valid_aa for c in clean_seq),
+        'no_ambiguous': 'X' not in clean_seq,
+        'reasonable_composition': validate_aa_composition(clean_seq)
+    }
+    
+    return {
+        'cleaned_sequence': clean_seq,
+        'length': len(clean_seq),
+        'issues': [k for k, v in checks.items() if not v],
+        'quality_score': sum(checks.values()) / len(checks)
+    }
+
+# 批量文件检查
+def batch_validate_fasta(fasta_file):
+    """批量FASTA文件验证"""
+    from Bio import SeqIO
+    
+    results = []
+    for record in SeqIO.parse(fasta_file, "fasta"):
+        validation = validate_protein_sequence(str(record.seq))
+        validation['id'] = record.id
+        validation['description'] = record.description
+        results.append(validation)
+    
+    return results
+```
+
+**计算资源规划：**
+
+```yaml title="资源配置建议"
+# 根据任务复杂度选择资源
+resource_profiles:
+  quick_screening:
+    sequences_per_job: 100
+    gpu_type: "RTX3090"
+    memory: "32GB"
+    time_limit: "4h"
+    
+  detailed_analysis:
+    sequences_per_job: 10
+    gpu_type: "A100"
+    memory: "64GB"
+    time_limit: "12h"
+    
+  high_accuracy:
+    sequences_per_job: 1
+    gpu_type: "A100"
+    memory: "80GB"
+    time_limit: "24h"
+```
+
+</TabItem>
+<TabItem value="optimization" label="性能优化">
+
+**批量处理策略：**
+
+```bash title="智能批量处理脚本"
+#!/bin/bash
+# smart_batch_processing.sh
+
+INPUT_DIR="$1"
+OUTPUT_BASE="$2"
+MAX_PARALLEL="${3:-4}"
+
+# 分析输入文件复杂度
+analyze_complexity() {
+    local fasta_file="$1"
+    local seq_count=$(grep -c "^>" "$fasta_file")
+    local total_length=$(grep -v "^>" "$fasta_file" | tr -d '\n' | wc -c)
+    local avg_length=$((total_length / seq_count))
+    
+    if [[ $avg_length -lt 300 && $seq_count -le 10 ]]; then
+        echo "simple"
+    elif [[ $avg_length -lt 1000 && $seq_count -le 5 ]]; then
+        echo "medium"
+    else
+        echo "complex"
+    fi
+}
+
+# 根据复杂度分组处理
+mkdir -p "$OUTPUT_BASE"/{simple,medium,complex}
+
+for fasta in "$INPUT_DIR"/*.fasta; do
+    complexity=$(analyze_complexity "$fasta")
+    case $complexity in
+        "simple")
+            # 快速处理模式
+            sbatch --partition=gpu_fast --time=2:00:00 \
+                   --array=1-10%$MAX_PARALLEL \
+                   process_simple.slurm "$fasta" "$OUTPUT_BASE/simple"
+            ;;
+        "medium")
+            # 标准处理模式
+            sbatch --partition=gpu_normal --time=8:00:00 \
+                   --array=1-5%$((MAX_PARALLEL/2)) \
+                   process_medium.slurm "$fasta" "$OUTPUT_BASE/medium"
+            ;;
+        "complex")
+            # 高精度处理模式
+            sbatch --partition=gpu_high --time=24:00:00 \
+                   process_complex.slurm "$fasta" "$OUTPUT_BASE/complex"
+            ;;
+    esac
+done
+
+# 结果汇总
+echo "批量任务提交完成，请使用 'squeue -u \$USER' 监控进度"
+```
+
+**缓存与加速技巧：**
+
+```yaml title="性能优化配置"
+optimization:
+  caching:
+    enable_msa_cache: true
+    cache_directory: "/fast_storage/boltz2_cache"
+    max_cache_size: "100GB"
+    cleanup_after: "7d"
+    
+  parallelization:
+    gpu_utilization_target: 95
+    memory_management: "dynamic"
+    batch_size: "auto"
+    
+  preprocessing:
+    sequence_alignment_threads: 16
+    io_buffer_size: "64MB"
+    compress_intermediates: true
+```
+
+</TabItem>
+<TabItem value="integration" label="流程集成">
+
+**与下游分析的集成：**
+
+```python title="结果后处理流水线"
+class Boltz2PostProcessor:
+    def __init__(self, results_dir):
+        self.results_dir = Path(results_dir)
+        
+    def integrate_with_pymol(self, pdb_file, output_script):
+        """生成PyMOL可视化脚本"""
+        script_content = f"""
+# Boltz-2结果PyMOL可视化脚本
+load {pdb_file}, protein
+hide everything
+show cartoon, protein
+color spectrum, protein
+        
+# 根据置信度着色
+confidence_file = "{self.results_dir}/confidence/plddt_scores.json"
+if os.path.exists(confidence_file):
+    # 加载置信度数据并应用颜色
+    exec(open("color_by_confidence.py").read())
+    
+# 标记结合位点
+binding_sites = load_binding_sites("{self.results_dir}/binding/")
+for site in binding_sites:
+    select site_{site['id']}, resi {site['residues']}
+    show sticks, site_{site['id']}
+    color {site['color']}, site_{site['id']}
+    
+save {output_script.replace('.pml', '.pse')}
+"""
+        with open(output_script, 'w') as f:
+            f.write(script_content)
+    
+    def export_for_drug_discovery(self, output_format="sdf"):
+        """导出用于药物发现流水线的格式"""
+        
+        # 读取结合亲和力预测
+        affinity_df = pd.read_csv(self.results_dir / "binding/affinity_predictions.csv")
+        
+        # 生成药物发现友好的输出
+        discovery_data = {
+            'targets': [],
+            'compounds': [],
+            'interactions': []
+        }
+        
+        for _, row in affinity_df.iterrows():
+            discovery_data['interactions'].append({
+                'target_id': row['target_protein'],
+                'compound_id': row['compound_id'],
+                'predicted_affinity': row['binding_affinity_pred'],
+                'confidence': row['confidence'],
+                'interaction_fingerprint': self.extract_fingerprint(row),
+                'pharmacophore': self.extract_pharmacophore(row)
+            })
+        
+        # 导出为多种格式
+        output_file = self.results_dir / f"drug_discovery_export.{output_format}"
+        
+        if output_format == "json":
+            with open(output_file, 'w') as f:
+                json.dump(discovery_data, f, indent=2)
+        elif output_format == "sdf":
+            self.write_sdf(discovery_data, output_file)
+        
+        return output_file
+
+    def generate_publication_figures(self):
+        """生成发表级质量的图表"""
+        
+        fig_dir = self.results_dir / "publication_figures"
+        fig_dir.mkdir(exist_ok=True)
+        
+        # 图1: 结构质量评估
+        self.plot_structure_quality(fig_dir / "structure_quality.png")
+        
+        # 图2: 结合亲和力相关性
+        self.plot_affinity_correlation(fig_dir / "affinity_correlation.png")
+        
+        # 图3: 相互作用网络
+        self.plot_interaction_network(fig_dir / "interaction_network.png")
+        
+        # 生成图注文件
+        captions_file = fig_dir / "figure_captions.txt"
+        with open(captions_file, 'w') as f:
+            f.write(self.generate_figure_captions())
+```
+
+</TabItem>
+</Tabs>
+
+### 2. 错误排除与故障诊断
+
+<Tabs>
+<TabItem value="common_errors" label="常见问题">
+
+**输入格式错误：**
+
+```bash
+# 错误示例和解决方案
+
+# 问题1: 序列包含非标准字符
+错误信息: "Invalid amino acid character 'U' found in sequence"
+解决方案: 
+sed 's/U/C/g' input.fasta > cleaned.fasta  # 将U替换为C
+sed 's/[^ACDEFGHIKLMNPQRSTVWY]//g' input.fasta  # 移除非标准字符
+
+# 问题2: YAML格式错误
+错误信息: "YAML parsing error: expected sequence or mapping"
+解决方案:
+yamllint config.yaml  # 检查YAML语法
+python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"  # 验证可解析性
+
+# 问题3: 文件编码问题
+错误信息: "UnicodeDecodeError: 'utf-8' codec can't decode"
+解决方案:
+iconv -f ISO-8859-1 -t UTF-8 input.fasta > input_utf8.fasta
+file -bi input.fasta  # 检查文件编码
+```
+
+**资源限制问题：**
+
+```bash
+# GPU内存不足
+错误信息: "CUDA out of memory"
+解决方案:
+1. 减小批次大小：--batch-size 1
+2. 使用多GPU：--multi-gpu --gpus 2
+3. 启用梯度检查点：--gradient-checkpointing
+4. 拆分长序列：split_long_sequences.py input.fasta
+
+# 作业超时
+错误信息: "Job exceeded time limit"
+解决方案:
+1. 增加时间限制：#SBATCH --time=48:00:00
+2. 设置检查点：--checkpoint-interval 2h
+3. 分阶段处理：--stage-wise-execution
+```
+
+</TabItem>
+<TabItem value="debugging" label="调试工具">
+
+```python title="Boltz-2调试工具包"
+#!/usr/bin/env python3
+"""Boltz-2实用调试工具"""
+
+import sys
+import logging
+import json
+from pathlib import Path
+
+class Boltz2Debugger:
+    def __init__(self, log_level="INFO"):
+        logging.basicConfig(level=getattr(logging, log_level))
+        self.logger = logging.getLogger(__name__)
+    
+    def diagnose_job_failure(self, job_dir):
+        """诊断作业失败原因"""
+        job_path = Path(job_dir)
+        
+        # 检查关键文件存在性
+        critical_files = [
+            "job_info.json",
+            "computation_log.txt",
+            "error.log"
+        ]
+        
+        missing_files = [f for f in critical_files 
+                        if not (job_path / f).exists()]
+        
+        if missing_files:
+            self.logger.error(f"缺少关键文件: {missing_files}")
+            return "SETUP_ERROR"
+        
+        # 分析错误日志
+        error_log = job_path / "error.log"
+        if error_log.exists():
+            with open(error_log) as f:
+                errors = f.read()
+            
+            # 常见错误模式检测
+            error_patterns = {
+                "MEMORY_ERROR": ["CUDA out of memory", "memory allocation failed"],
+                "INPUT_ERROR": ["invalid sequence", "parsing error", "format error"],
+                "TIMEOUT_ERROR": ["time limit", "timeout", "killed by signal"],
+                "NETWORK_ERROR": ["connection failed", "download error", "network"]
+            }
+            
+            for error_type, patterns in error_patterns.items():
+                if any(pattern.lower() in errors.lower() for pattern in patterns):
+                    return error_type
+        
+        return "UNKNOWN_ERROR"
+    
+    def check_system_resources(self):
+        """检查系统资源状态"""
+        import psutil
+        import subprocess
+        
+        # CPU和内存
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        
+        # GPU状态
+        try:
+            nvidia_smi = subprocess.check_output([
+                'nvidia-smi', '--query-gpu=memory.used,memory.total,utilization.gpu',
+                '--format=csv,noheader,nounits'
+            ], text=True)
+            gpu_stats = [line.split(',') for line in nvidia_smi.strip().split('\n')]
+        except subprocess.CalledProcessError:
+            gpu_stats = []
+        
+        # 磁盘空间
+        disk = psutil.disk_usage('/')
+        
+        resource_status = {
+            'cpu_usage': f"{cpu_percent:.1f}%",
+            'memory_usage': f"{memory.percent:.1f}%",
+            'memory_available': f"{memory.available / 1024**3:.1f}GB",
+            'disk_free': f"{disk.free / 1024**3:.1f}GB",
+            'gpu_status': [
+                {
+                    'id': i,
+                    'memory_used': f"{stats[0].strip()}MB",
+                    'memory_total': f"{stats[1].strip()}MB", 
+                    'utilization': f"{stats[2].strip()}%"
+                }
+                for i, stats in enumerate(gpu_stats)
+            ]
+        }
+        
+        return resource_status
+    
+    def performance_profiler(self, job_dir):
+        """作业性能分析"""
+        job_path = Path(job_dir)
+        
+        # 读取日志文件
+        log_file = job_path / "computation_log.txt"
+        if not log_file.exists():
+            return {"error": "日志文件不存在"}
+        
+        with open(log_file) as f:
+            log_content = f.read()
+        
+        # 提取时间信息
+        import re
+        
+        time_patterns = {
+            'input_processing': r'Input processing took ([\d.]+)s',
+            'structure_prediction': r'Structure prediction took ([\d.]+)s',
+            'confidence_evaluation': r'Confidence evaluation took ([\d.]+)s',
+            'output_generation': r'Output generation took ([\d.]+)s'
+        }
+        
+        timing_data = {}
+        for stage, pattern in time_patterns.items():
+            matches = re.findall(pattern, log_content)
+            if matches:
+                timing_data[stage] = [float(m) for m in matches]
+        
+        # 计算总体性能指标
+        total_time = sum(sum(times) for times in timing_data.values())
+        
+        performance_summary = {
+            'total_runtime': f"{total_time:.2f}s",
+            'stage_breakdown': {
+                stage: {
+                    'total_time': f"{sum(times):.2f}s",
+                    'average_time': f"{sum(times)/len(times):.2f}s",
+                    'min_time': f"{min(times):.2f}s",
+                    'max_time': f"{max(times):.2f}s"
+                }
+                for stage, times in timing_data.items() if times
+            },
+            'performance_grade': self._calculate_performance_grade(timing_data)
+        }
+        
+        return performance_summary
+    
+    def _calculate_performance_grade(self, timing_data):
+        """计算性能等级"""
+        # 基于经验阈值评估性能
+        thresholds = {
+            'excellent': 600,   # 10分钟以内
+            'good': 1800,      # 30分钟以内
+            'acceptable': 3600, # 1小时以内
+            'slow': float('inf')
+        }
+        
+        total_time = sum(sum(times) for times in timing_data.values())
+        
+        for grade, threshold in thresholds.items():
+            if total_time <= threshold:
+                return grade
+        
+        return 'very_slow'
+
+# 命令行工具
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("用法: python3 boltz2_debug.py <command> <job_directory>")
+        print("可用命令: diagnose, resources, profile")
+        sys.exit(1)
+    
+    command = sys.argv[1]
+    job_dir = sys.argv[2]
+    
+    debugger = Boltz2Debugger()
+    
+    if command == "diagnose":
+        result = debugger.diagnose_job_failure(job_dir)
+        print(f"诊断结果: {result}")
+    elif command == "resources":
+        result = debugger.check_system_resources()
+        print("系统资源状态:")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    elif command == "profile":
+        result = debugger.performance_profiler(job_dir)
+        print("性能分析结果:")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+```
+
+</TabItem>
+</Tabs>
+
+### 3. 高级应用场景
+
+<Tabs>
+<TabItem value="drug_pipeline" label="药物发现流水线">
+
+```yaml title="端到端药物发现配置"
+# drug_discovery_pipeline.yaml
+pipeline_name: "target_based_drug_discovery"
+version: "1.0"
+
+# 阶段1: 靶点结构预测
+target_modeling:
+  input:
+    protein_sequences: "./targets/kinase_targets.fasta"
+    known_structures: "./references/template_structures.pdb"
+  
+  parameters:
+    prediction_quality: "high_accuracy"
+    include_confidence: true
+    refinement_cycles: 5
+  
+  output:
+    structure_models: "./results/target_structures/"
+    confidence_metrics: "./results/confidence/"
+
+# 阶段2: 化合物库筛选
+virtual_screening:
+  input:
+    target_structures: "./results/target_structures/"
+    compound_library: "./libraries/drug_like_compounds.sdf"
+    
+  filtering:
+    molecular_weight: [150, 500]
+    logp: [-2, 5]
+    hbd: [0, 5]
+    hba: [0, 10]
+    rotatable_bonds: [0, 8]
+    
+  parameters:
+    binding_prediction: true
+    interaction_analysis: true
+    pharmacophore_matching: true
+    
+  output:
+    binding_predictions: "./results/screening/"
+    ranked_compounds: "./results/ranking/"
+
+# 阶段3: 先导化合物优化
+lead_optimization:
+  input:
+    selected_compounds: "./results/ranking/top_hits.csv"
+    optimization_targets:
+      binding_affinity: "maximize"
+      selectivity: "increase"
+      admet_properties: "drug_like"
+      
+  methods:
+    scaffold_hopping: true
+    structure_based_design: true
+    fragment_growing: true
+    
+  output:
+    optimized_compounds: "./results/optimization/"
+    design_rationale: "./results/design_notes/"
+
+# 阶段4: 结果整合和报告
+reporting:
+  formats: ["pdf", "html", "json"]
+  include_sections:
+    - executive_summary
+    - target_analysis
+    - screening_results  
+    - optimization_strategies
+    - next_steps
+    
+  output_directory: "./final_report/"
+```
+
+**自动化执行脚本：**
+
+```bash title="药物发现流水线执行"
+#!/bin/bash
+# run_drug_discovery_pipeline.sh
+
+PIPELINE_CONFIG="$1"
+PROJECT_DIR="$2"
+
+echo "启动药物发现流水线..."
+echo "配置文件: $PIPELINE_CONFIG"
+echo "项目目录: $PROJECT_DIR"
+
+# 阶段1: 靶点建模
+echo "=== 阶段1: 靶点结构预测 ==="
+sbatch --job-name="target_modeling" \
+       --partition=gpu_high \
+       --time=12:00:00 \
+       --output="$PROJECT_DIR/logs/target_modeling_%j.out" \
+       boltz2_target_modeling.slurm "$PIPELINE_CONFIG" "$PROJECT_DIR"
+
+# 等待靶点建模完成
+TARGET_JOB_ID=$(squeue --name=target_modeling --user=$USER -h -o "%A" | head -1)
+if [[ -n "$TARGET_JOB_ID" ]]; then
+    echo "等待靶点建模完成 (Job ID: $TARGET_JOB_ID)..."
+    
+    # 阶段2: 虚拟筛选（依赖阶段1）
+    echo "=== 阶段2: 虚拟筛选 ==="
+    sbatch --job-name="virtual_screening" \
+           --dependency=afterok:$TARGET_JOB_ID \
+           --partition=gpu_normal \
+           --array=1-10 \
+           --time=8:00:00 \
+           --output="$PROJECT_DIR/logs/screening_%A_%a.out" \
+           boltz2_virtual_screening.slurm "$PIPELINE_CONFIG" "$PROJECT_DIR"
+    
+    SCREENING_JOB_ID=$(squeue --name=virtual_screening --user=$USER -h -o "%A" | head -1)
+    
+    # 阶段3: 先导化合物优化（依赖阶段2）
+    echo "=== 阶段3: 先导化合物优化 ==="
+    sbatch --job-name="lead_optimization" \
+           --dependency=afterok:$SCREENING_JOB_ID \
+           --partition=gpu_high \
+           --time=24:00:00 \
+           --output="$PROJECT_DIR/logs/optimization_%j.out" \
+           boltz2_lead_optimization.slurm "$PIPELINE_CONFIG" "$PROJECT_DIR"
+    
+    OPTIMIZATION_JOB_ID=$(squeue --name=lead_optimization --user=$USER -h -o "%A" | head -1)
+    
+    # 阶段4: 结果整合和报告生成
+    echo "=== 阶段4: 结果整合 ==="
+    sbatch --job-name="generate_report" \
+           --dependency=afterok:$OPTIMIZATION_JOB_ID \
+           --partition=cpu_normal \
+           --time=2:00:00 \
+           --output="$PROJECT_DIR/logs/reporting_%j.out" \
+           generate_pipeline_report.slurm "$PIPELINE_CONFIG" "$PROJECT_DIR"
+    
+    echo "药物发现流水线已提交，使用 'squeue -u $USER' 监控进度"
+    echo "最终报告将生成在: $PROJECT_DIR/final_report/"
+fi
+```
+
+</TabItem>
+<TabItem value="comparative" label="比较分析">
+
+```python title="多模型比较分析框架"
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+class StructurePredictionComparison:
+    def __init__(self):
+        self.methods = ['boltz2', 'alphafold2', 'colabfold', 'esmfold']
+        self.metrics = ['accuracy', 'confidence', 'speed', 'resource_usage']
+        
+    def load_benchmark_data(self, benchmark_dir):
+        """加载基准测试数据"""
+        data = {}
+        
+        for method in self.methods:
+            method_file = Path(benchmark_dir) / f"{method}_results.csv"
+            if method_file.exists():
+                data[method] = pd.read_csv(method_file)
+            
+        return data
+    
+    def calculate_accuracy_metrics(self, predictions, references):
+        """计算结构预测精度指标"""
+        
+        results = []
+        
+        for pred_id, pred_data in predictions.items():
+            if pred_id in references:
+                ref_data = references[pred_id]
+                
+                # 计算RMSD
+                rmsd = self.calculate_rmsd(pred_data['coordinates'], 
+                                         ref_data['coordinates'])
+                
+                # 计算GDT-TS
+                gdt_ts = self.calculate_gdt_ts(pred_data['coordinates'], 
+                                             ref_data['coordinates'])
+                
+                # 计算置信度相关性
+                conf_corr = np.corrcoef(pred_data['confidence'],
+                                      ref_data['experimental_confidence'])[0,1]
+                
+                results.append({
+                    'protein_id': pred_id,
+                    'rmsd': rmsd,
+                    'gdt_ts': gdt_ts,
+                    'confidence_correlation': conf_corr,
+                    'prediction_time': pred_data.get('runtime', 0),
+                    'gpu_memory': pred_data.get('max_memory', 0)
+                })
+        
+        return pd.DataFrame(results)
+    
+    def generate_comparison_report(self, benchmark_data, output_dir):
+        """生成详细比较分析报告"""
+        
+        output_path = Path(output_dir)
+        output_path.mkdir(exist_ok=True)
+        
+        # 整体性能对比
+        summary_stats = {}
+        for method, data in benchmark_data.items():
+            summary_stats[method] = {
+                'mean_accuracy': data['gdt_ts'].mean(),
+                'mean_confidence_corr': data['confidence_correlation'].mean(),
+                'median_runtime': data['prediction_time'].median(),
+                'success_rate': (data['rmsd'] < 5.0).mean(),  # 5Å作为成功阈值
+                'resource_efficiency': data['gpu_memory'].mean()
+            }
+        
+        # 创建比较图表
+        self.create_comparison_plots(benchmark_data, output_path)
+        
+        # 生成文本报告
+        self.write_comparison_report(summary_stats, output_path)
+        
+        return summary_stats
+    
+    def create_comparison_plots(self, benchmark_data, output_dir):
+        """创建比较图表"""
+        
+        # 图1: 精度分布对比
+        plt.figure(figsize=(15, 10))
+        
+        plt.subplot(2, 3, 1)
+        for method, data in benchmark_data.items():
+            plt.hist(data['gdt_ts'], alpha=0.7, label=method, bins=20)
+        plt.xlabel('GDT-TS Score')
+        plt.ylabel('Frequency')
+        plt.title('Accuracy Distribution Comparison')
+        plt.legend()
+        
+        # 图2: 运行时间对比
+        plt.subplot(2, 3, 2)
+        methods = list(benchmark_data.keys())
+        runtimes = [data['prediction_time'].median() for data in benchmark_data.values()]
+        plt.bar(methods, runtimes)
+        plt.xlabel('Method')
+        plt.ylabel('Median Runtime (s)')
+        plt.title('Runtime Comparison')
+        plt.xticks(rotation=45)
+        
+        # 图3: 精度vs速度散点图
+        plt.subplot(2, 3, 3)
+        for method, data in benchmark_data.items():
+            plt.scatter(data['prediction_time'], data['gdt_ts'], 
+                       alpha=0.6, label=method, s=30)
+        plt.xlabel('Prediction Time (s)')
+        plt.ylabel('GDT-TS Score')
+        plt.title('Accuracy vs Speed Trade-off')
+        plt.legend()
+        plt.xscale('log')
+        
+        # 图4: 资源使用对比
+        plt.subplot(2, 3, 4)
+        memory_usage = [data['gpu_memory'].mean() for data in benchmark_data.values()]
+        plt.bar(methods, memory_usage)
+        plt.xlabel('Method')
+        plt.ylabel('Average GPU Memory (GB)')
+        plt.title('Resource Usage Comparison')
+        plt.xticks(rotation=45)
+        
+        # 图5: 成功率对比
+        plt.subplot(2, 3, 5)
+        success_rates = [(data['rmsd'] < 5.0).mean() for data in benchmark_data.values()]
+        plt.bar(methods, success_rates)
+        plt.xlabel('Method')
+        plt.ylabel('Success Rate (RMSD < 5Å)')
+        plt.title('Success Rate Comparison')
+        plt.xticks(rotation=45)
+        
+        # 图6: 雷达图综合对比
+        plt.subplot(2, 3, 6)
+        self.create_radar_chart(benchmark_data, methods)
+        
+        plt.tight_layout()
+        plt.savefig(output_dir / 'method_comparison.png', dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    def write_comparison_report(self, summary_stats, output_dir):
+        """写入详细比较报告"""
+        
+        report_content = f"""
+# 结构预测方法比较分析报告
+
+## 执行摘要
+
+本报告对比了Boltz-2与其他主流蛋白质结构预测方法的性能表现。
+
+## 详细分析结果
+
+"""
+        
+        # 为每个方法生成详细分析
+        for method, stats in summary_stats.items():
+            report_content += f"""
+### {method.upper()} 性能分析
+
+- **平均精度 (GDT-TS)**: {stats['mean_accuracy']:.3f}
+- **置信度相关性**: {stats['mean_confidence_corr']:.3f}
+- **中位运行时间**: {stats['median_runtime']:.1f}秒
+- **成功率**: {stats['success_rate']:.1%}
+- **资源效率**: {stats['resource_efficiency']:.1f}GB
+
+"""
+        
+        # 添加推荐建议
+        report_content += """
+## 使用建议
+
+### Boltz-2的优势场景：
+- 需要高精度结合亲和力预测的药物发现项目
+- 要求快速处理的大规模蛋白质分析
+- 需要端到端分子设计流程的研究
+
+### 其他方法的适用性：
+- AlphaFold2: 高精度单体蛋白结构预测
+- ColabFold: 快速批量处理和教学用途
+- ESMFold: 序列分析和进化研究
+
+## 结论
+
+Boltz-2在保持高预测精度的同时，在结合亲和力评估方面具有独特优势，
+特别适合药物发现和分子设计应用。
+"""
+        
+        with open(output_dir / 'comparison_report.md', 'w') as f:
+            f.write(report_content)
+```
+
+</TabItem>
+</Tabs>
+
+## 技术支持与资源
+
+### 学习资源与文档
+
+**官方资源:**
+- **Boltz-2官方网站**: https://boltz.ai/boltz-2
+- **技术论文**: Boltz-2: Next-Generation Biomolecular Modeling
+- **GitHub仓库**: https://github.com/boltz-ai/boltz-2 
+- **API文档**: https://docs.boltz.ai/boltz-2
+
+**平台支持:**
+- **HPC技术支持**: hpc-support@tibhpc.net
+- **Boltz-2专项支持**: boltz2-support@tibhpc.net  
+- **使用培训**: 每月第二周周三下午 3:00-5:00
+
+### 模板文件库
+
+所有配置和脚本模板位于：`/static/guides/hpc/boltz2/`
+- `configs/boltz2_config.yaml` - 基础配置模板
+- `scripts/boltz2-basic.slurm` - SLURM脚本模板
+- `scripts/boltz2-batch.slurm` - 批量处理模板
+- `examples/` - 输入文件示例
+
+### 常用命令速查
+
+```bash
+# 快速启动命令
+boltz2-predict --input protein.fasta --output results/ --mode structure_prediction
+
+# 批量处理
+boltz2-batch --input-dir sequences/ --output-dir results/ --parallel 4
+
+# 结果验证  
+python3 validate_boltz2_results.py results/
+
+# 性能调试
+python3 boltz2_debug.py diagnose results/
+```
+
+---
+
+<head>
+  <title>Boltz-2 智能生物分子建模平台使用指南 | HPC文档</title>
+  <meta
+    name="description"
+    content="Boltz-2是新一代结构生物学基础模型，集成结构预测、结合亲和力评估与分子生成能力，为药物设计和分子发现提供企业级解决方案。本指南详细介绍在HPC集群上的使用方法。"
+  />
+  <meta
+    name="keywords"
+    content="Boltz-2, 蛋白质结构预测, 分子建模, 结合亲和力, 药物设计, 机器学习, 结构生物学, HPC集群, GPU计算"
+  />
+</head>

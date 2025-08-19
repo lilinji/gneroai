@@ -1,0 +1,8 @@
+# K点网格示例文件
+# 自动生成Monkhorst-Pack网格
+
+Automatic mesh
+0              # 0表示自动生成
+Monkhorst-Pack # 使用MP方法
+8 8 8          # K点网格密度 (nx ny nz)
+0 0 0          # 偏移量 (通常为0)

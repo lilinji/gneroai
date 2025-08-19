@@ -1,0 +1,1042 @@
+---
+title: 文件传输
+sidebar_position: 4
+description: >-
+  太行I号智算平台文件传输完整指南，涵盖SFTP客户端、命令行传输、文件系统挂载等多种方法，助您实现高效安全的数据传输。
+keywords:
+  - 文件传输
+  - SFTP传输
+  - SSH文件传输
+  - 数据同步
+  - 超算平台
+  - 远程挂载
+---
+
+# 📂 文件传输
+
+本指南详细介绍太行I号智算平台与本地计算机之间的各种文件传输方法，包括图形化SFTP客户端、命令行工具、以及高级的文件系统挂载技术，帮助您选择最适合的数据传输方案。
+
+## 📋 目录
+
+- [传输方案概述](#传输方案概述)
+- [图形化SFTP客户端](#图形化sftp客户端)
+- [命令行传输工具](#命令行传输工具)
+- [文件系统挂载](#文件系统挂载)
+- [高级传输技巧](#高级传输技巧)
+- [性能优化建议](#性能优化建议)
+- [故障排除指南](#故障排除指南)
+
+## 🎯 传输方案概述
+
+### 方案对比分析
+
+| 传输方案 | 适用场景 | 优势 | 局限性 | 推荐度 |
+|---------|---------|------|--------|--------|
+| **图形化SFTP** | 小到中型文件、频繁传输 | 界面友好、操作直观 | 大文件传输较慢 | ⭐⭐⭐⭐⭐ |
+| **命令行工具** | 大文件、批量传输 | 高效稳定、支持断点续传 | 学习门槛较高 | ⭐⭐⭐⭐⭐ |
+| **文件系统挂载** | 频繁访问、无缝集成 | 如同本地文件夹 | 网络依赖性强 | ⭐⭐⭐⭐ |
+| **Web门户** | 临时使用、小文件 | 无需安装软件 | 功能有限、大小限制 | ⭐⭐⭐ |
+
+### 选择建议
+
+- **新手用户**：推荐图形化SFTP客户端（WinSCP、Tabby）
+- **高级用户**：结合使用命令行工具和文件系统挂载
+- **频繁传输**：建议配置SSH密钥认证和文件系统挂载
+- **大数据处理**：优先使用rsync和并行传输技术
+
+## 🖥️ 图形化SFTP客户端
+
+### Windows平台推荐方案
+
+#### WinSCP - 专业SFTP客户端（推荐）
+
+**特点**：Windows平台最成熟的SFTP客户端，支持拖拽操作、同步传输等强大功能。
+
+**安装配置**：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/winscp-login-form.png"
+    alt="WinSCP登录配置界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>配置连接参数：主机名、用户名、密码</em>
+  </p>
+</div>
+
+**配置参数**：
+- **文件协议**：SFTP
+- **主机名**：`login.tibhpc.net`
+- **端口号**：22（默认）
+- **用户名**：您的平台账户
+- **密码**：平台登录密码
+
+成功连接后可看到双窗口界面，支持直接拖拽传输：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/winscp-main-interface.png"
+    alt="WinSCP主界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>左侧本地文件，右侧远程文件，支持拖拽传输</em>
+  </p>
+</div>
+
+**高级功能**：
+- 文件同步：保持本地与远程目录一致
+- 文件编辑：直接编辑远程文件并自动同步
+- 传输队列：批量传输多个文件
+- 断点续传：网络中断后继续传输
+
+#### Tabby - 跨平台现代化工具（推荐）
+
+**特点**：现代化跨平台终端工具，集成SSH、SFTP功能，界面简洁优美。
+
+**安装步骤**：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-installer.png"
+    alt="Tabby安装界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>下载安装包并按提示安装</em>
+  </p>
+</div>
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-install-directory.png"
+    alt="Tabby安装目录选择"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>选择合适的安装目录</em>
+  </p>
+</div>
+
+**配置连接**：
+
+1. 打开Tabby，进入设置菜单：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-settings-menu.png"
+    alt="Tabby设置菜单"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>点击设置→配置和连接</em>
+  </p>
+</div>
+
+2. 创建SSH连接配置：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-ssh-config.png"
+    alt="Tabby SSH配置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>选择SSH协议，输入连接信息</em>
+  </p>
+</div>
+
+3. 配置连接详情：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-connection-details.png"
+    alt="Tabby连接详情配置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>填写主机地址和认证信息</em>
+  </p>
+</div>
+
+**连接参数**：
+- **名称**：太行I号平台（自定义）
+- **主机**：`login.tibhpc.net`
+- **端口**：22
+- **用户名**：您的平台账户
+
+4. 保存并建立连接：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-login-success.png"
+    alt="Tabby登录成功"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>成功连接后的终端界面</em>
+  </p>
+</div>
+
+5. 启用SFTP文件传输：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-sftp-panel.png"
+    alt="Tabby SFTP面板"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>点击右上角SFTP按钮进入文件传输模式</em>
+  </p>
+</div>
+
+:::tip 工作目录同步
+如果SFTP面板未显示正确的工作目录，可在远程shell中添加以下配置：
+
+```bash
+vim ~/.bash_profile
+export PS1="$PS1\[\e]1337;CurrentDir="'$(pwd)\a\]'
+```
+重启shell后生效。
+:::
+
+#### 其他Windows客户端
+
+**Xftp - 专业文件传输工具**
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/xftp-new-session.png"
+    alt="Xftp新建会话"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>快捷键Ctrl+N创建新会话</em>
+  </p>
+</div>
+
+配置连接后即可享受专业的文件传输体验：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/xftp-file-transfer.png"
+    alt="Xftp文件传输界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>支持拖拽传输和右键菜单操作</em>
+  </p>
+</div>
+
+**MobaXterm - 多功能终端工具**
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/mobaxterm-session-menu.png"
+    alt="MobaXterm会话菜单"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>点击Session→SSH创建连接</em>
+  </p>
+</div>
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/mobaxterm-file-panel.png"
+    alt="MobaXterm文件面板"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>左侧文件面板支持拖拽上传下载</em>
+  </p>
+</div>
+
+### macOS / Linux平台方案
+
+**Tabby跨平台支持**
+
+macOS和Linux系统同样可以使用Tabby，操作方式与Windows版本一致：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-macos-icon.png"
+    alt="macOS版Tabby"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>macOS版本支持相同的SSH/SFTP功能</em>
+  </p>
+</div>
+
+**Linux系统部署**
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-linux-extract.png"
+    alt="Linux解压Tabby"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>下载tar.gz包并解压到指定目录</em>
+  </p>
+</div>
+
+可选择创建桌面快捷方式，方便快速启动：
+
+```bash
+# 创建桌面启动文件
+nano ~/.local/share/applications/tabby.desktop
+
+# 输入以下内容（根据实际路径修改）
+[Desktop Entry]
+Name=Tabby Terminal
+Comment=Modern terminal with SSH and SFTP support
+Exec=/path/to/tabby/tabby
+Icon=/path/to/tabby/icon.png
+Terminal=false
+Type=Application
+Categories=Utility;Development;
+
+# 赋予可执行权限
+chmod +x ~/.local/share/applications/tabby.desktop
+```
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/tabby-linux-favorites.png"
+    alt="Linux添加到收藏"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>右键图标选择"Add to Favorites"固定到侧边栏</em>
+  </p>
+</div>
+
+## 💻 命令行传输工具
+
+### SCP安全传输
+
+**基本语法**：
+```bash
+# 上传文件到平台
+scp [选项] 本地文件 用户名@login.tibhpc.net:远程路径
+
+# 从平台下载文件
+scp [选项] 用户名@login.tibhpc.net:远程文件 本地路径
+```
+
+**实用示例**：
+```bash
+# 上传单个文件到家目录
+scp document.pdf user123@login.tibhpc.net:~/
+
+# 上传到指定目录
+scp data.csv user123@login.tibhpc.net:/hpcfs/fhome/user123/data/
+
+# 下载计算结果
+scp user123@login.tibhpc.net:~/results/output.txt ./
+
+# 递归上传整个目录
+scp -r project_folder/ user123@login.tibhpc.net:~/projects/
+
+# 保持文件权限和时间戳
+scp -p important_script.sh user123@login.tibhpc.net:~/scripts/
+
+# 显示传输进度（推荐）
+scp -v -C large_dataset.tar.gz user123@login.tibhpc.net:~/data/
+```
+
+**常用选项**：
+- `-r`：递归复制目录
+- `-p`：保持文件属性
+- `-v`：显示详细过程
+- `-C`：启用压缩传输
+- `-P`：指定SSH端口
+- `-l`：限制传输速度（KB/s）
+
+### RSYNC高效同步
+
+**基本语法**：
+```bash
+rsync [选项] 源路径 目标路径
+```
+
+**推荐参数组合**：
+```bash
+# 标准同步（推荐）
+rsync -avz --progress 本地目录/ 用户名@login.tibhpc.net:远程目录/
+
+# 删除同步（谨慎使用）
+rsync -avz --delete --progress 本地目录/ 用户名@login.tibhpc.net:远程目录/
+
+# 断点续传
+rsync -avz --partial --progress 大文件 用户名@login.tibhpc.net:~/
+
+# 排除特定文件
+rsync -avz --exclude='*.tmp' --exclude='.git/' 项目目录/ 用户名@login.tibhpc.net:~/项目/
+```
+
+**选项解释**：
+- `-a`：归档模式（递归+保持属性）
+- `-v`：详细模式
+- `-z`：压缩传输
+- `--progress`：显示传输进度
+- `--partial`：支持断点续传
+- `--delete`：删除目标端多余文件
+- `--exclude`：排除指定模式的文件
+
+### SFTP交互式传输
+
+**连接和基础操作**：
+```bash
+# 连接到平台
+sftp user123@login.tibhpc.net
+
+# 常用SFTP命令
+sftp> pwd                    # 查看远程当前目录
+sftp> lpwd                   # 查看本地当前目录
+sftp> ls                     # 列出远程文件
+sftp> lls                    # 列出本地文件
+sftp> cd /hpcfs/fhome/user123 # 切换远程目录
+sftp> lcd ~/Desktop          # 切换本地目录
+
+# 文件传输
+sftp> put local_file.txt     # 上传文件
+sftp> get remote_file.txt    # 下载文件
+sftp> put -r local_folder/   # 上传目录
+sftp> get -r remote_folder/  # 下载目录
+
+# 批量操作
+sftp> mput *.dat             # 批量上传
+sftp> mget *.log             # 批量下载
+
+sftp> quit                   # 退出
+```
+
+## 🔗 文件系统挂载
+
+### Windows平台SSHFS
+
+**SSHFS-Win Manager图形化方案（推荐）**
+
+此方案将远程目录挂载为Windows驱动器，操作如同本地文件夹。
+
+**安装依赖**：
+
+:::warning 安装顺序
+必须按顺序安装：WinFsp → SSHFS-Win → SSHFS-Win Manager
+:::
+
+1. **WinFsp**：Windows文件系统代理
+2. **SSHFS-Win**：SSH文件系统实现
+3. **SSHFS-Win Manager**：图形化管理界面
+
+**配置步骤**：
+
+1. 打开SSHFS-Win Manager，进入设置：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-manager-settings.png"
+    alt="SSHFS Manager设置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>点击Settings配置工具路径</em>
+  </p>
+</div>
+
+2. 配置sshfs.exe路径，开启调试模式：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-manager-config.png"
+    alt="SSHFS Manager配置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>配置可执行文件路径，开启DEBUG便于故障排查</em>
+  </p>
+</div>
+
+3. 创建连接配置：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-manager-connection.png"
+    alt="SSHFS连接配置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>点击"Add Connection"添加远程服务器信息</em>
+  </p>
+</div>
+
+**连接参数**：
+- **Host**：`login.tibhpc.net`
+- **Username**：您的平台账户
+- **Password**：选择密码认证方式
+- **Remote Path**：`/hpcfs/fhome/用户目录`
+
+4. 成功挂载后可在Windows资源管理器中访问：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-windows-explorer.png"
+    alt="Windows资源管理器中的挂载驱动器"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>远程目录显示为本地磁盘驱动器</em>
+  </p>
+</div>
+
+**Windows网络映射方案**：
+
+也可使用Windows原生网络驱动器映射功能：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-windows-mapping-demo.gif"
+    alt="Windows网络驱动器映射演示"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>通过"映射网络驱动器"功能连接到远程文件系统</em>
+  </p>
+</div>
+
+**映射语法**：
+```bash
+\\sshfs\用户名@login.tibhpc.net\远程路径
+```
+
+### Linux平台SSHFS
+
+**安装SSHFS**：
+
+```bash
+# Debian/Ubuntu系统
+sudo apt-get install sshfs
+
+# CentOS/Red Hat系统
+sudo yum install sshfs
+
+# 验证安装
+sshfs -V
+```
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-linux-version.png"
+    alt="SSHFS版本验证"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>命令成功显示版本信息说明安装正确</em>
+  </p>
+</div>
+
+**创建挂载点**：
+
+```bash
+# 创建本地挂载目录
+mkdir -p /mnt/tibhpc
+```
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-linux-mkdir.png"
+    alt="创建挂载点目录"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>在/mnt下创建专用挂载目录</em>
+  </p>
+</div>
+
+**挂载远程文件系统**：
+
+```bash
+# 挂载用户家目录
+sshfs 用户名@login.tibhpc.net:/hpcfs/fhome/用户名 /mnt/tibhpc
+
+# 验证挂载状态
+df -h | grep tibhpc
+```
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-linux-mount.png"
+    alt="SSHFS挂载成功"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>df命令显示挂载点，说明远程文件系统挂载成功</em>
+  </p>
+</div>
+
+**高级挂载选项**：
+
+```bash
+# 启用缓存和压缩
+sshfs -o cache=yes,compression=yes,large_read 用户名@login.tibhpc.net:/hpcfs/fhome/用户名 /mnt/tibhpc
+
+# 允许其他用户访问
+sshfs -o allow_other 用户名@login.tibhpc.net:/hpcfs/fhome/用户名 /mnt/tibhpc
+
+# 自定义超时设置
+sshfs -o ServerAliveInterval=15,ServerAliveCountMax=3 用户名@login.tibhpc.net:/hpcfs/fhome/用户名 /mnt/tibhpc
+```
+
+**卸载文件系统**：
+
+```bash
+# 卸载挂载点
+fusermount -u /mnt/tibhpc
+```
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/file-transfer/sshfs-linux-unmount.png"
+    alt="卸载SSHFS"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>fusermount命令安全卸载远程文件系统</em>
+  </p>
+</div>
+
+**自动挂载配置**：
+
+为方便使用，可配置开机自动挂载：
+
+```bash
+# 编辑fstab文件（谨慎操作）
+sudo nano /etc/fstab
+
+# 添加以下行（替换用户名）
+sshfs#用户名@login.tibhpc.net:/hpcfs/fhome/用户名 /mnt/tibhpc fuse defaults,_netdev,users,idmap=user,allow_other,reconnect 0 0
+```
+
+## ⚡ 高级传输技巧
+
+### SSH密钥认证配置
+
+**生成SSH密钥对**：
+
+```bash
+# 生成RSA密钥对
+ssh-keygen -t rsa -b 4096 -C "您的邮箱@example.com"
+
+# 或生成更安全的ed25519密钥
+ssh-keygen -t ed25519 -C "您的邮箱@example.com"
+```
+
+**部署公钥到平台**：
+
+```bash
+# 复制公钥到平台
+ssh-copy-id -i ~/.ssh/id_rsa.pub 用户名@login.tibhpc.net
+
+# 手动方式
+cat ~/.ssh/id_rsa.pub | ssh 用户名@login.tibhpc.net "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+**SSH配置优化**：
+
+创建SSH配置文件 `~/.ssh/config`：
+
+```bash
+Host tibhpc
+    HostName login.tibhpc.net
+    User 您的用户名
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    ControlMaster auto
+    ControlPath ~/.ssh/master-%r@%h:%p
+    ControlPersist 10m
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+    Compression yes
+```
+
+配置后可简化连接：
+```bash
+# 简化的连接方式
+ssh tibhpc
+scp file.txt tibhpc:~/
+rsync -av project/ tibhpc:~/projects/
+```
+
+### 大文件传输策略
+
+**文件压缩传输**：
+
+```bash
+# 压缩后传输
+tar -czf - 大型目录/ | ssh tibhpc "cat > backup.tar.gz"
+
+# 流式压缩传输
+rsync -avz --progress 大型数据集/ tibhpc:~/data/
+
+# 分割压缩传输
+tar -czf - 大文件 | split -b 1G - backup.tar.gz.part.
+for part in backup.tar.gz.part.*; do
+    scp "$part" tibhpc:~/
+done
+```
+
+**并行传输技术**：
+
+```bash
+# 使用GNU Parallel并行上传
+find local_dir -type f | parallel -j 4 scp {} tibhpc:remote_dir/
+
+# rsync限速传输
+rsync -avz --bwlimit=10240 --progress 大文件 tibhpc:~/
+```
+
+### 批量传输脚本
+
+**智能同步脚本**：
+
+```bash
+#!/bin/bash
+# 智能文件同步脚本
+
+LOCAL_DIR="/path/to/local/data"
+REMOTE_HOST="tibhpc"
+REMOTE_DIR="/hpcfs/fhome/用户名/data"
+LOG_FILE="/var/log/tibhpc-sync.log"
+
+# 检查网络连接
+if ! ssh -o ConnectTimeout=5 "$REMOTE_HOST" exit; then
+    echo "$(date): 无法连接到远程主机" >> "$LOG_FILE"
+    exit 1
+fi
+
+# 执行同步
+echo "$(date): 开始同步到太行I号平台..." >> "$LOG_FILE"
+rsync -avz --progress --delete \
+    --exclude='*.tmp' \
+    --exclude='.git/' \
+    --exclude='__pycache__/' \
+    "$LOCAL_DIR/" "$REMOTE_HOST:$REMOTE_DIR/"
+
+if [ $? -eq 0 ]; then
+    echo "$(date): 同步成功完成" >> "$LOG_FILE"
+else
+    echo "$(date): 同步失败" >> "$LOG_FILE"
+    exit 1
+fi
+```
+
+**批量下载脚本**：
+
+```bash
+#!/bin/bash
+# 批量结果下载脚本
+
+REMOTE_HOST="tibhpc"
+REMOTE_BASE="/hpcfs/fhome/用户名/results"
+LOCAL_DIR="./downloaded_results"
+
+# 创建本地目录
+mkdir -p "$LOCAL_DIR"
+
+# 获取远程文件列表
+REMOTE_FILES=$(ssh "$REMOTE_HOST" "find $REMOTE_BASE -name '*.out' -o -name '*.log' -mtime -7")
+
+# 批量下载
+echo "$REMOTE_FILES" | while read file; do
+    if [ -n "$file" ]; then
+        echo "下载: $file"
+        scp "$REMOTE_HOST:$file" "$LOCAL_DIR/"
+    fi
+done
+
+echo "批量下载完成，文件保存在: $LOCAL_DIR"
+```
+
+## 🚀 性能优化建议
+
+### 网络优化配置
+
+**SSH连接复用**：
+```bash
+# ~/.ssh/config 优化配置
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/master-%r@%h:%p
+    ControlPersist 10m
+    TCPKeepAlive yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+```
+
+**传输参数调优**：
+```bash
+# SCP压缩传输
+scp -C -c aes128-ctr file.dat tibhpc:~/
+
+# RSYNC多连接并行
+rsync -avz -e "ssh -o Compression=no -x" --progress data/ tibhpc:~/
+```
+
+### 带宽管理
+
+**限制传输速度**：
+```bash
+# 限制SCP传输速度（避免占满带宽）
+scp -l 8192 large_file tibhpc:~/  # 限制为8MB/s
+
+# RSYNC限速传输
+rsync -avz --bwlimit=10240 data/ tibhpc:~/  # 限制为10MB/s
+```
+
+**传输时间规划**：
+- 大文件传输建议在夜间或非高峰期进行
+- 使用 `nohup` 命令后台执行长时间传输任务
+- 设置传输完成通知机制
+
+### 文件完整性验证
+
+**传输前后校验**：
+```bash
+# 生成本地文件校验码
+md5sum important_data.tar.gz > checksum.md5
+
+# 传输文件和校验码
+scp important_data.tar.gz checksum.md5 tibhpc:~/
+
+# 远程验证文件完整性
+ssh tibhpc "cd ~ && md5sum -c checksum.md5"
+```
+
+**自动化校验脚本**：
+```bash
+#!/bin/bash
+# 带校验的文件传输脚本
+
+LOCAL_FILE="$1"
+REMOTE_PATH="$2"
+
+if [ $# -ne 2 ]; then
+    echo "用法: $0 <本地文件> <远程路径>"
+    exit 1
+fi
+
+# 计算本地校验码
+LOCAL_MD5=$(md5sum "$LOCAL_FILE" | cut -d' ' -f1)
+echo "本地MD5: $LOCAL_MD5"
+
+# 传输文件
+echo "传输文件中..."
+scp "$LOCAL_FILE" "tibhpc:$REMOTE_PATH"
+
+# 验证远程文件
+REMOTE_MD5=$(ssh tibhpc "md5sum '$REMOTE_PATH'" | cut -d' ' -f1)
+echo "远程MD5: $REMOTE_MD5"
+
+if [ "$LOCAL_MD5" = "$REMOTE_MD5" ]; then
+    echo "✓ 文件传输完整，校验成功"
+else
+    echo "✗ 文件传输可能损坏，请重新传输"
+    exit 1
+fi
+```
+
+## 🔧 故障排除指南
+
+### 常见连接问题
+
+#### 问题1：连接超时
+**症状**：`Connection timed out` 或 `No route to host`
+
+**解决方案**：
+```bash
+# 检查网络连接
+ping login.tibhpc.net
+
+# 检查SSH端口
+telnet login.tibhpc.net 22
+
+# 增加连接超时时间
+ssh -o ConnectTimeout=60 tibhpc
+```
+
+#### 问题2：认证失败
+**症状**：`Permission denied (publickey,password)`
+
+**解决方案**：
+```bash
+# 检查用户名和密码
+ssh -v 用户名@login.tibhpc.net
+
+# 重置密钥权限
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa.pub
+chmod 700 ~/.ssh
+
+# 清除已知主机记录
+ssh-keygen -R login.tibhpc.net
+```
+
+#### 问题3：SSHFS挂载失败
+**症状**：`Transport endpoint is not connected`
+
+**Windows解决方案**：
+- 删除 `~/.ssh/config` 文件
+- 重新安装 WinFsp 和 SSHFS-Win
+- 检查防火墙设置
+
+**Linux解决方案**：
+```bash
+# 强制卸载挂载点
+sudo umount -f /mnt/tibhpc
+
+# 或使用fusermount
+fusermount -uz /mnt/tibhpc
+
+# 重新挂载
+sshfs -o reconnect,ServerAliveInterval=15 tibhpc:/hpcfs/fhome/用户名 /mnt/tibhpc
+```
+
+### 传输性能问题
+
+#### 问题：传输速度过慢
+**诊断步骤**：
+```bash
+# 测试网络带宽
+iperf3 -c login.tibhpc.net
+
+# 使用压缩传输
+scp -C large_file tibhpc:~/
+
+# 调整SSH加密算法
+ssh -c aes128-ctr tibhpc
+```
+
+#### 问题：传输中断
+**恢复方案**：
+```bash
+# 使用rsync断点续传
+rsync -avz --partial --progress interrupted_file tibhpc:~/
+
+# 分割后传输
+split -b 100M large_file part_
+for part in part_*; do
+    scp "$part" tibhpc:~/
+    ssh tibhpc "cat part_* > large_file && rm part_*"
+done
+```
+
+### 权限和安全问题
+
+#### SSH密钥权限问题
+```bash
+# 正确的文件权限设置
+chmod 700 ~/.ssh/
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa.pub
+chmod 644 ~/.ssh/known_hosts
+chmod 600 ~/.ssh/config
+```
+
+#### 文件系统权限问题
+```bash
+# 检查远程目录权限
+ssh tibhpc "ls -la /hpcfs/fhome/用户名"
+
+# 修复权限问题
+ssh tibhpc "chmod 755 /hpcfs/fhome/用户名"
+```
+
+## 📚 软件下载资源
+
+### 推荐SFTP客户端
+
+#### Windows平台
+- **[WinSCP 6.3.5](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/WinSCP-6.3.5-Setup.zip)** - 专业SFTP客户端
+- **[Tabby 1.0.222](https://hpc.biodesign.ac.cn/downloads/software/terminal/tabby-1.0.222-setup-x64.zip)** - 现代化终端工具
+- **[Xftp 8.0.0067p](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/Xftp-8.0.0067p.zip)** - 专业文件传输
+- **[MobaXterm v25.0](https://mobaxterm.mobatek.net/)** - 多功能终端套件
+
+#### 文件系统挂载工具
+- **[SSHFS-Win Manager](https://github.com/evsar3/sshfs-win-manager)** - Windows SSHFS图形化管理
+- **[SSHFS-Win 3.5.20357](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/software/sshfs-win-3.5.20357-x86.msi)** - Windows SSHFS实现
+- **[WinFsp 2.1.24255](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/software/winfsp-2.1.24255.msi)** - Windows文件系统代理
+
+#### 跨平台方案
+- **[Tabby Linux x64](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/software/tabby-1.0.222-linux-x64.tar.gz)** - Linux版终端
+- **[Tabby macOS x64](https://hpc.biodesign.ac.cn/downloads/software/file-transfer/software/tabby-1.0.223-macos-x86_64.dmg)** - macOS版终端
+
+## 🎯 最佳实践总结
+
+### 选择策略建议
+
+1. **新手用户**：
+   - Windows：WinSCP + Tabby
+   - macOS/Linux：Tabby + 命令行工具
+
+2. **进阶用户**：
+   - 配置SSH密钥认证
+   - 使用rsync进行大文件传输
+   - 部署SSHFS文件系统挂载
+
+3. **高级用户**：
+   - 编写自动化传输脚本
+   - 配置多种传输方案
+   - 实施完整性校验机制
+
+### 安全注意事项
+
+- ✅ 使用SSH密钥替代密码认证
+- ✅ 定期更新SSH客户端软件
+- ✅ 避免在公共网络进行敏感数据传输
+- ✅ 对重要文件进行传输前后校验
+- ✅ 限制文件访问权限，遵循最小权限原则
+
+### 性能优化要点
+
+- ✅ 配置SSH连接复用减少握手开销
+- ✅ 使用压缩传输减少数据量
+- ✅ 合理规划传输时间避开高峰期
+- ✅ 针对大文件使用分片或并行传输
+- ✅ 监控传输过程，及时处理异常状况
+
+## 🔗 下一步学习
+
+掌握文件传输技能后，您可以继续学习：
+
+- **[运行环境管理](../runtime-environment/overview)** - 配置软件运行环境
+- **[Slurm作业系统](../slurm-job-system/overview)** - 提交和管理计算任务
+- **[软件应用指南](../software-applications/overview)** - 使用专业科学计算软件
+
+## 📞 技术支持
+
+### 联系方式
+- **文件传输问题**：transfer-support@tib.cas.cn
+- **软件安装支持**：software-help@tib.cas.cn
+- **网络连接问题**：network@tib.cas.cn
+- **工作时间**：周一至周五 9:00-18:00
+
+### 在线资源
+- **SSHFS-Win项目**：[GitHub Repository](https://github.com/winfsp/sshfs-win)
+- **Tabby官方文档**：[Tabby Terminal](https://tabby.sh/)
+- **WinSCP用户手册**：[WinSCP Documentation](https://winscp.net/docs)
+
+---
+
+<head>
+  <title>文件传输 - 太行I号智算平台用户指南</title>
+  <meta
+    name="description"
+    content="太行I号智算平台文件传输完整指南，涵盖SFTP客户端、命令行传输、文件系统挂载等多种方法，助您实现高效安全的数据传输。"
+  />
+  <meta name="keywords" content="文件传输,SFTP传输,SSH文件传输,数据同步,超算平台,远程挂载" />
+</head>

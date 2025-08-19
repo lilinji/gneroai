@@ -1,0 +1,716 @@
+---
+title: 🔍 Foldseek 蛋白质结构搜索平台使用指南
+sidebar_position: 9
+description: >-
+  全面的Foldseek蛋白质结构搜索工具使用指南，涵盖图形化界面和命令行两种使用方式，包含结构比对、数据库搜索和结果分析的完整流程。
+  Comprehensive guide for Foldseek protein structure search tool covering both GUI and CLI approaches, including structure alignment, database search and result analysis.
+tags: [Foldseek, 蛋白质结构, 结构比对, 结构搜索, AlphaFold, PDB]
+---
+
+# 🔍 Foldseek 蛋白质结构搜索平台使用指南
+
+## 概述
+
+**Foldseek** 是一款革命性的蛋白质结构比对和搜索工具，专为大规模蛋白质结构数据库的高效搜索而设计。作为结构生物学和药物发现领域的重要工具，Foldseek 能够在几秒钟内搜索包含数百万结构的数据库，为蛋白质功能注释、进化分析和药物靶点发现提供强有力的支持。
+
+**Foldseek** is a revolutionary protein structure alignment and search tool designed for efficient searching of large-scale protein structure databases. As an important tool in structural biology and drug discovery, Foldseek can search databases containing millions of structures within seconds, providing powerful support for protein functional annotation, evolutionary analysis, and drug target discovery.
+
+:::info 核心优势
+- **超高速搜索**：比传统结构比对工具快10,000倍
+- **大规模支持**：能够搜索AlphaFold、PDB等大型结构数据库
+- **高灵敏度**：检测远程同源性和结构相似性
+- **多种搜索模式**：支持结构-结构、序列-结构等多种比对模式
+:::
+
+---
+
+## 快速导航
+
+目录内容请参考页面各章节标题。
+
+---
+
+## 🚀 软件特性与应用
+
+### 核心功能特点
+
+| 功能特性 | 描述 | 应用场景 |
+|---------|-----|---------|
+| **快速结构搜索** | 毫秒级结构数据库搜索 | 同源蛋白检索、功能预测 |
+| **多数据库支持** | PDB、AlphaFold、SwissProt等 | 全面的结构比较分析 |
+| **灵敏度优化** | 检测微弱结构相似性 | 远程同源性分析 |
+| **批量处理** | 支持大规模结构比对 | 蛋白质组分析 |
+
+### 支持的数据库类型
+
+- **PDB数据库**：实验解析的3D蛋白质结构
+- **AlphaFold数据库**：AI预测的蛋白质结构
+- **SwissProt数据库**：高质量蛋白质序列数据库
+- **自定义数据库**：用户构建的专业结构数据库
+
+### 应用领域
+
+- **结构生物学研究**：蛋白质折叠和功能域分析
+- **药物发现**：靶点识别和活性位点比较
+- **进化生物学**：蛋白质进化关系研究
+- **功能基因组学**：未知蛋白功能预测
+
+---
+
+## 🎯 使用方式概览
+
+Foldseek 提供两种主要使用方式：
+
+### 1. 图形化界面（CHESS平台）
+
+通过CHESS网页界面进行可视化操作，适合初学者和偶尔使用的用户。
+
+**优点**：
+- 操作简单直观
+- 无需命令行经验
+- 实时作业监控
+- 结果可视化展示
+
+**适用场景**：
+- 单个或少量结构搜索
+- 教学和学习用途
+- 快速原型分析
+
+### 2. 命令行界面（CLI）
+
+通过SSH连接到集群进行批量处理和自动化分析。
+
+**优点**：
+- 高效批量处理
+- 脚本自动化
+- 灵活参数配置
+- 适合大规模分析
+
+**适用场景**：
+- 大规模结构比对
+- 自动化流程
+- 高级分析需求
+
+---
+
+## 🖥️ CHESS图形化界面使用
+
+### 平台访问与应用下载
+
+#### 1. 登录CHESS平台
+
+首先访问CHESS平台并完成登录认证。
+
+#### 2. 下载Foldseek应用
+
+在应用中心中找到并下载Foldseek应用：
+
+![Foldseek应用下载](/static/guides/hpc/software-applications/foldseek/foldseek-chess-download.png)
+
+*图：在CHESS应用中心下载Foldseek应用*
+
+#### 3. 应用安装与配置
+
+下载完成后，Foldseek应用将自动安装到您的桌面环境中，可以直接启动使用。
+
+### 作业提交流程
+
+#### 1. 启动Foldseek应用
+
+双击桌面上的Foldseek图标，打开应用界面。
+
+#### 2. 配置搜索参数
+
+在Foldseek界面中配置以下参数：
+
+**输入文件设置**：
+- **查询结构**：选择要搜索的蛋白质结构文件（PDB格式）
+- **输出目录**：设置结果文件的保存路径
+
+**搜索数据库选择**：
+- **PDB数据库**：实验解析结构
+- **AlphaFold数据库**：预测结构
+- **SwissProt数据库**：序列数据库
+
+**高级参数**：
+- **E-value阈值**：控制搜索灵敏度（默认：0.001）
+- **覆盖率**：最小结构覆盖率要求
+- **最大目标数**：返回结果的最大数量
+
+#### 3. 提交作业
+
+参数配置完成后，点击"提交作业"按钮：
+
+![Foldseek作业提交](/static/guides/hpc/software-applications/foldseek/foldseek-job-submit.png)
+
+*图：Foldseek作业提交界面*
+
+### 作业监控与管理
+
+#### 1. 查看作业状态
+
+提交后可在作业管理界面查看运行状态：
+
+![Foldseek作业状态](/static/guides/hpc/software-applications/foldseek/foldseek-job-status.png)
+
+*图：作业状态监控界面*
+
+#### 2. 作业状态说明
+
+| 状态 | 描述 | 处理建议 |
+|------|-----|----------|
+| **队列中** | 作业等待调度 | 耐心等待，可查看队列长度 |
+| **运行中** | 正在执行搜索 | 监控进度，大型搜索可能需要较长时间 |
+| **已完成** | 搜索成功完成 | 下载并分析结果文件 |
+| **失败** | 作业执行出错 | 检查输入文件和参数设置 |
+
+---
+
+## 💻 命令行界面使用
+
+### 环境准备
+
+#### 1. 连接到集群
+
+```bash title="SSH连接到集群"
+ssh your_username@cluster.domain.com
+```
+
+#### 2. 加载Foldseek模块
+
+```bash title="模块环境配置"
+# 查看可用的Foldseek版本
+module avail foldseek
+
+# 加载Foldseek模块
+module load foldseek/latest
+
+# 验证安装
+foldseek --help
+```
+
+#### 3. 数据库准备
+
+```bash title="数据库下载与准备"
+# 创建数据库目录
+mkdir -p ~/foldseek_databases
+
+# 下载预构建数据库
+cd ~/foldseek_databases
+
+# AlphaFold数据库
+wget https://mmseqs.com/foldseek/afdb_proteome.tar.gz
+tar xzf afdb_proteome.tar.gz
+
+# PDB数据库
+wget https://mmseqs.com/foldseek/pdb100.tar.gz
+tar xzf pdb100.tar.gz
+```
+
+### 基础搜索操作
+
+#### 1. 简单结构搜索
+
+```bash title="基本搜索命令"
+# 对单个PDB文件进行搜索
+foldseek search \
+    query.pdb \
+    ~/foldseek_databases/afdb_proteome \
+    result.m8 \
+    tmp/ \
+    --format-output "query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
+```
+
+#### 2. 批量结构搜索
+
+```bash title="批量搜索脚本 (batch_search.sh)"
+#!/bin/bash
+
+# 输入目录包含多个PDB文件
+input_dir="./pdb_structures"
+database="~/foldseek_databases/afdb_proteome"
+output_dir="./foldseek_results"
+
+# 创建输出目录
+mkdir -p $output_dir
+
+# 批量处理
+for pdb_file in $input_dir/*.pdb; do
+    filename=$(basename "$pdb_file" .pdb)
+    echo "Processing $filename..."
+    
+    foldseek search \
+        $pdb_file \
+        $database \
+        $output_dir/${filename}_results.m8 \
+        $output_dir/${filename}_tmp/ \
+        --threads 8 \
+        -e 0.001 \
+        --format-output "query,target,pident,alnlen,evalue,bits,qcov,tcov"
+    
+    echo "Completed: $filename"
+done
+
+echo "批量搜索完成！"
+```
+
+#### 3. 高级搜索参数
+
+```bash title="高级参数配置"
+foldseek search \
+    query.pdb \
+    database \
+    results.m8 \
+    tmp/ \
+    --threads 16 \                    # 并行线程数
+    -e 0.001 \                        # E-value阈值
+    --min-seq-id 0.3 \                # 最小序列同一性
+    -c 0.8 \                          # 最小覆盖率
+    --cov-mode 1 \                    # 覆盖率计算模式
+    --max-seqs 1000 \                 # 最大返回序列数
+    --format-output "query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits,qcov,tcov"
+```
+
+### SLURM作业提交
+
+#### 1. 单个搜索作业
+
+```bash title="SLURM提交脚本 (submit_foldseek.sh)"
+#!/bin/bash
+#SBATCH --job-name=foldseek_search
+#SBATCH --partition=qcpu_18i
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=64GB
+#SBATCH --time=12:00:00
+#SBATCH --output=foldseek_%j.out
+#SBATCH --error=foldseek_%j.err
+
+# 环境设置
+module load foldseek/latest
+
+# 显示作业信息
+echo "作业开始时间: $(date)"
+echo "作业ID: $SLURM_JOB_ID"
+echo "计算节点: $SLURM_JOB_NODELIST"
+
+# 执行Foldseek搜索
+foldseek search \
+    $1 \
+    ~/foldseek_databases/afdb_proteome \
+    ${1%.pdb}_afdb_results.m8 \
+    tmp_${SLURM_JOB_ID}/ \
+    --threads $SLURM_NTASKS \
+    -e 0.001 \
+    --format-output "query,target,pident,alnlen,evalue,bits,qcov,tcov"
+
+# 清理临时文件
+rm -rf tmp_${SLURM_JOB_ID}/
+
+echo "作业完成时间: $(date)"
+```
+
+#### 2. 提交作业
+
+```bash title="作业提交命令"
+# 提交单个搜索作业
+sbatch submit_foldseek.sh query_protein.pdb
+
+# 查看作业状态
+squeue -u $USER
+
+# 查看作业输出
+tail -f foldseek_*.out
+```
+
+#### 3. 批量作业提交
+
+```bash title="批量提交脚本"
+#!/bin/bash
+
+# 批量提交多个PDB文件的搜索作业
+pdb_directory="./input_structures"
+
+for pdb_file in $pdb_directory/*.pdb; do
+    if [[ -f "$pdb_file" ]]; then
+        echo "提交作业: $(basename $pdb_file)"
+        sbatch submit_foldseek.sh $pdb_file
+        sleep 2  # 避免同时提交过多作业
+    fi
+done
+
+echo "所有作业已提交完成"
+```
+
+---
+
+## 📊 结果分析与解读
+
+### 输出文件格式
+
+#### 1. 搜索结果文件
+
+Foldseek搜索完成后生成以下类型的输出文件：
+
+```bash title="典型输出文件结构"
+# CHESS界面输出示例
+AF-A7MCY6-F1-model_v4-afdb_proteome_aln.tsv    # AlphaFold数据库搜索结果
+AF-A7MCY6-F1-model_v4-afdb_swissprot_aln.tsv   # SwissProt数据库搜索结果  
+AF-A7MCY6-F1-model_v4-pdb_aln.tsv              # PDB数据库搜索结果
+AF-A7MCY6-F1-model_v4.pdb                      # 查询结构文件
+```
+
+#### 2. 结果文件字段说明
+
+| 字段名称 | 描述 | 示例值 |
+|---------|-----|--------|
+| **query** | 查询结构标识符 | AF-A7MCY6-F1-model_v4 |
+| **target** | 目标结构标识符 | AF-P12345-F1-model_v4 |
+| **pident** | 序列同一性百分比 | 85.4 |
+| **alnlen** | 比对长度 | 256 |
+| **evalue** | 期望值 | 1.2e-45 |
+| **bits** | 比特得分 | 187.3 |
+| **qcov** | 查询覆盖率 | 0.92 |
+| **tcov** | 目标覆盖率 | 0.88 |
+
+### 结果质量评估
+
+#### 1. 显著性阈值
+
+```bash title="结果过滤标准"
+# 高置信度匹配
+E-value < 1e-10
+Bit score > 100
+Query coverage > 0.8
+
+# 中等置信度匹配  
+E-value < 1e-5
+Bit score > 50
+Query coverage > 0.6
+
+# 低置信度匹配（需要人工验证）
+E-value < 0.01
+Bit score > 30
+Query coverage > 0.4
+```
+
+#### 2. 结果排序与筛选
+
+```bash title="结果处理脚本"
+#!/bin/bash
+
+# 按E-value排序并筛选高质量匹配
+awk '$11 < 1e-5 && $13 > 0.7' results.m8 | \
+sort -k11,11g > high_quality_matches.tsv
+
+# 统计匹配数量
+echo "高质量匹配数量: $(wc -l < high_quality_matches.tsv)"
+
+# 提取最佳匹配
+head -10 high_quality_matches.tsv > top10_matches.tsv
+```
+
+### 结果可视化与分析
+
+#### 1. Python分析脚本
+
+```python title="结果分析脚本 (analyze_results.py)"
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 读取搜索结果
+def load_foldseek_results(filepath):
+    columns = ['query', 'target', 'pident', 'alnlen', 'mismatch', 
+               'gapopen', 'qstart', 'qend', 'tstart', 'tend', 
+               'evalue', 'bits', 'qcov', 'tcov']
+    
+    df = pd.read_csv(filepath, sep='\t', names=columns)
+    return df
+
+# 分析结果质量分布
+def analyze_search_quality(df):
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    
+    # E-value分布
+    axes[0,0].hist(df['evalue'], bins=50, alpha=0.7)
+    axes[0,0].set_xlabel('E-value')
+    axes[0,0].set_ylabel('频次')
+    axes[0,0].set_title('E-value分布')
+    axes[0,0].set_yscale('log')
+    
+    # 序列同一性分布
+    axes[0,1].hist(df['pident'], bins=30, alpha=0.7, color='green')
+    axes[0,1].set_xlabel('序列同一性 (%)')
+    axes[0,1].set_ylabel('频次')
+    axes[0,1].set_title('序列同一性分布')
+    
+    # 查询覆盖率分布
+    axes[1,0].hist(df['qcov'], bins=30, alpha=0.7, color='orange')
+    axes[1,0].set_xlabel('查询覆盖率')
+    axes[1,0].set_ylabel('频次')
+    axes[1,0].set_title('查询覆盖率分布')
+    
+    # 比特得分分布
+    axes[1,1].hist(df['bits'], bins=40, alpha=0.7, color='red')
+    axes[1,1].set_xlabel('比特得分')
+    axes[1,1].set_ylabel('频次')
+    axes[1,1].set_title('比特得分分布')
+    
+    plt.tight_layout()
+    plt.savefig('foldseek_analysis.png', dpi=300)
+    plt.show()
+
+# 主分析流程
+if __name__ == "__main__":
+    # 加载结果
+    results = load_foldseek_results('results.m8')
+    
+    print(f"总匹配数量: {len(results)}")
+    print(f"高质量匹配数量 (E-value < 1e-5): {sum(results['evalue'] < 1e-5)}")
+    print(f"平均序列同一性: {results['pident'].mean():.2f}%")
+    print(f"平均查询覆盖率: {results['qcov'].mean():.3f}")
+    
+    # 生成分析图表
+    analyze_search_quality(results)
+```
+
+---
+
+## ⚠️ 常见问题与故障排除
+
+### 搜索结果问题
+
+<details>
+<summary><strong>搜索结果为空或很少</strong></summary>
+
+**原因分析**：
+- E-value阈值设置过严格
+- 查询结构质量问题
+- 数据库选择不当
+
+**解决方案**：
+```bash
+# 放宽搜索参数
+foldseek search query.pdb database results.m8 tmp/ \
+    -e 0.1 \           # 增大E-value阈值
+    -c 0.5 \           # 降低覆盖率要求
+    --max-seqs 10000   # 增加最大返回数量
+```
+</details>
+
+<details>
+<summary><strong>内存不足错误</strong></summary>
+
+**错误表现**：内存溢出、程序异常终止
+
+**解决方案**：
+```bash
+# 增加内存申请
+#SBATCH --mem=128GB
+
+# 或使用内存优化参数
+foldseek search query.pdb database results.m8 tmp/ \
+    --split-memory-limit 32G
+```
+</details>
+
+### 性能优化问题
+
+<details>
+<summary><strong>搜索速度慢</strong></summary>
+
+**优化策略**：
+
+1. **增加并行度**：
+   ```bash
+   --threads 32  # 根据可用CPU核心数调整
+   ```
+
+2. **使用SSD存储**：
+   ```bash
+   # 将临时目录设置在快速存储上
+   export TMPDIR=/fast_ssd/tmp
+   ```
+
+3. **数据库预处理**：
+   ```bash
+   # 确保数据库已正确索引
+   foldseek createdb input.fasta database
+   ```
+</details>
+
+### 数据库相关问题
+
+<details>
+<summary><strong>数据库下载失败</strong></summary>
+
+**解决方案**：
+```bash
+# 使用镜像服务器
+wget https://mirror.mmseqs.com/foldseek/afdb_proteome.tar.gz
+
+# 或分块下载
+wget -c --tries=0 --read-timeout=20 url
+
+# 验证文件完整性
+md5sum -c database.md5
+```
+</details>
+
+---
+
+## 📈 高级应用与最佳实践
+
+### 大规模比较分析
+
+#### 1. 蛋白质家族分析
+
+```bash title="蛋白质家族聚类分析"
+# 构建蛋白质家族数据库
+foldseek createdb family_structures.fasta family_db
+
+# 进行all-vs-all比较
+foldseek search family_db family_db results.m8 tmp/ \
+    --threads 16 -e 0.001
+
+# 聚类分析
+foldseek cluster family_db cluster_result tmp/ \
+    --min-seq-id 0.3 -c 0.8
+
+# 生成聚类报告
+foldseek createtsv family_db family_db cluster_result cluster_report.tsv
+```
+
+#### 2. 结构域注释流水线
+
+```bash title="自动化结构域注释"
+#!/bin/bash
+
+# 1. 结构域数据库搜索
+foldseek search query.pdb pfam_structures results_pfam.m8 tmp/
+
+# 2. 功能域识别
+python identify_domains.py results_pfam.m8 > domain_annotation.txt
+
+# 3. 生成注释报告
+generate_annotation_report.py \
+    --input domain_annotation.txt \
+    --output detailed_report.html
+```
+
+### 与其他工具的整合
+
+#### 1. 与AlphaFold结构预测结合
+
+```bash title="AlphaFold结构验证流程"
+# 下载AlphaFold预测结构
+wget "https://alphafold.ebi.ac.uk/files/AF-${UNIPROT_ID}-F1-model_v4.pdb"
+
+# 搜索相似结构
+foldseek search AF-${UNIPROT_ID}-F1-model_v4.pdb \
+    ~/databases/pdb100 \
+    validation_results.m8 tmp/
+
+# 结构质量评估
+python validate_structure_quality.py \
+    AF-${UNIPROT_ID}-F1-model_v4.pdb \
+    validation_results.m8
+```
+
+#### 2. 与分子对接软件协作
+
+```bash title="结构搜索辅助分子对接"
+# 1. 搜索相似活性位点
+foldseek search binding_site.pdb enzyme_database matches.m8 tmp/
+
+# 2. 提取高相似性结构
+extract_top_matches.py matches.m8 --top 10
+
+# 3. 准备分子对接输入
+prepare_docking_inputs.py top_matches.txt
+```
+
+---
+
+## 📚 扩展资源与工具
+
+### 学习资源
+
+1. **官方文档**
+   - [Foldseek GitHub仓库](https://github.com/deepmind/foldseek)
+   - [MMseqs2文档](https://mmseqs.com/latest/userguide.pdf)
+
+2. **教程资源**
+   - [结构比对原理教程](https://example.com/structure-alignment)
+   - [蛋白质结构数据库指南](https://example.com/structure-databases)
+
+3. **社区支持**
+   - [Foldseek用户论坛](https://groups.google.com/g/mmseqs)
+   - [结构生物学社区](https://www.ccpbx.ac.uk/)
+
+### 相关分析工具
+
+| 工具名称 | 功能描述 | 配合使用 |
+|---------|----------|----------|
+| **PyMOL** | 分子可视化 | 结构展示、比对可视化 |
+| **ChimeraX** | 高级分子可视化 | 复杂结构分析 |
+| **Bio3D** | R语言结构分析 | 统计分析、网络分析 |
+| **MDAnalysis** | 分子动力学分析 | 动态结构分析 |
+
+### 数据库资源
+
+| 数据库名称 | 描述 | 更新频率 | 获取方式 |
+|-----------|-----|----------|----------|
+| **PDB** | 实验解析结构 | 每周 | https://www.rcsb.org/ |
+| **AlphaFold DB** | AI预测结构 | 定期 | https://alphafold.ebi.ac.uk/ |
+| **SCOP** | 结构分类数据库 | 年度 | https://scop.berkeley.edu/ |
+| **CATH** | 蛋白质结构层次 | 定期 | https://www.cathdb.info/ |
+
+---
+
+## 🎬 实际操作演示
+
+### 完整搜索流程演示
+
+观看下方动图了解完整的Foldseek结构搜索流程，从CHESS界面操作到结果分析：
+
+![Foldseek使用演示](/static/guides/hpc/software-applications/foldseek/foldseek.gif)
+
+*演示内容包括：CHESS登录 → 应用下载 → 作业配置 → 提交执行 → 状态监控 → 结果查看*
+
+### 实践学习路径
+
+1. **初学者练习**：使用CHESS界面进行单个结构搜索
+2. **进阶练习**：命令行批量处理和参数优化
+3. **高级应用**：整合分析流水线和自动化脚本
+
+---
+
+## 💡 最佳实践总结
+
+:::tip 关键要点
+1. **合理选择数据库**：根据研究目的选择合适的结构数据库
+2. **参数优化**：根据结构特点调整搜索参数以获得最佳结果
+3. **结果验证**：使用多种指标评估搜索结果的可靠性  
+4. **批量处理**：利用集群资源进行大规模结构比较分析
+5. **结果整合**：将Foldseek结果与其他生物信息学工具结合分析
+:::
+
+:::warning 注意事项
+- 大规模搜索需要充分的存储空间和计算资源
+- 数据库文件较大，建议使用高速网络下载
+- 结果解读需要结合生物学背景知识
+- 定期更新数据库以获得最新的结构信息
+:::
+
+---
+
+<head>
+  <title>Foldseek 蛋白质结构搜索平台使用指南 | HPC平台文档</title>
+  <meta
+    name="description"
+    content="全面的Foldseek蛋白质结构搜索工具使用指南，涵盖图形化界面和命令行两种使用方式，包含结构比对、数据库搜索和结果分析的完整流程。"
+  />
+  <meta name="keywords" content="Foldseek, 蛋白质结构, 结构比对, 结构搜索, AlphaFold, PDB, 结构生物学" />
+</head> 

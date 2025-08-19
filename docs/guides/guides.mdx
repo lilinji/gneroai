@@ -1,0 +1,462 @@
+---
+slug: /
+sidebar_position: 1
+sidebar_class_name: guide_sidebar_index
+description: "太行I号数据与智算平台用户手册 - 从平台概览到高级应用，全面掌握高性能计算环境"
+---
+
+# 太行I号数据与智算平台用户手册
+
+高性能计算环境完整使用指南
+
+<div className="relative mb-8 p-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-700 shadow-lg overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 dark:from-blue-400/10 dark:to-purple-400/10" />
+  <div className="relative">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        🚀
+      </div>
+      <div>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">欢迎使用太行I号智算平台</h3>
+        <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">高性能计算环境用户指南</div>
+      </div>
+    </div>
+    <div className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+      本用户手册将指导您快速上手高性能计算环境，从基础操作到高级科学计算应用，助您高效完成科研任务。涵盖平台配置、作业调度、软件应用、运行环境等全方面内容。
+    </div>
+  </div>
+</div>
+
+<CardSection
+  id="platform-overview"
+  title="🏢 平台概览"
+  description="熟悉平台配置、集群队列、CHESS门户、定价和常用软件"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+        <span className="text-2xl">⚙️</span>
+      </div>
+    }
+    title="平台配置"
+    to="/guides/platform-overview/platform-config"
+    description="平台配置设置与选项概览，包括系统参数、用户设置和个性化配置"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30">
+        <span className="text-2xl">📋</span>
+      </div>
+    }
+    title="集群队列介绍"
+    to="/guides/platform-overview/cluster-queue"
+    description="了解集群队列和作业调度管理，掌握资源分配和优先级设置"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30">
+        <span className="text-2xl">🏛️</span>
+      </div>
+    }
+    title="CHESS门户介绍"
+    to="/guides/platform-overview/chess-portal"
+    description="CHESS超算门户及其功能介绍，包括作业提交、状态监控和文件管理"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30">
+        <span className="text-2xl">💰</span>
+      </div>
+    }
+    title="定价标准"
+    to="/guides/platform-overview/pricing"
+    description="了解平台定价结构和计费标准，包括计算资源费用和存储费用"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30">
+        <span className="text-2xl">📦</span>
+      </div>
+    }
+    title="常用软件列表"
+    to="/guides/platform-overview/software-list"
+    description="平台提供的常用软件清单，包括科学计算、建模仿真和数据分析工具"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<CardSection
+  id="getting-started"
+  title="🚀 快速开始"
+  description="学习如何登录超算平台并掌握基础操作"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30">
+        <span className="text-2xl">🔑</span>
+      </div>
+    }
+    title="登录智算平台"
+    to="/guides/getting-started/platform-login"
+    description="太行I号智算平台登录详细指南，包括账号申请、SSH连接和安全认证"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30">
+        <span className="text-2xl">💻</span>
+      </div>
+    }
+    title="HPC常用命令"
+    to="/guides/getting-started/hpc-commands"
+    description="高性能计算环境必备Linux命令，包括文件操作、进程管理和系统监控"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30">
+        <span className="text-2xl">📁</span>
+      </div>
+    }
+    title="文件传输"
+    to="/guides/getting-started/file-transfer"
+    description="多种文件传输方法与最佳实践，包括SCP、SFTP、rsync和网盘同步"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-sky-50 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30">
+        <span className="text-2xl">🐍</span>
+      </div>
+    }
+    title="Python编程"
+    to="/guides/getting-started/python-programming"
+    description="HPC集群上Python程序开发，包括环境配置、库管理和并行计算"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-900/30 dark:to-pink-900/30">
+        <span className="text-2xl">🖥️</span>
+      </div>
+    }
+    title="Tmux后台任务"
+    to="/guides/getting-started/tmux-background"
+    description="使用Tmux管理长期运行的后台任务，包括会话管理和窗口分割"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<CardSection
+  id="runtime-environment"
+  title="🛠️ 运行环境"
+  description="了解不同的运行环境：模块、Conda、容器和虚拟桌面"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30">
+        <span className="text-2xl">🧩</span>
+      </div>
+    }
+    title="环境模块 Modules"
+    to="/guides/runtime-environment/modules"
+    description="学习使用环境模块进行软件管理和版本控制，实现灵活的软件环境切换"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-teal-900/30 dark:to-cyan-900/30">
+        <span className="text-2xl">🐍</span>
+      </div>
+    }
+    title="Conda包管理"
+    to="/guides/runtime-environment/conda"
+    description="掌握Conda进行Python包和环境管理，包括虚拟环境创建和依赖解决"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30">
+        <span className="text-2xl">📦</span>
+      </div>
+    }
+    title="Singularity容器"
+    to="/guides/runtime-environment/singularity"
+    description="使用Singularity容器构建可重现计算环境，实现跨平台的一致性计算"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900/30 dark:to-gray-900/30">
+        <span className="text-2xl">🖥️</span>
+      </div>
+    }
+    title="虚拟云桌面"
+    to="/guides/runtime-environment/virtual-desktop"
+    description="通过虚拟云桌面访问图形界面应用，支持远程可视化操作和分析"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<CardSection
+  id="slurm-job-system"
+  title="📊 Slurm作业调度"
+  description="掌握Slurm工作负载管理器，高效作业提交和资源管理"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
+        <span className="text-2xl">📊</span>
+      </div>
+    }
+    title="Slurm作业调度系统"
+    to="/guides/slurm-job-system/slurm-overview"
+    description="理解Slurm工作负载管理器架构和基本概念，掌握资源分配和作业调度原理"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30">
+        <span className="text-2xl">📥</span>
+      </div>
+    }
+    title="Sbatch批量提交"
+    to="/guides/slurm-job-system/sbatch-examples"
+    description="学习使用sbatch进行批量作业提交，包括脚本编写和参数配置"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-lime-50 to-green-100 dark:from-lime-900/30 dark:to-green-900/30">
+        <span className="text-2xl">🏃</span>
+      </div>
+    }
+    title="Srun运行作业"
+    to="/guides/slurm-job-system/srun-examples"
+    description="使用srun执行交互式和并行作业，实现实时任务执行和调试"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30">
+        <span className="text-2xl">🎯</span>
+      </div>
+    }
+    title="Salloc资源分配"
+    to="/guides/slurm-job-system/salloc-examples"
+    description="使用salloc进行资源分配和交互会话，支持灵活的资源预约和使用"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<CardSection
+  id="software-applications"
+  title="💻 软件应用"
+  description="学习使用各类科学计算软件和集群工具"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30">
+        <span className="text-2xl">📊</span>
+      </div>
+    }
+    title="R统计分析"
+    to="/guides/software-applications/r-usage"
+    description="集群上使用R进行统计计算和数据分析，包括并行计算和大数据处理"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-teal-900/30 dark:to-cyan-900/30">
+        <span className="text-2xl">🧬</span>
+      </div>
+    }
+    title="AlphaFold 2蛋白预测"
+    to="/guides/software-applications/alphafold2"
+    description="使用AlphaFold 2进行蛋白质结构预测，实现高精度的三维结构建模"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30">
+        <span className="text-2xl">📓</span>
+      </div>
+    }
+    title="Jupyter交互计算"
+    to="/guides/software-applications/jupyter-usage"
+    description="设置和使用Jupyter进行交互式计算，支持多语言和可视化分析"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30">
+        <span className="text-2xl">🧮</span>
+      </div>
+    }
+    title="MATLAB计算仿真"
+    to="/guides/software-applications/matlab-usage"
+    description="在集群上运行MATLAB计算和仿真，支持并行计算和大部分工具箱"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900/30 dark:to-slate-900/30">
+        <span className="text-2xl">💻</span>
+      </div>
+    }
+    title="VSCode远程开发"
+    to="/guides/software-applications/vscode-usage"
+    description="使用VSCode进行HPC远程开发，支持代码编辑、调试和版本控制"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30">
+        <span className="text-2xl">⚗️</span>
+      </div>
+    }
+    title="Gaussian量化计算"
+    to="/guides/software-applications/gaussian-usage"
+    description="使用Gaussian进行量子化学计算，包括分子结构优化和性质预测"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30">
+        <span className="text-2xl">🔬</span>
+      </div>
+    }
+    title="AMBER分子动力学"
+    to="/guides/software-applications/amber-usage"
+    description="使用AMBER套件进行分子动力学模拟，实现生物大分子系统的动态分析"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-pink-50 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30">
+        <span className="text-2xl">🔍</span>
+      </div>
+    }
+    title="Foldseek结构搜索"
+    to="/guides/software-applications/foldseek-usage"
+    description="使用Foldseek进行快速蛋白质结构搜索，实现高效的结构同源性分析"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30">
+        <span className="text-2xl">🌐</span>
+      </div>
+    }
+    title="OpenMPI并行计算"
+    to="/guides/software-applications/openmpi-usage"
+    description="使用OpenMPI进行HPC并行计算，支持大规模分布式计算任务"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
+        <span className="text-2xl">⚛️</span>
+      </div>
+    }
+    title="VASP第一性原理"
+    to="/guides/software-applications/vasp-usage"
+    description="使用VASP进行第一性原理量子计算，支持材料物性和电子结构研究"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-lime-50 to-green-100 dark:from-lime-900/30 dark:to-green-900/30">
+        <span className="text-2xl">🧪</span>
+      </div>
+    }
+    title="生信工具容器"
+    to="/guides/software-applications/bioinformatics-tools"
+    description="使用常用生信工具和容器镜像，包括序列分析、基因组学和蛋白组学工具"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30">
+        <span className="text-2xl">🍌</span>
+      </div>
+    }
+    title="ColabFold快速折叠"
+    to="/guides/software-applications/colabfold-usage"
+    description="使用ColabFold进行快速蛋白质折叠预测，支持高速批量处理和结构建模"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-red-50 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30">
+        <span className="text-2xl">🔢</span>
+      </div>
+    }
+    title="AF3批量预测"
+    to="/guides/software-applications/alphafold3-batch"
+    description="使用AlphaFold 3进行批量结构预测，支持大规模蛋白质结构预测任务"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30">
+        <span className="text-2xl">🧬</span>
+      </div>
+    }
+    title="ParallelFold并行预测"
+    to="/guides/software-applications/parallelfold-usage"
+    description="使用ParallelFold进行并行蛋白结构预测，实现高效的分布式计算加速"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-900/30 dark:to-red-900/30">
+        <span className="text-2xl">⚡</span>
+      </div>
+    }
+    title="Boltz-2高级预测"
+    to="/guides/software-applications/boltz2-usage"
+    description="使用Boltz-2进行高级蛋白质结构预测，提供更高精度的结构建模能力"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<CardSection
+  id="ai"
+  title="🤖 AI人工智能"
+  description="探索智算平台AI功能：语音识别、翻译等"
+  className="mb-12"
+>
+  <Card
+    icon={
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30">
+        <span className="text-2xl">🤖</span>
+      </div>
+    }
+    title="语音转写"
+    to="/guides/ai/transcription"
+    description="学习启用和使用实时语音转写功能，支持多语言识别和文本输出"
+    className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl bg-white dark:bg-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+  />
+</CardSection>
+
+<head>
+  <title>太行I号数据与智算平台 | 用户手册</title>
+  <meta
+    name="description"
+    content="太行I号数据与智算平台用户手册：全面掌握HPC环境操作、Slurm作业调度、科学计算软件使用，从入门到高级应用的完整指导。"
+  />
+  <meta name="keywords" content="太行I号,HPC,高性能计算,Slurm,科学计算,用户手册,智算平台" />
+  <meta property="og:title" content="太行I号数据与智算平台用户手册" />
+  <meta property="og:description" content="全面掌握高性能计算环境，从基础操作到高级应用的完整指导" />
+  <meta property="og:type" content="website" />
+</head>

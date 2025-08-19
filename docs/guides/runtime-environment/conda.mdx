@@ -1,0 +1,535 @@
+---
+title: Conda 包管理系统
+sidebar_position: 3
+description: >-
+  掌握Conda包管理和环境管理，构建高效的Python/R科学计算环境
+---
+
+# Conda 包管理系统
+
+Conda 是面向科学计算的跨平台包管理和环境管理系统，为 Python、R 等语言提供了完整的依赖解析和环境隔离解决方案。在 HPC 环境中，Conda 能够有效解决软件包版本冲突和依赖管理问题。
+
+## 技术架构与核心能力
+
+### 系统设计理念
+
+Conda 采用现代化的包管理架构，通过统一的元数据管理和智能依赖解析，为科学计算提供企业级的环境管理能力：
+
+**核心技术特性**：
+- **智能包管理**：基于 SAT 求解器的依赖解析算法，确保包版本兼容性
+- **虚拟环境隔离**：轻量级环境容器化，支持多项目并行开发
+- **跨语言生态**：原生支持 Python、R、Scala 等多语言包管理
+- **平台无关性**：统一的包格式和安装机制，支持主流操作系统
+
+### Anaconda vs Miniconda
+
+| 特性 Feature | Anaconda | Miniconda |
+|--------------|----------|-----------|
+| **大小** / Size | ~3GB | ~400MB |
+| **预装包** / Pre-installed | 1500+ packages | 基础包 / Basic packages |
+| **适用场景** / Use Case | 桌面数据科学 / Desktop DS | 服务器环境 / Server |
+| **推荐** / Recommended | 本地开发 / Local dev | HPC集群 / HPC cluster |
+
+## Conda基础操作 (Basic Conda Operations)
+
+### 检查Conda状态 (Check Conda Status)
+
+```bash
+# 检查Conda版本 / Check Conda version
+conda --version
+conda -V
+
+# 查看Conda配置信息 / View Conda configuration
+conda info
+
+# 查看Conda环境列表 / List Conda environments
+conda env list
+conda info --envs
+
+# 查看已安装的包 / List installed packages
+conda list
+```
+
+### 更新Conda (Update Conda)
+
+```bash
+# 更新Conda本身 / Update Conda itself
+conda update conda
+
+# 更新所有包 / Update all packages
+conda update --all
+
+# 更新特定包 / Update specific package
+conda update numpy pandas
+```
+
+## 环境管理 (Environment Management)
+
+### 创建环境 (Creating Environments)
+
+```bash
+# 创建新环境 / Create new environment
+conda create -n myproject python=3.9
+
+# 创建环境并安装包 / Create environment with packages
+conda create -n datascience python=3.9 numpy pandas matplotlib
+
+# 从文件创建环境 / Create environment from file
+conda env create -f environment.yml
+
+# 克隆现有环境 / Clone existing environment
+conda create -n newproject --clone myproject
+```
+
+### 激活和停用环境 (Activate and Deactivate Environments)
+
+```bash
+# 激活环境 / Activate environment
+conda activate myproject
+
+# 停用环境 / Deactivate environment
+conda deactivate
+
+# 查看当前环境 / Check current environment
+echo $CONDA_DEFAULT_ENV
+
+# 在特定环境中运行命令 / Run command in specific environment
+conda run -n myproject python script.py
+```
+
+### 管理环境 (Managing Environments)
+
+```bash
+# 删除环境 / Remove environment
+conda env remove -n myproject
+
+# 导出环境 / Export environment
+conda env export > environment.yml
+conda env export -n myproject > myproject.yml
+
+# 列出环境中的包 / List packages in environment
+conda list -n myproject
+
+# 重命名环境（需要克隆后删除）/ Rename environment
+conda create -n newname --clone oldname
+conda env remove -n oldname
+```
+
+## 包管理 (Package Management)
+
+### 安装包 (Installing Packages)
+
+```bash
+# 安装单个包 / Install single package
+conda install numpy
+
+# 安装多个包 / Install multiple packages
+conda install numpy pandas matplotlib
+
+# 安装特定版本 / Install specific version
+conda install python=3.9.0
+conda install "numpy>=1.20,<1.25"
+
+# 从特定频道安装 / Install from specific channel
+conda install -c conda-forge scikit-learn
+conda install -c bioconda biopython
+
+# 安装到特定环境 / Install to specific environment
+conda install -n myproject numpy
+```
+
+### 搜索和查看包 (Searching and Viewing Packages)
+
+```bash
+# 搜索包 / Search packages
+conda search numpy
+conda search "*tensorflow*"
+
+# 查看包信息 / View package info
+conda info numpy
+
+# 查看包依赖 / View package dependencies
+conda info --dependencies numpy
+
+# 列出可用频道 / List available channels
+conda config --show channels
+```
+
+### 卸载和清理 (Uninstalling and Cleaning)
+
+```bash
+# 卸载包 / Uninstall package
+conda remove numpy
+
+# 从特定环境卸载 / Uninstall from specific environment
+conda remove -n myproject numpy
+
+# 清理缓存 / Clean cache
+conda clean --all
+conda clean --packages
+conda clean --tarballs
+
+# 清理未使用的包 / Clean unused packages
+conda clean --packages --yes
+```
+
+## 频道管理 (Channel Management)
+
+### 配置频道 (Configuring Channels)
+
+```bash
+# 查看当前频道 / View current channels
+conda config --show channels
+
+# 添加频道 / Add channel
+conda config --add channels conda-forge
+conda config --add channels bioconda
+
+# 设置频道优先级 / Set channel priority
+conda config --set channel_priority strict
+
+# 移除频道 / Remove channel
+conda config --remove channels conda-forge
+```
+
+### 常用频道 (Common Channels)
+
+| 频道 Channel | 描述 Description | 用途 Use Case |
+|-------------|------------------|---------------|
+| **defaults** | Anaconda官方频道 / Official | 基础包 / Basic packages |
+| **conda-forge** | 社区维护 / Community | 最新版本 / Latest versions |
+| **bioconda** | 生物信息学 / Bioinformatics | 生物软件 / Bio software |
+| **pytorch** | PyTorch官方 / Official | 深度学习 / Deep learning |
+| **nvidia** | NVIDIA官方 / Official | GPU计算 / GPU computing |
+
+## 实际应用示例 (Practical Examples)
+
+### 数据科学环境 (Data Science Environment)
+
+```bash
+# 创建数据科学环境 / Create data science environment
+conda create -n datascience python=3.9
+
+# 激活环境 / Activate environment
+conda activate datascience
+
+# 安装核心数据科学包 / Install core data science packages
+conda install numpy pandas matplotlib seaborn
+conda install scikit-learn scipy statsmodels
+conda install jupyter notebook ipykernel
+
+# 安装可视化工具 / Install visualization tools
+conda install plotly bokeh
+conda install -c conda-forge altair
+
+# 注册内核到Jupyter / Register kernel to Jupyter
+python -m ipykernel install --user --name datascience --display-name "Data Science"
+
+echo "数据科学环境设置完成 / Data science environment ready"
+```
+
+### 机器学习环境 (Machine Learning Environment)
+
+```bash
+# 创建机器学习环境 / Create ML environment
+conda create -n ml python=3.9
+
+conda activate ml
+
+# 安装基础包 / Install base packages
+conda install numpy pandas matplotlib
+
+# 安装机器学习框架 / Install ML frameworks
+conda install scikit-learn xgboost lightgbm
+
+# 安装深度学习框架 / Install deep learning frameworks
+conda install -c pytorch pytorch torchvision torchaudio
+conda install tensorflow-gpu
+
+# 安装其他有用工具 / Install other useful tools
+conda install jupyter mlflow wandb
+conda install -c conda-forge shap lime
+
+echo "机器学习环境设置完成 / ML environment ready"
+```
+
+### 生物信息学环境 (Bioinformatics Environment)
+
+```bash
+# 创建生物信息学环境 / Create bioinformatics environment
+conda create -n bioinfo python=3.9
+
+conda activate bioinfo
+
+# 添加生物信息学频道 / Add bioinformatics channels
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+# 安装生物信息学工具 / Install bioinformatics tools
+conda install biopython pysam
+conda install samtools bcftools htslib
+conda install blast fastp trimmomatic
+
+# 安装分析包 / Install analysis packages
+conda install pandas numpy matplotlib seaborn
+conda install -c conda-forge scanpy
+
+echo "生物信息学环境设置完成 / Bioinformatics environment ready"
+```
+
+## 环境文件管理 (Environment File Management)
+
+### 创建environment.yml (Creating environment.yml)
+
+```yaml
+# environment.yml - 环境配置文件 / Environment configuration file
+name: myproject
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - numpy>=1.20
+  - pandas>=1.3
+  - matplotlib>=3.4
+  - scikit-learn>=1.0
+  - jupyter
+  - pip
+  - pip:
+    - some-pip-package
+    - another-pip-package
+```
+
+### 使用环境文件 (Using Environment Files)
+
+```bash
+# 从文件创建环境 / Create environment from file
+conda env create -f environment.yml
+
+# 更新现有环境 / Update existing environment
+conda env update -f environment.yml
+
+# 导出当前环境 / Export current environment
+conda env export > environment.yml
+
+# 导出跨平台环境文件 / Export cross-platform environment
+conda env export --no-builds > environment.yml
+```
+
+## 与pip集成 (Integration with pip)
+
+### Conda和pip混合使用 (Using Conda and pip Together)
+
+```bash
+# 在Conda环境中使用pip / Use pip in Conda environment
+conda activate myproject
+
+# 优先使用conda安装 / Prefer conda install
+conda install numpy pandas
+
+# 如果conda没有，使用pip / Use pip if not available in conda
+pip install some-package
+
+# 查看所有包（包括pip安装的）/ List all packages (including pip)
+conda list
+
+# 导出包含pip包的环境 / Export environment including pip packages
+conda env export > environment.yml
+```
+
+### pip requirements集成 (pip requirements integration)
+
+```bash
+# 从requirements.txt安装 / Install from requirements.txt
+pip install -r requirements.txt
+
+# 在environment.yml中包含pip依赖 / Include pip dependencies in environment.yml
+# 见上面的environment.yml示例 / See environment.yml example above
+```
+
+## 性能优化 (Performance Optimization)
+
+### 加速包安装 (Speeding up Package Installation)
+
+```bash
+# 使用libmamba求解器（更快）/ Use libmamba solver (faster)
+conda install -n base conda-libmamba-solver
+conda config --set solver libmamba
+
+# 设置并行下载 / Set parallel downloads
+conda config --set remote_max_retries 3
+conda config --set remote_connect_timeout_secs 30
+
+# 使用本地缓存 / Use local cache
+conda config --set always_copy false
+```
+
+### 环境管理优化 (Environment Management Optimization)
+
+```bash
+# 创建轻量级环境 / Create lightweight environments
+conda create -n minimal python=3.9 --no-default-packages
+
+# 使用环境文件批量安装 / Batch install using environment files
+conda env create -f environment.yml
+
+# 定期清理 / Regular cleanup
+conda clean --all
+conda env remove -n unused_env
+```
+
+## 故障排除 (Troubleshooting)
+
+### 常见问题解决 (Common Issues Solutions)
+
+#### 问题1: 包冲突 (Package Conflicts)
+
+```bash
+# 查看冲突详情 / View conflict details
+conda install package_name --dry-run
+
+# 创建新环境避免冲突 / Create new environment to avoid conflicts
+conda create -n newenv python=3.9 package_name
+
+# 使用mamba解决复杂依赖 / Use mamba for complex dependencies
+conda install mamba -c conda-forge
+mamba install complex_package
+```
+
+#### 问题2: 环境激活失败 (Environment Activation Failure)
+
+```bash
+# 重新初始化conda / Reinitialize conda
+conda init bash
+source ~/.bashrc
+
+# 检查conda配置 / Check conda configuration
+conda config --show
+
+# 修复环境路径 / Fix environment paths
+conda info --envs
+```
+
+#### 问题3: 包下载失败 (Package Download Failure)
+
+```bash
+# 清理缓存重试 / Clean cache and retry
+conda clean --all
+conda install package_name
+
+# 尝试不同频道 / Try different channels
+conda install -c conda-forge package_name
+
+# 检查网络连接 / Check network connection
+conda config --show channels
+```
+
+## 高级功能 (Advanced Features)
+
+### 构建自定义包 (Building Custom Packages)
+
+```bash
+# 安装conda-build / Install conda-build
+conda install conda-build
+
+# 创建包配置 / Create package configuration
+mkdir my-package
+cd my-package
+
+# meta.yaml示例 / meta.yaml example
+cat > meta.yaml << EOF
+package:
+  name: mypackage
+  version: "1.0.0"
+
+source:
+  path: .
+
+build:
+  number: 0
+  script: python setup.py install
+
+requirements:
+  build:
+    - python
+    - setuptools
+  run:
+    - python
+    - numpy
+
+test:
+  imports:
+    - mypackage
+
+about:
+  home: https://github.com/user/mypackage
+  license: MIT
+EOF
+
+# 构建包 / Build package
+conda build .
+```
+
+### 环境自动化 (Environment Automation)
+
+```bash
+#!/bin/bash
+# setup_conda_env.sh - 自动化环境设置脚本
+
+ENV_NAME="autoproject"
+PYTHON_VERSION="3.9"
+
+# 检查环境是否存在 / Check if environment exists
+if conda env list | grep -q "^$ENV_NAME "; then
+    echo "环境 $ENV_NAME 已存在 / Environment $ENV_NAME already exists"
+    conda activate $ENV_NAME
+else
+    echo "创建新环境 $ENV_NAME / Creating new environment $ENV_NAME"
+    conda create -n $ENV_NAME python=$PYTHON_VERSION -y
+    conda activate $ENV_NAME
+fi
+
+# 安装必需包 / Install required packages
+echo "安装包 / Installing packages..."
+conda install numpy pandas matplotlib jupyter -y
+
+# 注册Jupyter内核 / Register Jupyter kernel
+python -m ipykernel install --user --name $ENV_NAME --display-name "Auto Project"
+
+echo "环境设置完成 / Environment setup completed"
+echo "激活环境 / Activate environment: conda activate $ENV_NAME"
+```
+
+## 最佳实践 (Best Practices)
+
+### 环境管理最佳实践 (Environment Management Best Practices)
+
+- ✅ **项目隔离** / Project Isolation: 为每个项目创建独立环境
+- ✅ **版本固定** / Version Pinning: 在生产环境中固定包版本
+- ✅ **环境文档** / Environment Documentation: 使用environment.yml记录环境
+- ✅ **定期更新** / Regular Updates: 定期更新包和环境
+
+### 包管理最佳实践 (Package Management Best Practices)
+
+- ✅ **频道优先级** / Channel Priority: 设置合理的频道优先级
+- ✅ **依赖最小化** / Minimize Dependencies: 只安装必需的包
+- ✅ **缓存清理** / Cache Cleanup: 定期清理缓存节省空间
+- ✅ **环境备份** / Environment Backup: 导出重要环境配置
+
+## 下一步 (Next Steps)
+
+掌握Conda后，您可以：
+After mastering Conda, you can:
+
+- 探索 [Singularity 容器](./singularity) 实现更强的隔离
+- 体验 [虚拟云桌面](./virtual-desktop) 进行图形化开发
+- 回顾 [Modules 环境模块](./modules) 了解系统级管理
+- 学习 [Slurm 作业调度系统](../slurm-job-system/slurm-overview) 提交作业
+
+<head>
+  <title>Conda 包管理 Guide</title>
+  <meta
+    name="description"
+    content="Master Conda for Python package and environment management on HPC systems."
+  />
+</head> 

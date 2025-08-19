@@ -1,0 +1,227 @@
+# AlphaFold 3 数据库配置文件
+# 参考数据库和模型权重配置
+
+# 主要数据库配置
+databases:
+  alphafold3_reference:
+    path: "/hpcfs/fpublic/database/alphafold/af3/data"
+    version: "2024.05"
+    last_updated: "2024-05-15"
+    
+    components:
+      bfd:
+        file: "bfd-first_non_consensus_sequences.fasta"
+        size: "~400GB"
+        description: "BFD数据库，用于序列同源性搜索"
+        
+      mgy_clusters:
+        file: "mgy_clusters_2022_05.fa"
+        size: "~150GB"
+        description: "MGnify聚类序列"
+        
+      pdb_structures:
+        file: "pdb_2022_09_28_mmcif_files.tar"
+        size: "~200GB"
+        description: "PDB结构数据库"
+        
+      pdb_sequences:
+        file: "pdb_seqres_2022_09_28.fasta"
+        size: "~5GB"
+        description: "PDB序列数据"
+        
+      rnacentral:
+        file: "rnacentral_active_seq_id_90_cov_80_linclust.fasta"
+        size: "~30GB"
+        description: "RNAcentral数据库"
+        
+      nt_rna:
+        file: "nt_rna_2023_02_23_clust_seq_id_90_cov_80_rep_seq.fasta"
+        size: "~100GB"
+        description: "NCBI NT RNA序列"
+        
+      rfam:
+        file: "rfam_14_9_clust_seq_id_90_cov_80_rep_seq.fasta"
+        size: "~1GB"
+        description: "Rfam RNA家族数据库"
+        
+      uniprot_all:
+        file: "uniprot_all_2021_04.fa"
+        size: "~200GB"
+        description: "完整UniProt蛋白序列数据库"
+        
+      uniref90:
+        file: "uniref90_2022_05.fa" 
+        size: "~100GB"
+        description: "UniRef90聚类数据库"
+
+# 模型权重配置
+model_weights:
+  alphafold3:
+    base_path: "/hpcfs/fhome/USERNAME/models_weight"
+    download_required: true
+    license_required: true
+    
+    structure:
+      model_dir: "alphafold3_model"
+      params_dir: "params"
+      configs_dir: "configs"
+      
+    files:
+      model_weights: "model.pkl"
+      config_file: "config.json"
+      license_file: "LICENSE"
+      
+    size: "~5GB"
+    version: "latest"
+    
+  application_process:
+    official_repo: "https://github.com/google-deepmind/alphafold3"
+    application_url: "https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS.md"
+    requirements:
+      - "Academic or commercial research use"
+      - "Valid institutional email address"
+      - "Agreement to terms of use"
+    
+    approval_time: "1-3 business days"
+    supported_formats: ["PyTorch", "JAX"]
+
+# 数据库访问配置
+access_settings:
+  read_only: true
+  shared_access: true
+  backup_available: true
+  
+  permissions:
+    user_access: "read"
+    group_access: "read"
+    public_access: "none"
+    
+  mount_points:
+    container_path: "/af3/data"
+    host_path: "/hpcfs/fpublic/database/alphafold/af3/data"
+    
+  network_requirements:
+    internet_access: false  # 离线模式
+    local_network: true
+    
+# 存储要求
+storage_requirements:
+  total_database_size: "~1.2TB"
+  user_weights_size: "~5GB"
+  temp_space_per_job: "~50GB"
+  output_space_estimate: "~2-10GB per prediction"
+  
+  recommended_quotas:
+    home_directory: "100GB+"
+    scratch_space: "500GB+"
+    temp_directory: "100GB+"
+
+# 性能配置
+performance_settings:
+  database_cache:
+    enable: true
+    cache_dir: "/tmp/af3_db_cache"
+    max_cache_size: "50GB"
+    
+  io_optimization:
+    use_ssd: true
+    parallel_io: true
+    buffer_size: "64MB"
+    
+  network_optimization:
+    local_access_only: true
+    bandwidth: "10Gb/s"
+
+# 维护计划
+maintenance:
+  update_schedule:
+    frequency: "quarterly"
+    next_update: "2024-08-01"
+    downtime_notice: "48 hours advance"
+    
+  backup_policy:
+    frequency: "weekly"
+    retention: "6 months"
+    location: "/backup/alphafold/af3"
+    
+  monitoring:
+    disk_usage: true
+    access_patterns: true
+    performance_metrics: true
+
+# 版本历史
+version_history:
+  "2024.05":
+    release_date: "2024-05-15"
+    changes: ["Initial AF3 database deployment"]
+    compatibility: ["alphafold3-latest"]
+    
+  "2024.01":
+    release_date: "2024-01-15"  
+    changes: ["Updated PDB structures", "New RNA sequences"]
+    compatibility: ["alphafold3-v1.0+"]
+
+# 故障排除
+troubleshooting:
+  common_issues:
+    database_not_found:
+      error: "Database files not accessible"
+      solution: "Check mount points and permissions"
+      contact: "system administrator"
+      
+    insufficient_space:
+      error: "No space left on device"
+      solution: "Clean temp files or request quota increase"
+      prevention: "Monitor disk usage"
+      
+    slow_access:
+      error: "Database queries running slowly"
+      solution: "Check network connectivity and cache settings"
+      optimization: "Use local cache when possible"
+      
+    corrupted_files:
+      error: "Checksum verification failed"
+      solution: "Re-download affected files"
+      reporting: "Report to database administrators"
+
+# 使用统计
+usage_statistics:
+  tracking_enabled: true
+  metrics:
+    - "daily_active_users"
+    - "jobs_per_database"
+    - "average_query_time"
+    - "storage_utilization"
+    
+  reporting:
+    frequency: "monthly"
+    recipients: ["admin@hpc.cluster"]
+    format: "detailed_report"
+
+# 联系信息
+support:
+  database_admin: "database-admin@hpc.cluster"
+  system_admin: "system-admin@hpc.cluster"
+  user_support: "user-support@hpc.cluster"
+  
+  documentation:
+    user_guide: "/docs/databases/alphafold3"
+    technical_specs: "/docs/technical/af3-database"
+    api_reference: "/docs/api/alphafold3"
+
+# 合规性
+compliance:
+  data_governance:
+    classification: "public_research"
+    retention_policy: "indefinite"
+    access_logging: true
+    
+  licensing:
+    database_license: "open_source"
+    model_license: "restricted_academic"
+    usage_terms: "research_only"
+    
+  privacy:
+    personal_data: false
+    encryption_required: false
+    audit_trail: true

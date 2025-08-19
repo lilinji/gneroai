@@ -1,0 +1,264 @@
+---
+title: 集群队列介绍
+sidebar_position: 3
+description: >-
+  深入了解太行I号数据与智算平台的集群队列系统，包括队列配置、资源分配、作业调度和最佳实践。
+keywords:
+  - 集群队列
+  - 作业调度
+  - 资源分配
+  - 太行I号
+  - HPC集群
+  - SLURM
+---
+
+# 🚎 集群队列介绍 (Cluster Queue Introduction)
+
+本文档详细介绍太行I号数据与智算平台的集群队列系统，包括队列配置、资源分配策略、作业调度机制和最佳实践。
+
+## 📋 目录
+
+- [队列概述](#队列概述)
+- [队列配置详情](#队列配置详情)
+- [队列使用规范](#队列使用规范)
+- [集群状态监控](#集群状态监控)
+- [常用命令参考](#常用命令参考)
+- [最佳实践](#最佳实践)
+- [故障排除](#故障排除)
+
+## 🎯 队列概述
+
+太行I号集群采用SLURM作业调度系统，提供多种类型的计算队列以满足不同用户需求。队列命名遵循统一规范：以`q`（queue）开头，接队列类型（cpu/gpu），最后以队列主要标志结束（sugon、a100、4090等）。
+
+### 队列分类
+
+- **登录队列**：用于用户登录和短时间调试
+- **CPU队列**：适用于CPU密集型计算任务
+- **GPU队列**：适用于GPU加速计算任务
+- **大内存队列**：适用于内存密集型计算任务
+
+## 🏗️ 队列配置详情
+
+### 完整队列配置表
+
+| 队列名称 | 节点名称 | 节点数量 | 队列类型 | 硬件配置 | 内存配置 | 适用场景 |
+|---------|---------|---------|---------|---------|---------|---------|
+| `qlgoin` | `login[1-6]` | 6 | 登录队列 | 通用配置 | 标准内存 | 登录调试 |
+| `qfree` | `vnode[1-4]` | 4 | CPU免费队列 | 16核虚拟化CPU | 64GB | 免费计算资源 |
+| `qcpu_18i` | `bnode[1-30]` | 30 | CPU普通队列 | 2×Intel 4116 3.0GHz (24核) | 64GB | 通用CPU计算 |
+| `qcpu_23i` | `cnode[1-16]` | 16 | CPU普通队列 | 2×Intel 8358 3.4GHz (64核) | 512GB | 高性能CPU计算 |
+| `qcpu_23if` | `fnode[1-4]` | 4 | CPU大内存队列 | 4×Intel 8380H 4.3GHz (112核) | 1.5TB | 内存密集型计算 |
+| `qcpu_23a` | `gnode[1-19]` | 19 | CPU普通队列 | 2×AMD EPYC 7663 (最多48核) | 512GB | GPU节点CPU资源 |
+| `qgpu_a800` | `gnode[1-4]` | 4 | GPU队列 | 8×A800 + 2×AMD 7663 3.5GHz (112核) | 1TB | AI训练推理 |
+| `qgpu_40` | `gnode[5-7]` | 3 | GPU队列 | 8×A40 + 2×AMD 7763 3.5GHz (128核) | 512GB | 深度学习计算 |
+| `qgpu_3090` | `gnode[8-17]` | 10 | GPU队列 | 8×RTX 3090 + 2×AMD 7763 3.5GHz (128核) | 512GB | 图形渲染计算 |
+| `qgpu_4090` | `gnode[18-19]` | 2 | GPU队列 | 8×RTX 4090 + 2×AMD 9654 3.7GHz (192核) | 512GB | 高性能图形计算 |
+
+### 硬件规格对比
+
+<details>
+<summary>📊 详细硬件规格对比</summary>
+
+| 队列类型 | CPU核心数 | GPU配置 | 内存容量 | 存储类型 | 网络带宽 |
+|---------|---------|---------|---------|---------|---------|
+| 登录队列 | 4-8核 | 无 | 16-32GB | SSD | 1Gbps |
+| CPU免费队列 | 16核 | 无 | 64GB | SSD | 1Gbps |
+| CPU普通队列 | 24-64核 | 无 | 64-512GB | SSD | 10Gbps |
+| CPU大内存队列 | 112核 | 无 | 1.5TB | NVMe | 25Gbps |
+| GPU队列 | 112-192核 | 8卡 | 512GB-1TB | NVMe | 25Gbps |
+
+</details>
+
+## ⚠️ 队列使用规范
+
+### 登录节点使用限制
+
+:::warning 重要提醒
+登录节点仅供登录与短时间调试测试使用，**请勿批量投递作业进行完整计算**。
+
+- **单进程运行时长限制**：最多60分钟
+- **资源使用限制**：避免占用过多CPU和内存资源
+- **适用场景**：代码编译、小规模测试、文件操作
+:::
+
+### 队列默认时长限制
+
+| 队列类型 | 默认运行时长 | 最大可申请时长 | 特殊说明 |
+|---------|------------|-------------|---------|
+| 登录队列 | 60分钟 | 60分钟 | 仅限调试使用 |
+| CPU大内存队列 | 2天 | 7天 | 需提前申请 |
+| 其他队列 | 7天 | 14天 | 需提前2天申请 |
+
+:::tip 延长作业时长
+如需运行时间超出7天，请提前2天发送邮件告知：
+- **用户名**：您的登录用户名
+- **Job ID**：作业ID
+- **申请时长**：需要延长的具体时间
+- **使用理由**：简要说明延长原因
+:::
+
+## 📊 集群状态监控
+
+### 查看集群状态
+
+使用 `sinfo` 命令查看集群整体状态：
+
+```bash
+[demo@login2 ~]$ sinfo
+PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+qfree*       up    3:00:00      4   idle vnode[1-4]
+qcpu_23a     up   infinite      1   drng gnode14
+qcpu_23a     up   infinite     10    mix gnode[4,8-13,15,17-18]
+qcpu_23a     up   infinite      2   idle gnode[16,19]
+qcpu_23i     up   infinite      1    mix cnode10
+qcpu_23i     up   infinite      2  alloc cnode[1-2]
+qcpu_23i     up   infinite     13   idle cnode[3-9,11-16]
+qcpu_23if    up   infinite      1    mix fnode1
+qcpu_23if    up   infinite      1   idle fnode4
+qcpu_18i     up   infinite      1    mix bnode1
+qcpu_18i     up   infinite     28   idle bnode[2-29]
+qgpu_a800    up   infinite      3    mix gnode[1-2,4]
+qgpu_a800    up   infinite      1   idle gnode3
+qgpu_40      up   infinite      2   idle gnode[6-7]
+qgpu_3090    up   infinite      1   drng gnode14
+qgpu_3090    up   infinite      8    mix gnode[8-13,15,17]
+qgpu_3090    up   infinite      1   idle gnode16
+qgpu_4090    up   infinite      1    mix gnode18
+qgpu_4090    up   infinite      1   idle gnode19
+```
+
+### 节点状态说明
+
+| 状态 | 含义 | 说明 |
+|------|------|------|
+| `idle` | 空闲 | 节点可用，可以接受新作业 |
+| `alloc` | 已分配 | 节点正在运行作业 |
+| `mix` | 混合状态 | 节点部分占用，仍有剩余资源 |
+| `drain` | 故障 | 节点故障，不可用 |
+| `down` | 下线 | 节点下线维护 |
+
+## 🛠️ 常用命令参考
+
+### 基础监控命令
+
+| 命令 | 功能 | 示例 |
+|------|------|------|
+| `sinfo -N` | 查看节点级详细信息 | `sinfo -N --states=idle` |
+| `sinfo --partition=队列名` | 查看特定队列信息 | `sinfo --partition=qcpu_23i` |
+| `squeue` | 查看作业队列状态 | `squeue -u $USER` |
+| `scontrol show partition` | 查看分区详细信息 | `scontrol show partition qgpu_a800` |
+
+### 作业管理命令
+
+```bash
+# 提交作业
+sbatch job_script.sh
+
+# 查看个人作业状态
+squeue -u $USER
+
+# 查看作业详细信息
+scontrol show job <job_id>
+
+# 取消作业
+scancel <job_id>
+
+# 查看作业历史
+sacct -u $USER --starttime=2024-01-01
+```
+
+### 资源使用监控
+
+```bash
+# 查看节点资源使用情况
+scontrol show node <node_name>
+
+# 查看队列资源使用统计
+sinfo -o "%P %A %D %T %N"
+
+# 查看用户资源使用情况
+sacct -u $USER --format=User,JobID,JobName,Partition,AllocCPUS,State,Elapsed
+```
+
+## 💡 最佳实践
+
+### 作业提交策略
+
+1. **选择合适的队列**
+   - CPU密集型任务选择CPU队列
+   - GPU加速任务选择GPU队列
+   - 内存密集型任务选择大内存队列
+
+2. **合理申请资源**
+   - 根据实际需求申请CPU核心数
+   - 合理估算内存使用量
+   - 避免过度申请资源
+
+3. **作业脚本优化**
+   ```bash
+   #!/bin/bash
+   #SBATCH --job-name=my_job
+   #SBATCH --partition=qcpu_23i
+   #SBATCH --nodes=1
+   #SBATCH --ntasks-per-node=8
+   #SBATCH --mem=32G
+   #SBATCH --time=24:00:00
+   #SBATCH --output=job_%j.out
+   #SBATCH --error=job_%j.err
+   
+   # 加载必要的模块
+   module load python/3.8
+   
+   # 运行计算任务
+   python my_script.py
+   ```
+
+### 性能优化建议
+
+1. **代码优化**
+   - 使用向量化操作
+   - 避免频繁的I/O操作
+   - 合理使用并行计算
+
+2. **数据管理**
+   - 使用临时目录存储中间结果
+   - 及时清理临时文件
+   - 合理使用数据压缩
+
+3. **监控和调试**
+   - 定期检查作业状态
+   - 查看作业输出和错误日志
+   - 使用调试队列测试小规模作业
+
+## 🔧 故障排除
+
+### 常见问题及解决方案
+
+| 问题 | 可能原因 | 解决方案 |
+|------|---------|---------|
+| 作业长时间排队 | 资源不足或队列满 | 尝试其他队列或减少资源申请 |
+| 作业运行失败 | 资源申请不足或代码错误 | 检查错误日志，调整资源申请 |
+| 作业被终止 | 超出时间限制或资源限制 | 申请更长时间或更多资源 |
+| 节点故障 | 硬件问题 | 联系管理员，切换到其他节点 |
+
+### 获取帮助
+
+- **查看作业日志**：`cat slurm-<job_id>.out`
+- **查看错误日志**：`cat slurm-<job_id>.err`
+- **联系技术支持**：发送邮件至技术支持邮箱
+- **查看文档**：参考平台配置和软件列表文档
+
+## 📚 相关文档
+
+- [平台配置](./platform-config) - 系统配置详情
+- [软件列表](./software-list) - 可用软件和工具
+- [CHESS门户](./chess-portal) - Web界面使用指南
+- [定价信息](./pricing) - 资源使用费用
+
+---
+
+<head>
+  <title>集群队列介绍 - 太行I号数据与智算平台</title>
+  <meta name="description" content="深入了解太行I号数据与智算平台的集群队列系统，包括队列配置、资源分配、作业调度和最佳实践。" />
+  <meta name="keywords" content="集群队列,作业调度,资源分配,太行I号,HPC集群,SLURM" />
+</head> 

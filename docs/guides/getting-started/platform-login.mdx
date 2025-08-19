@@ -1,0 +1,404 @@
+---
+title: 登录智算平台
+sidebar_position: 2
+description: >-
+  太行I号数据与智算平台登录指南，包括所内直连、VPN接入、SSH配置等多种登录方式的详细步骤和最佳实践。
+keywords:
+  - 平台登录
+  - SSH连接
+  - VPN接入
+  - 智算平台
+  - 远程访问
+  - 终端工具
+---
+
+# 🚜 登录智算平台
+
+本指南将帮助您学习如何通过不同方式登录太行I号数据与智算平台，包括所内直连、VPN接入和各种SSH客户端的配置使用。
+
+## 📋 目录
+
+- [平台基本信息](#平台基本信息)
+- [登录方式概览](#登录方式概览)
+- [所内直接登录](#所内直接登录)
+- [所外VPN登录](#所外vpn登录)
+- [SSH客户端配置](#ssh客户端配置)
+- [常见问题解决](#常见问题解决)
+- [安全最佳实践](#安全最佳实践)
+
+## 🎯 平台基本信息
+
+### 系统环境
+- **操作系统**: 64位 RedHat 8.8
+- **协议支持**: SSH、SCP、FTP
+- **登录域名**: `login.tibhpc.net`
+- **端口**: 22（SSH默认端口）
+
+### 访问要求
+- 拥有有效的平台账户
+- 支持SSH协议的客户端软件
+- 稳定的网络连接
+
+## 🔗 登录方式概览
+
+平台支持两种主要登录方式：
+
+| 登录方式 | 适用场景 | 网络要求 | 推荐工具 |
+|---------|---------|---------|---------|
+| **所内直接登录** | 校内办公、实验室使用 | 连接TIB有线/无线网络 | Xshell、MobaXterm、Terminal |
+| **所外VPN登录** | 居家办公、出差访问 | 公网+VPN连接 | aTrust VPN + SSH客户端 |
+
+## 🏢 所内直接登录
+
+### 前提条件
+1. 设备已连接到TIB有线网络🔌或无线网络🛜
+2. 已安装支持SSH的终端客户端
+3. 拥有平台账户和密码
+
+### 使用Xshell登录（推荐）
+
+#### 步骤1：新建SSH会话
+
+点击 `文件 → 新建` 打开新建会话窗口：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/xshell-new-session.png"
+    alt="Xshell新建会话界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>配置SSH连接基本信息</em>
+  </p>
+</div>
+
+**配置参数**：
+- **名称**: 太行I号平台（自定义）
+- **协议**: SSH
+- **主机**: `login.tibhpc.net`
+- **端口号**: 22
+
+#### 步骤2：配置身份验证
+
+在身份验证页面进行以下设置：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/xshell-ssh-auth.png"
+    alt="SSH身份验证设置"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>选择Keyboard Interactive认证方式</em>
+  </p>
+</div>
+
+**重要设置**：
+- ✅ 勾选 **Keyboard Interactive** 方式
+- 可选填入用户名和密码（建议首次不填，手动输入）
+- 完成配置后点击 "确定" 保存会话
+
+#### 步骤3：建立连接
+
+双击保存的会话或点击 "连接" 按钮：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/xshell-password.png"
+    alt="输入登录密码"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>输入用户名和密码</em>
+  </p>
+</div>
+
+按提示输入您的用户名和密码。
+
+#### 步骤4：登录成功
+
+成功登录后将看到系统欢迎信息：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/xshell-login-success.png"
+    alt="登录成功界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>成功登录平台，显示系统信息</em>
+  </p>
+</div>
+
+:::tip 客户端说明
+不同SSH客户端的具体操作可能存在差异。本章节以Xshell为例演示，如使用其他客户端，请参考对应的官方文档找到等效操作。
+:::
+
+### 其他SSH客户端选择
+
+| 客户端 | 平台支持 | 特点 | 推荐度 |
+|-------|----------|------|--------|
+| **Xshell** | Windows | 功能丰富、界面友好 | ⭐⭐⭐⭐⭐ |
+| **MobaXterm** | Windows | 集成多种工具、免费版可用 | ⭐⭐⭐⭐⭐ |
+| **PuTTY** | Windows | 轻量级、开源 | ⭐⭐⭐⭐ |
+| **Terminal** | macOS/Linux | 系统内置、命令行界面 | ⭐⭐⭐⭐ |
+| **SecureCRT** | 跨平台 | 企业级、功能强大 | ⭐⭐⭐⭐ |
+
+## 🌐 所外VPN登录
+
+当您在校外或需要通过公网访问平台时，需要先连接VPN。
+
+### VPN访问地址
+
+- **主要地址**: [https://vpn.tibhpc.net:8443](https://vpn.tibhpc.net:8443)
+- **备用地址**: [https://vpncst.tibhpc.net:8443](https://vpncst.tibhpc.net:8443)
+
+### 步骤1：Web端VPN登录
+
+在浏览器中访问VPN地址，输入您的账号和密码：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/vpn-login-page.png"
+    alt="VPN登录页面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>VPN Web登录界面</em>
+  </p>
+</div>
+
+登录后按页面指引安装VPN客户端插件。
+
+### 步骤2：客户端下载
+
+如果官方下载速度较慢，可通过以下网盘获取客户端：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/baidu-netdisk-download.png"
+    alt="网盘下载客户端"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>备用下载方式</em>
+  </p>
+</div>
+
+**网盘信息**：
+- 链接: [https://pan.baidu.com/s/1L6USJNXQq9QUDom7JfNvZA?pwd=3xeh](https://pan.baidu.com/s/1L6USJNXQq9QUDom7JfNvZA?pwd=3xeh)
+- 提取码: `3xeh`
+
+### 步骤3：VPN客户端登录
+
+安装并运行VPN客户端，使用您的账号登录：
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/vpn-client-login.png"
+    alt="VPN客户端登录"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>VPN客户端登录界面</em>
+  </p>
+</div>
+
+### 步骤4：访问平台
+
+VPN连接成功后，您可以选择两种方式访问平台：
+
+#### 方式一：通过CHESS Web门户
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/chess-platform.png"
+    alt="CHESS平台界面"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>CHESS Web门户提供图形化操作界面</em>
+  </p>
+</div>
+
+#### 方式二：SSH直接连接
+
+<div className="image-container">
+  <img
+    src="/guides/hpc/platform-login/ssh-tool-login.png"
+    alt="SSH工具登录"
+    style={{maxWidth: '100%', height: 'auto', margin: '20px 0'}}
+  />
+  <p className="image-caption">
+    <em>通过SSH客户端直接连接login.tibhpc.net</em>
+  </p>
+</div>
+
+## ⚙️ SSH客户端配置
+
+### Linux/macOS Terminal
+
+```bash
+# 基本SSH连接
+ssh username@login.tibhpc.net
+
+# 指定端口连接
+ssh -p 22 username@login.tibhpc.net
+
+# 启用X11转发（图形界面应用）
+ssh -X username@login.tibhpc.net
+```
+
+### Windows PowerShell
+
+```powershell
+# Windows 10/11内置SSH客户端
+ssh username@login.tibhpc.net
+```
+
+### SSH密钥配置（推荐）
+
+为提高安全性和使用便利性，建议配置SSH密钥认证：
+
+#### 生成密钥对
+
+```bash
+# 生成RSA密钥对
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+# 查看公钥内容
+cat ~/.ssh/id_rsa.pub
+```
+
+#### 上传公钥
+
+```bash
+# 方法一：使用ssh-copy-id（推荐）
+ssh-copy-id username@login.tibhpc.net
+
+# 方法二：手动复制
+scp ~/.ssh/id_rsa.pub username@login.tibhpc.net:~/
+```
+
+#### 服务器端配置
+
+```bash
+# 登录服务器后执行
+mkdir -p ~/.ssh
+cat ~/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+rm ~/id_rsa.pub
+```
+
+## 🚨 常见问题解决
+
+### 问题1：连接超时
+**症状**: Connection timeout 或 Network is unreachable
+
+**解决方案**:
+1. 检查网络连接状态
+2. 确认是否在TIB网络内（所内登录）
+3. 验证VPN连接状态（所外登录）
+4. 尝试使用备用VPN地址
+
+### 问题2：认证失败
+**症状**: Authentication failed 或 Permission denied
+
+**解决方案**:
+1. 确认用户名和密码正确
+2. 检查账户是否被锁定
+3. 联系管理员重置密码
+4. 验证认证方式设置
+
+### 问题3：主机密钥错误
+**症状**: Host key verification failed
+
+**解决方案**:
+```bash
+# 删除旧的主机密钥
+ssh-keygen -R login.tibhpc.net
+
+# 重新连接并接受新密钥
+ssh username@login.tibhpc.net
+```
+
+### 问题4：VPN无法连接
+**症状**: VPN连接失败或断开
+
+**解决方案**:
+1. 检查网络防火墙设置
+2. 尝试不同的VPN服务器地址
+3. 重启VPN客户端
+4. 联系网络管理员
+
+## 🔒 安全最佳实践
+
+### 密码安全
+- ✅ 使用强密码（包含大小写字母、数字、特殊字符）
+- ✅ 定期更换密码（建议3-6个月）
+- ✅ 不要在多个系统使用相同密码
+- ❌ 不要在公共场所输入密码
+- ❌ 不要将密码写在纸上或保存在不安全的地方
+
+### 连接安全
+- ✅ 使用SSH密钥认证替代密码认证
+- ✅ 在安全网络环境下进行登录
+- ✅ 及时退出登录会话
+- ✅ 定期检查登录日志
+- ❌ 避免在公共WiFi下直接登录
+
+### 账户管理
+- ✅ 不要共享个人账户
+- ✅ 发现异常登录及时报告
+- ✅ 离职或账户不再使用时及时申请注销
+- ❌ 不要让他人使用您的账户
+
+## 📚 推荐软件下载
+
+### 终端SSH客户端
+
+- [Xshell 8.0](https://hpc.biodesign.ac.cn/downloads/software/terminal/Xshell-8.0.0055p.zip) - Windows专业SSH客户端
+- [MobaXterm v24.2](https://hpc.biodesign.ac.cn/downloads/software/terminal/MobaXterm_Installer_v24.2.zip) - 多功能终端工具
+- [PuTTY 0.81](https://hpc.biodesign.ac.cn/downloads/software/terminal/putty-64bit-0.81-installer.msi) - 轻量级SSH客户端
+
+### VPN客户端
+
+- [aTrust Windows版](https://hpc.biodesign.ac.cn/downloads/software/vpn/aTrustInstaller2.4.10.50httpsvpn.tibhpc.net8443.zip)
+- [aTrust macOS版](https://hpc.biodesign.ac.cn/downloads/software/vpn/aTrustInstaller2.4.10.50httpsvpn.tibhpc.net8443.pkg)
+- [aTrust Ubuntu版](https://hpc.biodesign.ac.cn/downloads/software/vpn/aTrustInstaller_ubuntu_amd642.4.10.50httpsvpn.tibhpc.net8443.deb)
+
+更多软件下载请查看：[常用软件列表](../platform-overview/software-list)
+
+## 📞 技术支持
+
+### 联系方式
+- **技术支持邮箱**: support@tib.cas.cn
+- **VPN相关问题**: vpn-support@tib.cas.cn
+- **账户管理**: account@tib.cas.cn
+- **工作时间**: 周一至周五 9:00-18:00
+
+### 自助服务
+- **密码重置**: 联系管理员或通过邮件申请
+- **账户解锁**: 发送邮件至support@tib.cas.cn
+- **使用文档**: 查看本平台其他相关文档
+
+## 🎯 下一步
+
+成功登录后，您可以：
+
+- 学习 [HPC基础命令](./hpc-commands) 开始使用集群
+- 了解 [文件传输](./file-transfer) 方法上传数据
+- 探索 [运行环境](../runtime-environment/overview) 配置开发环境
+- 查看 [软件应用](../software-applications/overview) 使用科学计算工具
+
+---
+
+<head>
+  <title>登录智算平台 - 太行I号用户指南</title>
+  <meta
+    name="description"
+    content="太行I号数据与智算平台登录指南，包括所内直连、VPN接入、SSH配置等多种登录方式的详细步骤和最佳实践。"
+  />
+  <meta name="keywords" content="平台登录,SSH连接,VPN接入,智算平台,远程访问,终端工具" />
+</head>

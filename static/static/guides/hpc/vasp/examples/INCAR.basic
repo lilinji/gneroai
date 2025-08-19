@@ -1,0 +1,28 @@
+# 基础VASP计算参数示例
+# 结构优化计算
+
+# 基本设置
+SYSTEM = Silicon bulk calculation
+ISTART = 0          # 从头开始计算
+ICHARG = 2          # 原子密度叠加
+ENCUT = 400         # 平面波截断能量 (eV)
+PREC = Accurate     # 计算精度
+
+# 电子结构
+ISMEAR = 0          # 展宽方法: 高斯展宽
+SIGMA = 0.05        # 展宽参数 (eV)
+EDIFF = 1E-6        # 电子自洽收敛标准
+
+# 结构优化
+IBRION = 2          # 优化方法: 共轭梯度法
+NSW = 100           # 最大离子步数
+EDIFFG = -0.01      # 力收敛标准 (eV/Å)
+ISIF = 2            # 放松自由度: 仅离子位置
+
+# 并行设置
+NCORE = 4           # 每个轨道组的核数
+LREAL = Auto        # 实空间投影
+
+# 输出控制
+LWAVE = .FALSE.     # 不保存波函数
+LCHARG = .FALSE.    # 不保存电荷密度

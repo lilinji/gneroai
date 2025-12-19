@@ -370,7 +370,7 @@ echo "内存: ${SLURM_MEM_PER_NODE}MB"
 # 设置企业级ML环境
 module purge
 module load cuda/11.8 python/3.9.0 gcc/9.3.0
-source ~/anaconda3/envs/ml_enterprise/bin/activate
+source ~/miniforge3/envs/ml_enterprise/bin/activate
 
 # 检查GPU和深度学习环境
 echo "=== 环境验证 ==="
@@ -591,18 +591,18 @@ echo "=== 上下文感知的开发环境 ==="
 case $TASK_TYPE in
     "development")
         echo "初始化开发环境..."
-        source ~/anaconda3/envs/dev/bin/activate 2>/dev/null || echo "开发环境不存在"
+        source ~/miniforge3/envs/dev/bin/activate 2>/dev/null || echo "开发环境不存在"
         echo "可用工具: vim, git, jupyter, vscode"
         ;;
     "training")
         echo "初始化训练环境..."
-        source ~/anaconda3/envs/training/bin/activate 2>/dev/null || echo "训练环境不存在"
+        source ~/miniforge3/envs/training/bin/activate 2>/dev/null || echo "训练环境不存在"
         export CUDA_VISIBLE_DEVICES=0,1
         echo "训练环境就绪，可使用多GPU并行训练"
         ;;
     "inference")
         echo "初始化推理环境..."
-        source ~/anaconda3/envs/inference/bin/activate 2>/dev/null || echo "推理环境不存在"
+        source ~/miniforge3/envs/inference/bin/activate 2>/dev/null || echo "推理环境不存在"
         export CUDA_VISIBLE_DEVICES=0
         echo "推理环境就绪，优化延迟和吞吐量"
         ;;
@@ -646,7 +646,7 @@ echo "==================== 性能监控系统 ===================="
 
 # 初始化监控环境
 module load python/3.9.0
-source ~/anaconda3/envs/monitoring/bin/activate 2>/dev/null || python3 -m venv monitoring_env && source monitoring_env/bin/activate
+source ~/miniforge3/envs/monitoring/bin/activate 2>/dev/null || python3 -m venv monitoring_env && source monitoring_env/bin/activate
 
 # 安装必要的监控工具
 pip install psutil prometheus_client grafana-client &>/dev/null || echo "监控工具不存在"

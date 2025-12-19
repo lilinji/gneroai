@@ -9,7 +9,7 @@ import Link from '@docusaurus/Link';
 export default function Homepage() {
   return (
     <Layout
-      title="太行I号智算平台文档"
+      title="GneroAI平台文档"
       wrapperClassName="homepage flex flex-col"
       noFooter
     >

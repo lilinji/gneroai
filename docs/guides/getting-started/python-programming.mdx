@@ -26,7 +26,7 @@ python3 --version
 
 # 查看可用的Python模块
 module avail python
-module avail anaconda
+module avail miniforge
 ```
 
 ### 环境隔离与依赖管理
@@ -53,8 +53,8 @@ pip list
 #### 使用Conda管理环境
 
 ```bash
-# 加载Anaconda模块
-module load anaconda/2023.03
+# 加载miniforge模块
+module load miniforge/2023.03
 
 # 创建Conda环境
 conda create -n myproject python=3.9 numpy pandas

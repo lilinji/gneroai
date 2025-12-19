@@ -172,7 +172,7 @@ echo "作业ID: $SLURM_JOB_ID"
 module purge                          # 清理环境模块
 module load gcc/9.3.0                # 编译器环境
 module load python/3.9.0             # Python环境
-source ~/anaconda3/envs/myproject/bin/activate  # 激活虚拟环境
+source ~/miniforge3/envs/myproject/bin/activate  # 激活虚拟环境
 
 # 主要计算任务
 echo "===== 开始数据处理任务 ====="
@@ -386,7 +386,7 @@ echo "GPU硬件信息:"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 # 激活深度学习环境
-source ~/anaconda3/envs/pytorch/bin/activate
+source ~/miniforge3/envs/pytorch/bin/activate
 
 # 多GPU模型训练
 echo "开始深度学习模型训练..."

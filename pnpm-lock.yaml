@@ -86,9 +86,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      loader:
-        specifier: link:@dytesdk/ui-kit/loader
-        version: link:@dytesdk/ui-kit/loader
       nanoid:
         specifier: ^5.0.6
         version: 5.1.5
@@ -119,6 +116,9 @@ importers:
       reactflow:
         specifier: ^11.10.4
         version: 11.11.4(@types/react@17.0.87)(immer@9.0.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      styled-components:
+        specifier: ^6.1.19
+        version: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       zustand:
         specifier: ^4.5.2
         version: 4.5.7(@types/react@17.0.87)(immer@9.0.21)(react@18.3.1)
@@ -138,6 +138,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.56.0
         version: 5.62.0(eslint@8.57.1)(typescript@5.8.3)
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.21(postcss@8.5.6)

@@ -1,0 +1,50 @@
+- 先确认配置
+  - 若把 `baseUrl: '/guides/'`，请把 `presets[0].docs.routeBasePath` 设为 `'/'`（否则实际路径会变成 `/guides/guides`）。
+  - 简化后你访问首页就是 `https://你的域名/guides/`。
+
+- 构建
+```bash
+cd /Users/ringi/bin/docs
+npm ci || npm install
+npm run build
+```
+
+- Nginx（同机、域名反代场景，静态直出）
+```nginx
+server {
+  listen 80; # 或 3000
+  server_name your.domain.com;
+
+  # /guides 子路径挂载构建产物根目录
+  location /guides/ {
+    alias /Users/ringi/bin/docs/build/;
+    index index.html;
+    try_files $uri $uri/ $uri.html /guides/index.html;
+  }
+
+  # 无斜杠跳转
+  location = /guides {
+    return 301 /guides/;
+  }
+
+  # 资源缓存（可选）
+  location ~* ^/guides/.*\.(css|js|woff2|png|jpe?g|gif|svg|ico)$ {
+    alias /Users/ringi/bin/docs/build/;
+    try_files $uri =404;
+    access_log off;
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+  }
+}
+```
+
+- 重载
+```bash
+sudo nginx -t && sudo nginx -s reload
+```
+
+- 访问
+- 打开 `https://your.domain.com/guides/` 即可。
+
+- 小提示
+- 如果你不改 `routeBasePath`（仍是 `'/guides'`），那入口会变成 `https://your.domain.com/guides/guides`，通常不是你想要的路径形态。

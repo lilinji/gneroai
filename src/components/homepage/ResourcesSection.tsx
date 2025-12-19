@@ -22,7 +22,7 @@ const ALL_RESOURCES: Resource[] = [
     type: '教程',
     title: '太行I号平台快速入门',
     description:
-      '从平台登录到运行第一个程序，全面了解太行I号智算平台的使用方法和核心概念。',
+      '从平台登录到运行第一个程序，全面了解GneroAI平台的使用方法和核心概念。',
     image:
       '/static/guides/hpc/platform-overview/chess-portal/login-page.png',
     duration: '5 分钟',

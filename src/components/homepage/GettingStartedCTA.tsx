@@ -76,7 +76,7 @@ export default function GettingStartedCTA() {
             开始您的 HPC 之旅
           </h3>
           <p className="mx-auto max-w-2xl text-text-300">
-            三个简单步骤，快速上手太行I号智算平台，开启高性能计算体验
+            三个简单步骤，快速上手GneroAI平台，开启高性能计算体验
           </p>
         </div>
 

@@ -35,7 +35,7 @@ AlphaFold 2 是 DeepMind 开发的基于人工智能的蛋白质三维结构预�
 1. **数据库准备**
    - 数据库路径如 `/hpcfs/fpublic/database/alphafold/data4run`，请联系管理员或参考平台说明。
 2. **软件环境**
-   - 推荐使用官方或平台提供的 Conda 环境，如 `/hpcfs/fpublic/app/anaconda3/envs/env_af2`。
+   - 推荐使用官方或平台提供的 Conda 环境，如 `/hpcfs/fpublic/app/miniforge3/envs/env_af2`。
    - 需包含 Python 3.7+、CUDA 驱动、AlphaFold 2 及其依赖。
 3. **脚本与输入文件**
    - 预测脚本如 `/hpcfs/fpublic/aiapp/alphafold/run_alphafold.sh`
@@ -65,7 +65,7 @@ AlphaFold 2 是 DeepMind 开发的基于人工智能的蛋白质三维结构预�
 
 # 激活conda环境
 source /etc/profile.d/conda.sh
-conda activate /hpcfs/fpublic/app/anaconda3/envs/env_af2
+conda activate /hpcfs/fpublic/app/miniforge3/envs/env_af2
 
 # 切换到AlphaFold目录
 cd /hpcfs/fpublic/aiapp/alphafold

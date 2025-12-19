@@ -7,9 +7,9 @@ const code_themes = {
 
 /** @type {import('@docusaurus/types').Config} */
 const meta = {
-  title: '太行I号智算平台文档',
+  title: 'GneroAI平台文档',
   tagline:
-    '太行I号高性能计算平台的综合文档，包括使用指南、参考资料和最佳实践。',
+    'GneroAI平台的综合文档，包括使用指南、参考资料和最佳实践。',
   url: 'https://hpc.biodesign.ac.cn',
   baseUrl: '/',
   favicon: '/favicon.ico',
@@ -116,7 +116,7 @@ const config = {
           routeBasePath: '/guides',
           versions: {
             current: {
-              label: '1.0.0',
+              label: '2.0.1',
             },
           },
           ...defaultSettings,
@@ -246,7 +246,7 @@ const config = {
             ],
           },
         ],
-        copyright: 'Copyright © 太行I号智算平台 2024. All rights reserved.',
+        copyright: 'Copyright © GneroAI平台 2024. All rights reserved.',
       },
       prism: {
         theme: code_themes.light,
@@ -276,8 +276,8 @@ const config = {
       },
       // Algolia search configuration - update with your own credentials
       algolia: {
-        appId: 'YOUR_ALGOLIA_APP_ID',
-        apiKey: 'YOUR_ALGOLIA_SEARCH_KEY',
+        appId: 'G3YSPOX85W',
+        apiKey: 'af1d4cda3f2641c7582586e8b05823b0',
         indexName: 'tibhpc-docs',
         contextualSearch: true,
         searchParameters: {},

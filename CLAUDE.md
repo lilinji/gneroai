@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview  AA
+## Project Overview
 
 This is a Docusaurus-based documentation portal (tibhpc-docs) built using the Dyte documentation template. It's a comprehensive documentation site that appears to cover HPC (High Performance Computing) platform documentation including guides for platform usage, software applications, runtime environments, and job system management.
 

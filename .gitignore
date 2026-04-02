@@ -39,6 +39,13 @@ bin-release/
 docs/book/book
 docs/book-en/book
 
+# Node/npm (not needed for mdbook)
+package.json
+package-lock.json
+pnpm-lock.yaml
+vercel.json
+node_modules/
+
 # Docusaurus (not needed for pure mdbook setup)
 docs/guides
 docs/plugins

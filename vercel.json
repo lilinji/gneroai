@@ -1,5 +1,0 @@
-{
-  "framework": null,
-  "outputDirectory": "docs/book/book",
-  "buildCommand": "echo 'Static site - no build needed'"
-}

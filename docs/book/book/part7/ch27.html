@@ -1,0 +1,491 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第27章：Claude Code 的不足之处 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第27章claude-code-的不足之处以及你能修复什么"><a class="header" href="#第27章claude-code-的不足之处以及你能修复什么">第27章：Claude Code 的不足之处（以及你能修复什么）</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>前三章提炼了 Claude Code 的优秀设计——驾驭工程原则、上下文管理策略、生产级编码模式。但一本严肃的技术分析不能只讲“它做对了什么“，还必须客观审视“它在哪里做得不够好“。</p>
+<p>本章列出 5 个从源码中可观测到的设计不足。每个不足包含三部分：<strong>问题描述</strong>（它是什么）、<strong>源码证据</strong>（为什么说它是问题）、<strong>改进建议</strong>（可以怎么做）。</p>
+<p>需要强调的是：这些分析完全基于工程设计层面，不涉及对 Anthropic 团队的能力评价。每一个“不足“都是在特定工程权衡下的合理选择——只是这些选择有可观测的代价。</p>
+<hr>
+<h2 id="源码分析"><a class="header" href="#源码分析">源码分析</a></h2>
+<h3 id="271-不足一缓存脆弱性分散的注入点制造缓存中断风险"><a class="header" href="#271-不足一缓存脆弱性分散的注入点制造缓存中断风险">27.1 不足一：缓存脆弱性——分散的注入点制造缓存中断风险</a></h3>
+<h4 id="问题描述"><a class="header" href="#问题描述">问题描述</a></h4>
+<p>Claude Code 的提示词缓存系统依赖核心假设：<strong><code>SYSTEM_PROMPT_DYNAMIC_BOUNDARY</code> 之前的内容在整个会话中保持不变</strong>。但多个分散的注入点可以修改这个区域：</p>
+<ul>
+<li><code>systemPromptSections.ts</code> 中的条件性段落：基于 Feature Flag 或运行时状态决定是否包含</li>
+<li>MCP 连接/断开事件：<code>DANGEROUS_uncachedSystemPromptSection()</code> 显式标记“会破坏缓存“</li>
+<li>工具列表变化：MCP 服务器上下线导致 <code>tools</code> 参数哈希改变</li>
+<li>GrowthBook Flag 切换：远程配置变更导致序列化的工具 Schema 变动</li>
+</ul>
+<h4 id="源码证据"><a class="header" href="#源码证据">源码证据</a></h4>
+<p>缓存中断检测系统需要追踪近 20 个字段（<code>restored-src/src/services/api/promptCacheBreakDetection.ts:28-69</code>）就是直接证据——如果缓存是稳定的，不需要如此复杂的检测系统来解释“为什么中断了“。</p>
+<p><code>DANGEROUS_uncachedSystemPromptSection()</code> 的命名本身是警示标记——函数名中的 <code>DANGEROUS</code> 前缀说明团队清楚它会破坏缓存，但在某些场景下（MCP 状态变化）没有更好的替代方案。</p>
+<p>Agent 列表曾内联在系统提示词中，占全球 <code>cache_creation</code> token 的 10.2%（详见第15章）。虽然后来被移至附件，但这说明即使是经验丰富的团队，也会无意中在缓存段内放入不稳定内容。</p>
+<p><code>splitSysPromptPrefix()</code>（<code>restored-src/src/utils/api.ts:321-435</code>）的三条代码路径——MCP tool-based、global+boundary、默认 org 级别——其复杂度完全来自处理“缓存段内可能出现的各种变动“。源码中的注释明确标记了引用关系：</p>
+<pre><code class="language-text">// restored-src/src/constants/prompts.ts:110-112
+// WARNING: Do not remove or reorder this marker without updating
+// cache logic in:
+// - src/utils/api.ts (splitSysPromptPrefix)
+// - src/services/api/claude.ts (buildSystemPromptBlocks)
+</code></pre>
+<p>这种跨文件的 <code>WARNING</code> 注释是架构脆弱性的信号——组件之间通过隐式约定耦合，而非显式接口。</p>
+<h4 id="改进建议"><a class="header" href="#改进建议">改进建议</a></h4>
+<p><strong>集中构建提示词</strong>。将分散注入改为集中构建：</p>
+<ol>
+<li><strong>构建阶段</strong>：所有段落在一个中心函数中组装，组装完成后计算整体哈希</li>
+<li><strong>不可变约束</strong>：对缓存段内的内容实施编译期或运行时的不可变检查——任何会话中变化的内容强制放在缓存段之外</li>
+<li><strong>变更审计</strong>：提交前自动检测“是否在缓存段内添加了不稳定内容“</li>
+</ol>
+<hr>
+<h3 id="272-不足二压缩信息丢失9-段摘要模板无法保留所有推理链"><a class="header" href="#272-不足二压缩信息丢失9-段摘要模板无法保留所有推理链">27.2 不足二：压缩信息丢失——9 段摘要模板无法保留所有推理链</a></h3>
+<h4 id="问题描述-1"><a class="header" href="#问题描述-1">问题描述</a></h4>
+<p>自动压缩（详见第9章）使用结构化提示词模板要求模型生成对话摘要。压缩提示词（<code>restored-src/src/services/compact/prompt.ts</code>）要求 <code>&lt;analysis&gt;</code> 块中包含：</p>
+<pre><code class="language-text">// restored-src/src/services/compact/prompt.ts:31-44
+"1. Chronologically analyze each message and section of the conversation.
+    For each section thoroughly identify:
+    - The user's explicit requests and intents
+    - Your approach to addressing the user's requests
+    - Key decisions, technical concepts and code patterns
+    - Specific details like:
+      - file names
+      - full code snippets
+      - function signatures
+      ..."
+</code></pre>
+<p>这是精心设计的清单，但有一个根本限制：<strong>模型的推理链和失败尝试在压缩中丢失</strong>。</p>
+<p>具体丢失的信息类型：</p>
+<ul>
+<li><strong>失败的方法</strong>：模型尝试方法 A 但失败，转而使用方法 B 成功——压缩后只保留“使用方法 B 解决了问题“，方法 A 的失败经验丢失</li>
+<li><strong>决策上下文</strong>：为什么选方法 B 而非方法 A 的推理被简化为结论</li>
+<li><strong>精确引用</strong>：具体的文件路径和行号在摘要中可能被泛化——“修改了认证模块“而非“修改了 <code>auth/middleware.ts:42-67</code>”</li>
+</ul>
+<h4 id="源码证据-1"><a class="header" href="#源码证据-1">源码证据</a></h4>
+<p>压缩的 token 预算是 <code>MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000</code>（<code>restored-src/src/services/compact/autoCompact.ts:30</code>）。压缩比可能高达 7:1 或更高——在这种压缩比下，信息丢失不可避免。</p>
+<p>压缩后文件恢复机制（<code>POST_COMPACT_MAX_FILES_TO_RESTORE = 5</code>，<code>restored-src/src/services/compact/compact.ts:122</code>）部分缓解了问题，但只恢复文件内容，不恢复推理链。</p>
+<p><code>NO_TOOLS_PREAMBLE</code>（<code>restored-src/src/services/compact/prompt.ts:19-25</code>）的存在暗示了另一个压缩质量问题：模型在压缩时有时会尝试调用工具而非生成摘要文本（Sonnet 4.6 上发生率 2.79%），需要显式禁止。这意味着压缩任务本身对模型来说不是trivial的。</p>
+<h4 id="改进建议-1"><a class="header" href="#改进建议-1">改进建议</a></h4>
+<p><strong>结构化信息提取 + 分层压缩</strong>：</p>
+<ol>
+<li><strong>结构化提取</strong>：压缩前用专门步骤提取结构化信息——文件修改列表、失败方法列表、决策图——存储为 JSON 而非自然语言摘要</li>
+<li><strong>分层压缩</strong>：对话分为“事实层“（文件修改、命令输出）和“推理层“（为什么这样做）。事实层用提取式压缩（直接提取），推理层用摘要式压缩（当前做法）</li>
+<li><strong>失败记忆</strong>：专门保留“已尝试但失败的方法“列表，防止压缩后模型重蹈覆辙</li>
+</ol>
+<hr>
+<h3 id="273-不足三grep-不是抽象语法树ast文本搜索遗漏语义关系"><a class="header" href="#273-不足三grep-不是抽象语法树ast文本搜索遗漏语义关系">27.3 不足三：Grep 不是抽象语法树（AST）——文本搜索遗漏语义关系</a></h3>
+<h4 id="问题描述-2"><a class="header" href="#问题描述-2">问题描述</a></h4>
+<p>Claude Code 的代码搜索完全基于 GrepTool（文本正则匹配）和 GlobTool（文件名模式匹配）。在大多数场景下工作良好，但无法覆盖<strong>语义级别的代码关系</strong>：</p>
+<ul>
+<li><strong>动态导入</strong>：<code>require(variableName)</code> 中的变量是运行时值，文本搜索无法追踪</li>
+<li><strong>Re-export</strong>：<code>export { default as Foo } from './bar'</code> 在搜索 <code>Foo</code> 定义时不被正确追踪</li>
+<li><strong>字符串引用</strong>：工具名作为字符串注册（<code>name: 'Bash'</code>），搜索工具使用点需同时搜字符串和变量名</li>
+<li><strong>类型推断</strong>：TypeScript 的类型推断意味着很多变量没有显式注解，搜索特定类型的使用位置不完整</li>
+</ul>
+<h4 id="源码证据-2"><a class="header" href="#源码证据-2">源码证据</a></h4>
+<p>Claude Code 自身的工具列表包含 40+ 个工具（详见第2章），但没有 AST 查询工具。系统提示词明确引导模型使用 Grep 而非 Bash 中的 grep（详见第8章）——但这只是将文本搜索从一个工具移到另一个，没有提升搜索的语义层次。</p>
+<p>在 Claude Code 自身的代码库（1,902 个 TypeScript 文件）中，这些遗漏的影响是可观的。例如：Feature Flag 通过 <code>feature('KAIROS')</code> 调用使用——搜索字符串 <code>KAIROS</code> 可以找到使用点，但搜索函数 <code>feature</code> 的调用则会返回所有 89 个 flag 的结果，噪音巨大。没有 AST 查询，无法表达“找到 <code>feature()</code> 调用中参数值为 <code>KAIROS</code> 的位置“。</p>
+<h4 id="改进建议-2"><a class="header" href="#改进建议-2">改进建议</a></h4>
+<p><strong>添加 LSP（Language Server Protocol）集成</strong>：</p>
+<ol>
+<li><strong>类型查找</strong>：通过 TypeScript Language Server 查询变量的推断类型</li>
+<li><strong>跳转到定义</strong>：处理 re-export、类型别名、动态导入的完整链路</li>
+<li><strong>查找引用</strong>：找到符号的所有使用位置，包括通过类型推断间接使用的</li>
+<li><strong>调用层次</strong>：查询函数的调用者和被调用者，建立调用图</li>
+</ol>
+<p>LSP 集成的基础设施在源码中已有迹象——Feature Flag 分析（详见第23章）中可以观察到部分 LSP 相关的实验性代码路径，但尚未广泛启用。Grep + LSP 的组合将比纯 Grep 或纯 LSP 更强大：Grep 负责快速的全文搜索和模式匹配，LSP 负责精确的语义查询。</p>
+<hr>
+<h3 id="274-不足四截断告知不等于行动大结果写入磁盘但模型可能不会重新读取"><a class="header" href="#274-不足四截断告知不等于行动大结果写入磁盘但模型可能不会重新读取">27.4 不足四：截断告知不等于行动——大结果写入磁盘但模型可能不会重新读取</a></h3>
+<h4 id="问题描述-3"><a class="header" href="#问题描述-3">问题描述</a></h4>
+<p>当工具结果超过 50K 字符（<code>DEFAULT_MAX_RESULT_SIZE_CHARS</code>，<code>restored-src/src/constants/toolLimits.ts:13</code>）时，处理策略是：完整结果写入磁盘，返回预览消息（详见第12章）。</p>
+<p>问题在于：<strong>模型可能不会重新读取</strong>。模型基于预览做判断——如果预览看起来“足够“（例如搜索结果的前 50K 字符已包含一些相关结果），模型可能不去读完整内容。但关键信息可能恰好在截断点之后。</p>
+<h4 id="源码证据-3"><a class="header" href="#源码证据-3">源码证据</a></h4>
+<p><code>restored-src/src/utils/toolResultStorage.ts</code> 实现了大结果持久化逻辑。截断时模型收到：</p>
+<pre><code>[Result truncated. Full output saved to /tmp/claude-tool-result-xxx.txt]
+[Showing first 50000 characters of N total]
+</code></pre>
+<p>这遵循了第25章“告知而非隐藏“原则——模型被告知截断发生了。但“告知“和“确保模型行动“是两件事。</p>
+<p>问题的根源是<strong>注意力经济</strong>：模型在每一步都要决定下一步做什么。读取完整的截断文件意味着多一次工具调用、多等几秒——如果模型判断预览“足够好“，它会跳过这步。但这个判断本身可能是错的，因为模型<strong>看不到</strong>截断点之后的内容。</p>
+<h4 id="改进建议-3"><a class="header" href="#改进建议-3">改进建议</a></h4>
+<p><strong>智能预览 + 主动建议</strong>：</p>
+<ol>
+<li><strong>结构化预览</strong>：不只截取前 N 字符，而是提取摘要——搜索结果的匹配总数、文件分布、前后 N 个匹配的上下文</li>
+<li><strong>相关性提示</strong>：在预览中添加“结果共 M 个匹配，当前只显示前 K 个。如果你在找特定文件或模式，建议查看完整内容“</li>
+<li><strong>自动分页</strong>：截断时不只保存到磁盘等模型来读——将结果分页，在预览中展示分页信息让模型按需继续</li>
+</ol>
+<hr>
+<h3 id="275-不足五feature-flag-复杂性89-个-flag-的涌现行为"><a class="header" href="#275-不足五feature-flag-复杂性89-个-flag-的涌现行为">27.5 不足五：Feature Flag 复杂性——89 个 Flag 的涌现行为</a></h3>
+<h4 id="问题描述-4"><a class="header" href="#问题描述-4">问题描述</a></h4>
+<p>Claude Code 有 89 个 Feature Flag（详见第23章），通过两种机制控制：</p>
+<ol>
+<li><strong>构建时</strong>：<code>feature()</code> 函数编译时求值，dead code elimination 移除未启用分支</li>
+<li><strong>运行时</strong>：GrowthBook <code>tengu_*</code> 前缀的 flag 通过 API 获取</li>
+</ol>
+<p>问题在于 flag 之间的<strong>交互效应</strong>。89 个二值 flag 理论上产生 2^89 种组合。即使只有 10% 的 flag 之间存在交互，组合空间也是巨大的。</p>
+<h4 id="源码证据-4"><a class="header" href="#源码证据-4">源码证据</a></h4>
+<p>以下是源码中可观察到的 flag 交互示例：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag A</th><th>Flag B</th><th>交互关系</th></tr>
+</thead>
+<tbody>
+<tr><td><code>KAIROS</code></td><td><code>PROACTIVE</code></td><td>助手模式和主动工作模式有重叠的唤醒机制</td></tr>
+<tr><td><code>COORDINATOR_MODE</code></td><td><code>TEAMMEM</code></td><td>都涉及多 agent 通信，使用不同消息传递机制</td></tr>
+<tr><td><code>BRIDGE_MODE</code></td><td><code>DAEMON</code></td><td>桥接模式需守护进程支持，但生命周期管理独立</td></tr>
+<tr><td><code>FAST_MODE</code></td><td><code>ULTRATHINK</code></td><td>加速输出和深度思考在 effort 配置中可能冲突</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 27-1：Feature Flag 交互示例</strong></p>
+<p>锁存机制（详见第24章原则六）是对 flag 交互复杂性的缓解——固定某些状态来减少运行时组合。但锁存本身也增加理解难度：系统当前行为不仅取决于 flag 当前值，还取决于<strong>会话历史中 flag 值的变化序列</strong>。</p>
+<p>工具 Schema 缓存（<code>getToolSchemaCache()</code>，详见第15章）是另一个缓解措施——每会话计算一次工具列表，防止会话中途 flag 切换导致 Schema 变动。但这意味着会话中途切换的 flag 不会影响工具列表——既是特性也是限制。</p>
+<p><code>promptCacheBreakDetection.ts</code> 中每个 flag 相关的锁存字段都带有 <code>Tracked to verify the fix</code> 注释：</p>
+<pre><code class="language-text">// restored-src/src/services/api/promptCacheBreakDetection.ts:47-55
+/** AFK_MODE_BETA_HEADER presence — should NOT break cache anymore
+ *  (sticky-on latched in claude.ts). Tracked to verify the fix. */
+autoModeActive: boolean
+/** Overage state flip — should NOT break cache anymore (eligibility is
+ *  latched session-stable in should1hCacheTTL). Tracked to verify the fix. */
+isUsingOverage: boolean
+/** Cache-editing beta header presence — should NOT break cache anymore
+ *  (sticky-on latched in claude.ts). Tracked to verify the fix. */
+cachedMCEnabled: boolean
+</code></pre>
+<p>三个字段、三次 <code>should NOT break cache anymore</code>、三次 <code>Tracked to verify the fix</code>——说明这些 flag 的状态变化<strong>曾经</strong>导致缓存中断，团队逐个修复后添加追踪来验证修复是否有效。这是典型的“打地鼠“模式——没有系统性解决 flag 交互问题，而是逐个修复暴露出来的案例。</p>
+<h4 id="改进建议-4"><a class="header" href="#改进建议-4">改进建议</a></h4>
+<p><strong>Flag 依赖图 + 互斥约束</strong>：</p>
+<ol>
+<li><strong>显式依赖声明</strong>：每个 flag 声明依赖的其他 flag（<code>KAIROS_DREAM</code> 依赖 <code>KAIROS</code>），构建工具编译时验证依赖关系</li>
+<li><strong>互斥约束</strong>：声明不能同时启用的 flag 组合</li>
+<li><strong>组合测试</strong>：对关键 flag 组合进行自动化测试，至少覆盖所有两两组合</li>
+<li><strong>Flag 状态可视化</strong>：调试模式下输出所有 flag 值和锁存状态，帮助诊断行为异常</li>
+</ol>
+<hr>
+<h2 id="模式提炼"><a class="header" href="#模式提炼">模式提炼</a></h2>
+<h3 id="五个不足汇总表"><a class="header" href="#五个不足汇总表">五个不足汇总表</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>不足</th><th>源码证据</th><th>改进建议</th></tr>
+</thead>
+<tbody>
+<tr><td>缓存脆弱性</td><td><code>promptCacheBreakDetection.ts</code> 追踪 18 个字段</td><td>集中构建 + 不可变约束</td></tr>
+<tr><td>压缩信息丢失</td><td><code>compact/prompt.ts</code> 压缩比 7:1+</td><td>结构化提取 + 分层压缩</td></tr>
+<tr><td>Grep 不是 AST</td><td>40+ 工具中无 AST 查询工具</td><td>LSP 集成</td></tr>
+<tr><td>截断告知不足</td><td><code>toolResultStorage.ts</code> 预览不保证被读取</td><td>智能预览 + 自动分页</td></tr>
+<tr><td>Flag 复杂性</td><td>3 个 <code>Tracked to verify the fix</code> 注释</td><td>Flag 依赖图 + 互斥约束</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 27-2：五个不足汇总</strong></p>
+<h3 id="三层防御与五个不足的关系"><a class="header" href="#三层防御与五个不足的关系">三层防御与五个不足的关系</a></h3>
+<pre><code class="language-mermaid">graph TD
+    subgraph "提示词层"
+        A["不足2: 压缩信息丢失&lt;br /&gt;摘要模板的局限性"]
+        B["不足4: 截断告知不足&lt;br /&gt;告知了但模型可能不行动"]
+    subgraph "工具层"
+        C["不足3: Grep 不是 AST&lt;br /&gt;文本搜索的语义盲区"]
+    subgraph "基础设施层"
+        D["不足1: 缓存脆弱性&lt;br /&gt;分散的注入点"]
+        E["不足5: Flag 复杂性&lt;br /&gt;组合爆炸与打地鼠"]
+
+    D --&gt; A
+    D --&gt; B
+    E --&gt; C
+    E --&gt; D
+</code></pre>
+<p><strong>图 27-1：五个不足在三层防御中的分布</strong></p>
+<p>基础设施层的两个不足（缓存脆弱性、Flag 复杂性）最深层——影响系统整体行为，修复成本最高。提示词层的两个不足（压缩信息丢失、静默截断）更容易缓解——改进压缩模板或预览格式不需要大规模重构。工具层的不足（Grep 不是 AST）介于两者之间——添加 LSP 工具需要新的外部依赖，但不改变核心架构。</p>
+<h3 id="反模式分散注入"><a class="header" href="#反模式分散注入">反模式：分散注入</a></h3>
+<ul>
+<li><strong>问题</strong>：多个独立注入点修改同一共享状态，状态变化不可预测</li>
+<li><strong>识别信号</strong>：需要复杂检测系统来解释“为什么状态变了“</li>
+<li><strong>解决方向</strong>：集中构建 + 不可变约束</li>
+</ul>
+<h3 id="反模式有损压缩不可逆"><a class="header" href="#反模式有损压缩不可逆">反模式：有损压缩不可逆</a></h3>
+<ul>
+<li><strong>问题</strong>：压缩后丢失的信息无法恢复</li>
+<li><strong>识别信号</strong>：压缩后模型重复之前已尝试过的失败方法</li>
+<li><strong>解决方向</strong>：结构化提取关键信息，分层存储</li>
+</ul>
+<hr>
+<h2 id="用户能做什么"><a class="header" href="#用户能做什么">用户能做什么</a></h2>
+<h3 id="你可以直接行动的"><a class="header" href="#你可以直接行动的">你可以直接行动的</a></h3>
+<ol>
+<li><strong>缓存脆弱性</strong>：通过 CLAUDE.md 控制你能控制的变量——保持项目 CLAUDE.md 稳定，避免频繁修改。监控 API 账单中的 <code>cache_creation</code> token 消耗</li>
+<li><strong>静默截断</strong>：在 CLAUDE.md 中添加指令：“当工具结果被截断时，始终使用 Read 工具查看完整内容”。不能保证 100% 遵守，但提高概率</li>
+<li><strong>Grep 的局限</strong>：通过 MCP 服务器（详见第22章）添加 LSP 能力。社区已有 TypeScript LSP 和 Python LSP 的 MCP 集成</li>
+</ol>
+<h3 id="需要关注但无法直接修复的"><a class="header" href="#需要关注但无法直接修复的">需要关注但无法直接修复的</a></h3>
+<ol start="4">
+<li><strong>压缩信息丢失</strong>：长会话中如果模型“忘记“了之前尝试过的方法，手动提醒。关键技术决策可记录在 CLAUDE.md 中（不会被压缩）</li>
+<li><strong>Feature Flag 复杂性</strong>：内部架构问题，但了解它有助于理解为什么 Claude Code 的行为有时“不一致“——可能是 flag 交互导致</li>
+</ol>
+<hr>
+<h3 id="不足是权衡的另一面"><a class="header" href="#不足是权衡的另一面">不足是权衡的另一面</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>不足</th><th>权衡的另一面</th></tr>
+</thead>
+<tbody>
+<tr><td>缓存脆弱性</td><td>提示词的灵活组合能力</td></tr>
+<tr><td>压缩信息丢失</td><td>能在 200K 窗口中持续工作数百轮</td></tr>
+<tr><td>Grep 不是 AST</td><td>零外部依赖、跨语言通用</td></tr>
+<tr><td>截断告知不足</td><td>防止上下文被单个大结果淹没</td></tr>
+<tr><td>Flag 复杂性</td><td>快速迭代和 A/B 测试能力</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 27-3：五个不足与其对应的工程权衡</strong></p>
+<p>理解这些权衡比单纯批评不足更有价值。在你自己的 AI Agent 系统中，你可能面临同样的选择——而 Claude Code 的经验可以帮助你预见每种选择的长期代价。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part7/ch26.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendix/a-file-index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part7/ch26.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendix/a-file-index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

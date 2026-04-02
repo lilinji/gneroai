@@ -1,0 +1,735 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第19章：CLAUDE.md — 用户指令作为覆盖层 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第19章claudemd--用户指令作为覆盖层"><a class="header" href="#第19章claudemd--用户指令作为覆盖层">第19章：CLAUDE.md — 用户指令作为覆盖层</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>如果说 Hooks 系统（第18章）是用户通过<strong>代码执行</strong>来扩展 Agent 行为的通道，那么 CLAUDE.md 就是通过<strong>自然语言指令</strong>来控制模型输出的通道。这不是一个简单的“配置文件“——它是一套完整的指令注入系统，具有四级优先级层叠、传递性文件包含、路径范围限定、HTML 注释剥离、以及明确的覆盖语义声明。</p>
+<p>CLAUDE.md 的设计哲学可以用一句话概括：<strong>用户的指令覆盖模型的默认行为。</strong> 这句话不是修辞——它被字面注入到系统提示词中：</p>
+<pre><code class="language-text">// claudemd.ts:89-91
+const MEMORY_INSTRUCTION_PROMPT =
+  'Codebase and user instructions are shown below. Be sure to adhere to these instructions. ' +
+  'IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.'
+</code></pre>
+<p>本章将从文件发现、内容处理、到最终注入提示词的完整链路，剖析这套系统的源码实现。</p>
+<hr>
+<h2 id="191-四级加载优先级"><a class="header" href="#191-四级加载优先级">19.1 四级加载优先级</a></h2>
+<p>CLAUDE.md 系统采用四级优先级模型，在 <code>claudemd.ts</code> 文件头部的注释中有明确定义（第 1-26 行）。文件按<strong>反向优先级顺序</strong>加载——最后加载的优先级最高，因为模型对对话末尾的内容“关注度“更高：</p>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph L1 ["Level 1: Managed Memory（最低优先级，最先加载）"]
+        M1["/etc/claude-code/CLAUDE.md&lt;br /&gt;企业策略推送，适用于所有用户"]
+
+    subgraph L2 ["Level 2: User Memory"]
+        M2["~/.claude/CLAUDE.md&lt;br /&gt;~/.claude/rules/*.md&lt;br /&gt;用户私有全局指令，适用于所有项目"]
+
+    subgraph L3 ["Level 3: Project Memory"]
+        M3["CLAUDE.md, .claude/CLAUDE.md&lt;br /&gt;.claude/rules/*.md&lt;br /&gt;从项目根到 CWD 每层遍历&lt;br /&gt;提交到 git，团队共享"]
+
+    subgraph L4 ["Level 4: Local Memory（最高优先级，最后加载）"]
+        M4["CLAUDE.local.md&lt;br /&gt;已 gitignore，仅本地生效"]
+
+    L1 --&gt;|"被覆盖"| L2 --&gt;|"被覆盖"| L3 --&gt;|"被覆盖"| L4
+
+    style L4 fill:#e6f3e6,stroke:#2d862d
+    style L1 fill:#f3e6e6,stroke:#862d2d
+</code></pre>
+<h3 id="加载实现"><a class="header" href="#加载实现">加载实现</a></h3>
+<p><code>getMemoryFiles</code> 函数（第 790-1075 行）实现了完整的加载逻辑。它是一个 <code>memoize</code> 包装的异步函数——在同一进程生命周期内，首次调用后结果被缓存：</p>
+<p><strong>第一步：Managed Memory（第 803-823 行）</strong></p>
+<pre><code class="language-text">// claudemd.ts:804-822
+const managedClaudeMd = getMemoryPath('Managed')
+result.push(
+  ...(await processMemoryFile(managedClaudeMd, 'Managed', processedPaths, includeExternal)),
+)
+const managedClaudeRulesDir = getManagedClaudeRulesDir()
+result.push(
+  ...(await processMdRules({
+    rulesDir: managedClaudeRulesDir,
+    type: 'Managed',
+    processedPaths,
+    includeExternal,
+    conditionalRule: false,
+  })),
+)
+</code></pre>
+<p>Managed Memory 路径通常是 <code>/etc/claude-code/CLAUDE.md</code>——这是企业 IT 部门通过 MDM（Mobile Device Management）推送策略的标准位置。</p>
+<p><strong>第二步：User Memory（第 826-847 行）</strong></p>
+<p>仅在 <code>userSettings</code> 配置源启用时加载。User Memory 有一个特权：<code>includeExternal</code> 始终为 <code>true</code>（第 833 行），意味着用户级 CLAUDE.md 中的 <code>@include</code> 可以引用项目目录外的文件。</p>
+<p><strong>第三步：Project Memory（第 849-920 行）</strong></p>
+<p>这是最复杂的一步。代码从 CWD 向上遍历到文件系统根目录，收集沿途每一层的 <code>CLAUDE.md</code>、<code>.claude/CLAUDE.md</code> 和 <code>.claude/rules/*.md</code>：</p>
+<pre><code class="language-text">// claudemd.ts:851-857
+const dirs: string[] = []
+const originalCwd = getOriginalCwd()
+let currentDir = originalCwd
+while (currentDir !== parse(currentDir).root) {
+  dirs.push(currentDir)
+  currentDir = dirname(currentDir)
+}
+</code></pre>
+<p>然后从根目录方向向 CWD 方向处理（第 878 行的 <code>dirs.reverse()</code>），确保离 CWD 更近的文件后加载、优先级更高。</p>
+<p>一个有趣的边界情况处理：git worktree（第 859-884 行）。当从 worktree 内运行时（例如 <code>.claude/worktrees/&lt;name&gt;/</code>），向上遍历会同时经过 worktree 根目录和主仓库根目录。两者都包含 <code>CLAUDE.md</code>，导致内容重复加载。代码通过检测 <code>isNestedWorktree</code> 来跳过主仓库目录中的 Project 类型文件——但 <code>CLAUDE.local.md</code> 仍然加载，因为它是 gitignored 的、只存在于主仓库中。</p>
+<p><strong>第四步：Local Memory（穿插在 Project 遍历中）</strong></p>
+<p>在每个目录层级，<code>CLAUDE.local.md</code> 在 Project 文件之后加载（第 922-933 行），但前提是 <code>localSettings</code> 配置源启用。</p>
+<p><strong>附加目录（<code>--add-dir</code>）支持（第 936-977 行）：</strong></p>
+<p>通过 <code>CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD</code> 环境变量启用后，<code>--add-dir</code> 参数指定的额外目录中的 CLAUDE.md 也会被加载。这些文件被标记为 <code>Project</code> 类型，加载逻辑与标准 Project Memory 完全一致（CLAUDE.md、.claude/CLAUDE.md、.claude/rules/*.md）。注意这里不检查 <code>isSettingSourceEnabled('projectSettings')</code>——因为 <code>--add-dir</code> 是用户的显式操作，SDK 默认的空 <code>settingSources</code> 不应阻止它。</p>
+<p><strong>AutoMem 和 TeamMem（第 979-1007 行）：</strong></p>
+<p>在四级标准 Memory 之后，还会尝试加载两种特殊类型——自动记忆（<code>MEMORY.md</code>）和团队记忆。这些类型有各自的 feature flag 控制，且有独立的截断策略（由 <code>truncateEntrypointContent</code> 处理行数和字节数上限）。</p>
+<h3 id="可控的配置源开关"><a class="header" href="#可控的配置源开关">可控的配置源开关</a></h3>
+<p>每一级（除 Managed 外）的加载都受 <code>isSettingSourceEnabled()</code> 控制：</p>
+<ul>
+<li><code>userSettings</code>：控制 User Memory</li>
+<li><code>projectSettings</code>：控制 Project Memory（CLAUDE.md 和 rules）</li>
+<li><code>localSettings</code>：控制 Local Memory</li>
+</ul>
+<p>SDK 模式下默认将 <code>settingSources</code> 设为空数组，意味着除非显式启用，否则只有 Managed Memory 生效——这是 SDK 使用者最小权限原则的体现。</p>
+<hr>
+<h2 id="192-include-指令"><a class="header" href="#192-include-指令">19.2 @include 指令</a></h2>
+<p>CLAUDE.md 支持 <code>@include</code> 语法来引用其他文件，实现模块化的指令组织。</p>
+<h3 id="语法格式"><a class="header" href="#语法格式">语法格式</a></h3>
+<p><code>@include</code> 使用 <code>@</code> 前缀加路径的简洁语法（第 19-24 行注释）：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>语法</th><th>含义</th></tr>
+</thead>
+<tbody>
+<tr><td><code>@path</code> 或 <code>@./path</code></td><td>相对于当前文件目录的路径</td></tr>
+<tr><td><code>@~/path</code></td><td>相对于用户 home 目录的路径</td></tr>
+<tr><td><code>@/absolute/path</code></td><td>绝对路径</td></tr>
+<tr><td><code>@path#section</code></td><td>带片段标识符（<code>#</code> 及之后被忽略）</td></tr>
+<tr><td><code>@path\ with\ spaces</code></td><td>反斜杠转义空格</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="路径提取"><a class="header" href="#路径提取">路径提取</a></h3>
+<p>路径提取由 <code>extractIncludePathsFromTokens</code> 函数（第 451-535 行）实现。它接收 marked lexer 预处理过的 token 流，而非原始文本——这确保了以下规则：</p>
+<ol>
+<li><strong>代码块中的 <code>@</code> 被忽略</strong>：<code>code</code> 和 <code>codespan</code> 类型的 token 被跳过（第 496-498 行）</li>
+<li><strong>HTML 注释中的 <code>@</code> 被忽略</strong>：<code>html</code> 类型 token 中的注释部分被跳过，但注释后的残余文本中的 <code>@</code> 仍然被处理（第 502-514 行）</li>
+<li><strong>仅处理文本节点</strong>：递归进入 <code>tokens</code> 和 <code>items</code> 子结构（第 522-529 行）</li>
+</ol>
+<p>路径提取的正则表达式（第 459 行）：</p>
+<pre><code class="language-text">// claudemd.ts:459
+const includeRegex = /(?:^|\s)@((?:[^\s\\]|\\ )+)/g
+</code></pre>
+<p>这个正则匹配 <code>@</code> 后的非空白字符序列，同时支持 <code>\ </code> 转义空格。</p>
+<h3 id="传递性包含与循环引用防护"><a class="header" href="#传递性包含与循环引用防护">传递性包含与循环引用防护</a></h3>
+<p><code>processMemoryFile</code> 函数（第 618-685 行）递归处理 <code>@include</code>。两个关键安全机制：</p>
+<p><strong>循环引用防护</strong>：通过 <code>processedPaths</code> Set 追踪已处理的文件路径（第 629-630 行）。路径在比较前经过 <code>normalizePathForComparison</code> 规范化，处理 Windows 盘符大小写差异（<code>C:\Users</code> vs <code>c:\Users</code>）：</p>
+<pre><code class="language-text">// claudemd.ts:629-630
+const normalizedPath = normalizePathForComparison(filePath)
+if (processedPaths.has(normalizedPath) || depth &gt;= MAX_INCLUDE_DEPTH) {
+  return []
+}
+</code></pre>
+<p><strong>最大深度限制</strong>：<code>MAX_INCLUDE_DEPTH = 5</code>（第 537 行），防止过深的嵌套。</p>
+<p><strong>外部文件安全</strong>：当 <code>@include</code> 指向项目目录外的文件时，默认不加载（第 667-669 行）。只有 User Memory 层级的文件或用户显式批准 <code>hasClaudeMdExternalIncludesApproved</code> 后才允许外部包含。如果发现未批准的外部包含，系统会显示警告（<code>shouldShowClaudeMdExternalIncludesWarning</code>，第 1420-1430 行）。</p>
+<h3 id="符号链接处理"><a class="header" href="#符号链接处理">符号链接处理</a></h3>
+<p>每个文件在处理前都通过 <code>safeResolvePath</code> 解析符号链接（第 640-643 行）。如果文件是符号链接，解析后的真实路径也会被添加到 <code>processedPaths</code>——防止通过符号链接绕过循环引用检测。</p>
+<hr>
+<h2 id="193-frontmatter-paths范围限定"><a class="header" href="#193-frontmatter-paths范围限定">19.3 frontmatter paths：范围限定</a></h2>
+<p><code>.claude/rules/</code> 目录中的 <code>.md</code> 文件可以通过 YAML frontmatter 的 <code>paths</code> 字段限定其适用范围——只有当 Claude 操作的文件路径匹配这些 glob 模式时，规则才会被注入上下文。</p>
+<h3 id="frontmatter-解析"><a class="header" href="#frontmatter-解析">frontmatter 解析</a></h3>
+<p><code>parseFrontmatterPaths</code> 函数（第 254-279 行）处理 frontmatter 中的 <code>paths</code> 字段：</p>
+<pre><code class="language-text">// claudemd.ts:254-279
+      // function parseFrontmatterPaths(rawContent: string): {
+  content: string
+  paths?: string[]
+} {
+  const { frontmatter, content } = parseFrontmatter(rawContent)
+  if (!frontmatter.paths) {
+    return { content }
+  }
+  const patterns = splitPathInFrontmatter(frontmatter.paths)
+    .map(pattern =&gt; {
+      return pattern.endsWith('/**') ? pattern.slice(0, -3) : pattern
+    })
+    .filter((p: string) =&gt; p.length &gt; 0)
+  if (patterns.length === 0 || patterns.every((p: string) =&gt; p === '**')) {
+    return { content }
+  }
+  return { content, paths: patterns }
+}
+</code></pre>
+<p>注意 <code>/**</code> 后缀的处理——<code>ignore</code> 库将 <code>path</code> 视为同时匹配路径本身和路径内的所有内容，所以 <code>/**</code> 是冗余的，被自动移除。如果所有模式都是 <code>**</code>（匹配一切），则视为没有 glob 限定。</p>
+<h3 id="路径语法"><a class="header" href="#路径语法">路径语法</a></h3>
+<p><code>splitPathInFrontmatter</code> 函数（<code>frontmatterParser.ts:189-232</code>）支持复杂的路径语法：</p>
+<pre><code class="language-yaml">---
+paths: src/**/*.ts, tests/**/*.test.ts
+---
+</code></pre>
+<p>或 YAML 列表格式：</p>
+<pre><code class="language-yaml">---
+paths:
+  - src/**/*.ts
+  - tests/**/*.test.ts
+---
+</code></pre>
+<p>花括号展开也被支持——<code>src/*.{ts,tsx}</code> 会展开为 <code>["src/*.ts", "src/*.tsx"]</code>（<code>frontmatterParser.ts:240-266</code> 的 <code>expandBraces</code> 函数）。这个展开器递归处理多层花括号：<code>{a,b}/{c,d}</code> 产生 <code>["a/c", "a/d", "b/c", "b/d"]</code>。</p>
+<h3 id="yaml-解析的容错处理"><a class="header" href="#yaml-解析的容错处理">YAML 解析的容错处理</a></h3>
+<p>frontmatter 的 YAML 解析（<code>frontmatterParser.ts:130-175</code>）有两层容错：</p>
+<ol>
+<li><strong>首次尝试</strong>：直接解析原始 frontmatter 文本</li>
+<li><strong>失败后重试</strong>：通过 <code>quoteProblematicValues</code> 函数自动引用包含 YAML 特殊字符的值</li>
+</ol>
+<p>这个重试机制解决了一个常见问题：glob 模式如 <code>**/*.{ts,tsx}</code> 包含 YAML 的流映射指示符 <code>{}</code>，直接解析会失败。<code>quoteProblematicValues</code>（第 85-121 行）会检测简单 <code>key: value</code> 行中的特殊字符（`{}[]*, &amp;#!|&gt;%@``），自动用双引号包裹。已被引号包裹的值会被跳过。</p>
+<p>这意味着用户可以直接写 <code>paths: src/**/*.{ts,tsx}</code> 而无需手动加引号——解析器会在第一次 YAML 解析失败后自动加引号重试。</p>
+<h3 id="条件规则匹配"><a class="header" href="#条件规则匹配">条件规则匹配</a></h3>
+<p>条件规则的匹配由 <code>processConditionedMdRules</code> 函数（第 1354-1397 行）执行。它加载规则文件后，使用 <code>ignore()</code> 库（gitignore 兼容的 glob 匹配）对目标文件路径进行过滤：</p>
+<pre><code class="language-text">// claudemd.ts:1370-1396
+return conditionedRuleMdFiles.filter(file =&gt; {
+  if (!file.globs || file.globs.length === 0) {
+    return false
+  }
+  const baseDir =
+    type === 'Project'
+      ? dirname(dirname(rulesDir))  // .claude 的父目录
+      : getOriginalCwd()            // managed/user 规则使用项目根目录
+  const relativePath = isAbsolute(targetPath)
+    ? relative(baseDir, targetPath)
+    : targetPath
+  if (!relativePath || relativePath.startsWith('..') || isAbsolute(relativePath)) {
+    return false
+  }
+  return ignore().add(file.globs).ignores(relativePath)
+})
+</code></pre>
+<p>关键设计细节：</p>
+<ul>
+<li><strong>Project 规则</strong>的 glob 基准目录是包含 <code>.claude</code> 目录的那个目录</li>
+<li><strong>Managed/User 规则</strong>的 glob 基准目录是 <code>getOriginalCwd()</code>——即项目根目录</li>
+<li>超出基准目录的路径（<code>..</code> 前缀）被排除——它们不可能匹配基准目录相对的 glob</li>
+<li>Windows 跨盘符的 <code>relative()</code> 返回绝对路径，同样被排除</li>
+</ul>
+<h3 id="无条件规则-vs-条件规则"><a class="header" href="#无条件规则-vs-条件规则">无条件规则 vs 条件规则</a></h3>
+<p><code>processMdRules</code> 函数（第 697-788 行）的 <code>conditionalRule</code> 参数控制加载哪类规则：</p>
+<ul>
+<li><code>conditionalRule: false</code>：加载<strong>没有</strong> <code>paths</code> frontmatter 的文件——这些是无条件规则，总是注入上下文</li>
+<li><code>conditionalRule: true</code>：加载<strong>有</strong> <code>paths</code> frontmatter 的文件——这些是条件规则，只在匹配时注入</li>
+</ul>
+<p>在会话启动时，CWD 到根目录路径上的无条件规则和 managed/user 层的无条件规则都被预加载。条件规则只在 Claude 操作特定文件时按需加载。</p>
+<hr>
+<h2 id="194-html-注释剥离"><a class="header" href="#194-html-注释剥离">19.4 HTML 注释剥离</a></h2>
+<p>CLAUDE.md 中的 HTML 注释会在注入上下文前被剥离。这允许维护者在指令文件中留下不想让 Claude 看到的注释。</p>
+<p><code>stripHtmlComments</code> 函数（第 292-301 行）使用 marked lexer 识别块级 HTML 注释：</p>
+<pre><code class="language-text">// claudemd.ts:292-301
+      // export function stripHtmlComments(content: string): {
+  content: string
+  stripped: boolean
+} {
+  if (!content.includes('&lt;!--')) {
+    return { content, stripped: false }
+  }
+  return stripHtmlCommentsFromTokens(new Lexer({ gfm: false }).lex(content))
+}
+</code></pre>
+<p><code>stripHtmlCommentsFromTokens</code> 函数（第 303-334 行）的处理逻辑精确而谨慎：</p>
+<ol>
+<li>只处理 <code>html</code> 类型 token 中以 <code>&lt;!--</code> 开头且包含 <code>--&gt;</code> 的注释</li>
+<li><strong>未闭合的注释</strong>（<code>&lt;!--</code> 没有对应的 <code>--&gt;</code>）被保留——这防止一个拼写错误导致文件剩余内容被静默吞噬</li>
+<li>注释后的<strong>残留内容</strong>被保留——例如 <code>&lt;!-- note --&gt; Use bun</code> 会保留 <code> Use bun</code></li>
+<li>行内代码和代码块中的 <code>&lt;!-- --&gt;</code> 不受影响——lexer 已经将它们标记为 <code>code</code>/<code>codespan</code> 类型</li>
+</ol>
+<p>一个实现细节值得注意：<code>gfm: false</code> 选项（第 300 行）。这是因为 <code>@include</code> 路径中的 <code>~</code> 在 GFM 模式下会被 marked 解析为删除线标记——禁用 GFM 避免了这个冲突。HTML 块检测是 CommonMark 规则，不受 GFM 设置影响。</p>
+<h3 id="避免虚假的-contentdiffersfromdisk"><a class="header" href="#避免虚假的-contentdiffersfromdisk">避免虚假的 contentDiffersFromDisk</a></h3>
+<p><code>parseMemoryFileContent</code> 函数（第 343-399 行）中有一个精巧的优化：只有当文件确实包含 <code>&lt;!--</code> 时才通过 token 重建内容（第 370-374 行）。这不仅是性能考量——marked 在 lexing 过程中会规范化 <code>\r\n</code> 为 <code>\n</code>，如果对一个 CRLF 文件进行不必要的 token 往返，会虚假触发 <code>contentDiffersFromDisk</code> 标志，导致缓存系统认为文件被修改了。</p>
+<hr>
+<h2 id="195-注入提示词"><a class="header" href="#195-注入提示词">19.5 注入提示词</a></h2>
+<h3 id="最终注入格式"><a class="header" href="#最终注入格式">最终注入格式</a></h3>
+<p><code>getClaudeMds</code> 函数（第 1153-1195 行）将所有加载的 memory files 组装为最终的系统提示词字符串：</p>
+<pre><code class="language-text">// claudemd.ts:1153-1195
+export const getClaudeMds = (
+  memoryFiles: MemoryFileInfo[],
+  filter?: (type: MemoryType) =&gt; boolean,
+): string =&gt; {
+  const memories: string[] = []
+  for (const file of memoryFiles) {
+    if (filter &amp;&amp; !filter(file.type)) continue
+    if (file.content) {
+      const description =
+        file.type === 'Project'
+          ? ' (project instructions, checked into the codebase)'
+          : file.type === 'Local'
+            ? " (user's private project instructions, not checked in)"
+            : " (user's private global instructions for all projects)"
+      memories.push(`Contents of ${file.path}${description}:\n\n${content}`)
+    }
+  }
+  if (memories.length === 0) {
+    return ''
+  }
+  return `${MEMORY_INSTRUCTION_PROMPT}\n\n${memories.join('\n\n')}`
+}
+</code></pre>
+<p>每个文件的注入格式是：</p>
+<pre><code>Contents of /path/to/CLAUDE.md (类型描述):
+
+[文件内容]
+</code></pre>
+<p>所有文件前置一个统一的指令前缀（<code>MEMORY_INSTRUCTION_PROMPT</code>），明确告知模型：</p>
+<blockquote>
+<p>“Codebase and user instructions are shown below. Be sure to adhere to these instructions. IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.”</p>
+</blockquote>
+<p>这个“覆盖“声明不是装饰——它利用了 Claude 模型对 system prompt 中明确指令的高遵从度。通过在提示词中显式声明“这些指令覆盖默认行为“，用户的 CLAUDE.md 内容获得了等同于（甚至高于）内置系统提示词的影响力。</p>
+<h3 id="类型描述的作用"><a class="header" href="#类型描述的作用">类型描述的作用</a></h3>
+<p>每个文件的类型描述并非仅供人类阅读——它帮助模型理解指令的来源和权威性：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>类型</th><th>描述</th><th>语义暗示</th></tr>
+</thead>
+<tbody>
+<tr><td>Project</td><td><code>project instructions, checked into the codebase</code></td><td>团队共识，应严格遵守</td></tr>
+<tr><td>Local</td><td><code>user's private project instructions, not checked in</code></td><td>个人偏好，适度灵活</td></tr>
+<tr><td>User</td><td><code>user's private global instructions for all projects</code></td><td>用户习惯，跨项目一致</td></tr>
+<tr><td>AutoMem</td><td><code>user's auto-memory, persists across conversations</code></td><td>学习到的知识，供参考</td></tr>
+<tr><td>TeamMem</td><td><code>shared team memory, synced across the organization</code></td><td>组织知识，被 <code>&lt;team-memory-content&gt;</code> 标签包裹</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="196-大小预算"><a class="header" href="#196-大小预算">19.6 大小预算</a></h2>
+<h3 id="40k-字符上限"><a class="header" href="#40k-字符上限">40K 字符上限</a></h3>
+<p>单个 memory file 的推荐最大尺寸为 40,000 字符（第 93 行）：</p>
+<pre><code class="language-text">// claudemd.ts:93
+export const MAX_MEMORY_CHARACTER_COUNT = 40000
+</code></pre>
+<p><code>getLargeMemoryFiles</code> 函数（第 1132-1134 行）用于检测超出此限制的文件：</p>
+<pre><code class="language-text">// claudemd.ts:1132-1134
+      // export function getLargeMemoryFiles(files: MemoryFileInfo[]): MemoryFileInfo[] {
+  return files.filter(f =&gt; f.content.length &gt; MAX_MEMORY_CHARACTER_COUNT)
+}
+</code></pre>
+<p>这个限制不是硬性拦截——它是一个警告阈值。系统会在检测到超大文件时提示用户，但不会阻止加载。实际上限受制于整个系统提示词的 token 预算（参见第12章），过大的 CLAUDE.md 会挤压其他上下文空间。</p>
+<h3 id="automem-和-teammem-的截断"><a class="header" href="#automem-和-teammem-的截断">AutoMem 和 TeamMem 的截断</a></h3>
+<p>对于自动记忆和团队记忆类型，有更严格的截断逻辑（第 382-385 行）：</p>
+<pre><code class="language-text">// claudemd.ts:382-385
+let finalContent = strippedContent
+if (type === 'AutoMem' || type === 'TeamMem') {
+  finalContent = truncateEntrypointContent(strippedContent).content
+}
+</code></pre>
+<p><code>truncateEntrypointContent</code> 来自 <code>memdir/memdir.ts</code>，同时对行数和字节数施加上限——自动记忆可能随使用时间膨胀，需要更积极的截断策略。</p>
+<hr>
+<h2 id="197-文件变更追踪"><a class="header" href="#197-文件变更追踪">19.7 文件变更追踪</a></h2>
+<h3 id="contentdiffersfromdisk-标志"><a class="header" href="#contentdiffersfromdisk-标志">contentDiffersFromDisk 标志</a></h3>
+<p><code>MemoryFileInfo</code> 类型（第 229-243 行）包含两个与缓存相关的字段：</p>
+<pre><code class="language-text">// claudemd.ts:229-243
+export type MemoryFileInfo = {
+  path: string
+  type: MemoryType
+  content: string
+  parent?: string
+  globs?: string[]
+  contentDiffersFromDisk?: boolean
+  rawContent?: string
+}
+</code></pre>
+<p>当 <code>contentDiffersFromDisk</code> 为 <code>true</code> 时，<code>content</code> 是经过处理的版本（frontmatter 剥离、HTML 注释剥离、截断），<code>rawContent</code> 保存磁盘原始内容。这允许缓存系统记录“文件已被读取“（用于去重和变更检测），同时不强制要求 Edit/Write 工具在操作前重新 Read——因为注入到上下文的是处理后的版本，不完全等于磁盘内容。</p>
+<h3 id="缓存失效策略"><a class="header" href="#缓存失效策略">缓存失效策略</a></h3>
+<p><code>getMemoryFiles</code> 使用 lodash <code>memoize</code> 缓存（第 790 行）。缓存清除有两种语义：</p>
+<p><strong>清除但不触发 Hook（<code>clearMemoryFileCaches</code>，第 1119-1122 行）</strong>：用于纯粹的缓存正确性场景——worktree 进出、设置同步、<code>/memory</code> 对话框。</p>
+<p><strong>清除并触发 InstructionsLoaded Hook（<code>resetGetMemoryFilesCache</code>，第 1124-1130 行）</strong>：用于指令真正被重新加载到上下文的场景——会话启动、压缩（compaction）。</p>
+<pre><code class="language-text">// claudemd.ts:1124-1130
+      // export function resetGetMemoryFilesCache(
+  reason: InstructionsLoadReason = 'session_start',
+): void {
+  nextEagerLoadReason = reason
+  shouldFireHook = true
+  clearMemoryFileCaches()
+}
+</code></pre>
+<p><code>shouldFireHook</code> 是一个一次性标志——在 Hook 触发后被设为 <code>false</code>（第 1102-1108 行的 <code>consumeNextEagerLoadReason</code>），防止同一轮加载中重复触发。这个标志的消费不依赖于 Hook 是否实际配置——即使没有 InstructionsLoaded Hook，标志也会被消费，否则后续的 Hook 注册 + 缓存清除会产生虚假的 <code>session_start</code> 触发。</p>
+<hr>
+<h2 id="198-文件类型支持与安全过滤"><a class="header" href="#198-文件类型支持与安全过滤">19.8 文件类型支持与安全过滤</a></h2>
+<h3 id="允许的文件扩展名"><a class="header" href="#允许的文件扩展名">允许的文件扩展名</a></h3>
+<p><code>@include</code> 指令只加载文本文件。<code>TEXT_FILE_EXTENSIONS</code> 集合（第 96-227 行）定义了 120+ 种允许的扩展名，涵盖：</p>
+<ul>
+<li>Markdown 和文本：<code>.md</code>, <code>.txt</code>, <code>.text</code></li>
+<li>数据格式：<code>.json</code>, <code>.yaml</code>, <code>.yml</code>, <code>.toml</code>, <code>.xml</code>, <code>.csv</code></li>
+<li>编程语言：从 <code>.js</code> 到 <code>.rs</code>、从 <code>.py</code> 到 <code>.go</code>、从 <code>.java</code> 到 <code>.swift</code></li>
+<li>配置文件：<code>.env</code>, <code>.ini</code>, <code>.cfg</code>, <code>.conf</code></li>
+<li>构建文件：<code>.cmake</code>, <code>.gradle</code>, <code>.sbt</code></li>
+</ul>
+<p>文件扩展名检查在 <code>parseMemoryFileContent</code> 函数（第 343-399 行）中执行：</p>
+<pre><code class="language-text">// claudemd.ts:349-353
+const ext = extname(filePath).toLowerCase()
+if (ext &amp;&amp; !TEXT_FILE_EXTENSIONS.has(ext)) {
+  logForDebugging(`Skipping non-text file in @include: ${filePath}`)
+  return { info: null, includePaths: [] }
+}
+</code></pre>
+<p>这防止二进制文件（图片、PDF 等）被加载到 memory 中——这些内容不仅无意义，还可能消耗大量 token 预算。</p>
+<h3 id="claudemdexcludes-排除模式"><a class="header" href="#claudemdexcludes-排除模式">claudeMdExcludes 排除模式</a></h3>
+<p><code>isClaudeMdExcluded</code> 函数（第 547-573 行）支持用户通过 <code>claudeMdExcludes</code> 设置排除特定路径的 CLAUDE.md 文件：</p>
+<pre><code class="language-text">// claudemd.ts:547-573
+      // function isClaudeMdExcluded(filePath: string, type: MemoryType): boolean {
+  if (type !== 'User' &amp;&amp; type !== 'Project' &amp;&amp; type !== 'Local') {
+    return false  // Managed, AutoMem, TeamMem 永远不被排除
+  }
+  const patterns = getInitialSettings().claudeMdExcludes
+  if (!patterns || patterns.length === 0) {
+    return false
+  }
+  // ...picomatch 匹配逻辑
+}
+</code></pre>
+<p>排除模式支持 glob 语法，并且处理了 macOS 的符号链接问题——<code>/tmp</code> 在 macOS 上实际指向 <code>/private/tmp</code>，<code>resolveExcludePatterns</code> 函数（第 581-612 行）会解析绝对路径模式中的符号链接前缀，确保两边使用相同的真实路径进行比较。</p>
+<hr>
+<h2 id="199-用户能做什么claudemd-编写最佳实践"><a class="header" href="#199-用户能做什么claudemd-编写最佳实践">19.9 用户能做什么：CLAUDE.md 编写最佳实践</a></h2>
+<p>基于源码分析，以下是编写 CLAUDE.md 的实用建议：</p>
+<h3 id="利用优先级层叠"><a class="header" href="#利用优先级层叠">利用优先级层叠</a></h3>
+<pre><code>~/.claude/CLAUDE.md          # 个人偏好：代码风格、语言设置
+project/CLAUDE.md             # 团队约定：技术栈、架构规范
+project/.claude/rules/*.md    # 细粒度规则：按领域组织
+project/CLAUDE.local.md       # 本地覆盖：调试配置、个人工具链
+</code></pre>
+<p>Local Memory 优先级最高——如果团队约定使用 4 空格缩进但你偏好 2 空格，在 <code>CLAUDE.local.md</code> 中覆盖即可。</p>
+<h3 id="使用-include-模块化"><a class="header" href="#使用-include-模块化">使用 @include 模块化</a></h3>
+<pre><code class="language-markdown"># CLAUDE.md
+
+@./docs/coding-standards.md
+@./docs/api-conventions.md
+@~/.claude/snippets/common-patterns.md
+</code></pre>
+<p>注意：<code>@include</code> 的最大深度是 5 层，循环引用会被静默忽略。外部文件（项目目录外的路径）在 Project Memory 层级默认不加载——用户级的 <code>@include</code> 不受此限制。</p>
+<h3 id="使用-frontmatter-paths-按需加载"><a class="header" href="#使用-frontmatter-paths-按需加载">使用 frontmatter paths 按需加载</a></h3>
+<pre><code class="language-markdown">---
+paths: src/api/**/*.ts, src/api/**/*.test.ts
+---
+
+# API 开发规范
+
+- 所有 API 端点必须有对应的集成测试
+- 使用 Zod 进行请求/响应验证
+- 错误响应遵循 RFC 7807 Problem Details 格式
+</code></pre>
+<p>这个规则只会在 Claude 操作 <code>src/api/</code> 下的 TypeScript 文件时注入——避免了不相关规则占用宝贵的上下文空间。花括号展开也被支持：<code>src/*.{ts,tsx}</code> 会匹配 <code>.ts</code> 和 <code>.tsx</code> 文件。</p>
+<h3 id="使用-html-注释隐藏内部笔记"><a class="header" href="#使用-html-注释隐藏内部笔记">使用 HTML 注释隐藏内部笔记</a></h3>
+<pre><code class="language-markdown">&lt;!-- TODO: 等 API v3 发布后更新这个规范 --&gt;
+&lt;!-- 这条规则是因为 gh-12345 的 Bug 临时添加的 --&gt;
+
+所有数据库查询必须使用参数化语句，禁止字符串拼接。
+</code></pre>
+<p>HTML 注释会在注入 Claude 上下文前被剥离。但注意：未闭合的 <code>&lt;!--</code> 会被保留——这是有意的安全设计。</p>
+<h3 id="控制文件大小"><a class="header" href="#控制文件大小">控制文件大小</a></h3>
+<p>单个 CLAUDE.md 的推荐上限是 40,000 字符。如果指令过多，优先使用以下策略：</p>
+<ol>
+<li><strong>拆分为 <code>.claude/rules/</code> 目录中的多个文件</strong>——每个文件聚焦一个主题</li>
+<li><strong>使用 frontmatter paths 按需加载</strong>——不相关的规则不占用上下文</li>
+<li><strong>使用 <code>@include</code> 引用外部文档</strong>——避免在 CLAUDE.md 中重复信息</li>
+</ol>
+<h3 id="理解指令的覆盖语义"><a class="header" href="#理解指令的覆盖语义">理解指令的覆盖语义</a></h3>
+<p>CLAUDE.md 的内容不是“建议“——通过 <code>MEMORY_INSTRUCTION_PROMPT</code> 的显式声明，它们被标记为必须遵守的指令。这意味着：</p>
+<ul>
+<li>写“禁止使用 <code>any</code> 类型“比写“尽量避免使用 <code>any</code> 类型“更有效——模型会严格遵守明确的禁令</li>
+<li>矛盾的指令（不同层级的 CLAUDE.md 给出相反要求）由最后加载的（最高优先级）胜出——但模型可能会尝试调和，建议避免直接矛盾</li>
+<li>每个文件的路径和类型描述会被注入上下文——模型能看到指令来自哪里，这影响它的遵从度判断</li>
+</ul>
+<h3 id="利用-clauderules-目录结构"><a class="header" href="#利用-clauderules-目录结构">利用 <code>.claude/rules/</code> 目录结构</a></h3>
+<p>规则目录支持子目录递归——这允许按团队或模块组织规则：</p>
+<pre><code>.claude/rules/
+  frontend/
+    react-patterns.md
+    css-conventions.md
+  backend/
+    api-design.md
+    database-rules.md
+  testing/
+    unit-test-rules.md
+    e2e-rules.md
+</code></pre>
+<p>所有 <code>.md</code> 文件都会被加载（无条件规则）或按需匹配（带 <code>paths</code> frontmatter 的条件规则）。符号链接也被支持但会被解析为真实路径——循环引用通过 <code>visitedDirs</code> Set 检测。</p>
+<hr>
+<h2 id="1910-排除机制与规则目录遍历"><a class="header" href="#1910-排除机制与规则目录遍历">19.10 排除机制与规则目录遍历</a></h2>
+<h3 id="clauderules-递归遍历"><a class="header" href="#clauderules-递归遍历">.claude/rules/ 递归遍历</a></h3>
+<p><code>processMdRules</code> 函数（第 697-788 行）递归遍历 <code>.claude/rules/</code> 目录及其子目录，加载所有 <code>.md</code> 文件。它处理了几个边界情况：</p>
+<ol>
+<li><strong>符号链接目录</strong>：使用 <code>safeResolvePath</code> 解析，并通过 <code>visitedDirs</code> Set 进行循环检测（第 712-714 行）</li>
+<li><strong>权限错误</strong>：<code>ENOENT</code>、<code>EACCES</code>、<code>ENOTDIR</code> 被静默处理——缺失的目录不是错误（第 734-738 行）</li>
+<li><strong>Dirent 优化</strong>：非符号链接使用 Dirent 方法判断文件/目录类型，避免额外的 <code>stat</code> 调用（第 748-752 行）</li>
+</ol>
+<h3 id="instructionsloaded-hook-集成"><a class="header" href="#instructionsloaded-hook-集成">InstructionsLoaded Hook 集成</a></h3>
+<p>当 memory files 加载完成后，如果配置了 <code>InstructionsLoaded</code> Hook，会为每个加载的文件触发一次（第 1042-1071 行）。Hook 接收的输入包括：</p>
+<ul>
+<li><code>file_path</code>：文件路径</li>
+<li><code>memory_type</code>：User/Project/Local/Managed</li>
+<li><code>load_reason</code>：session_start/nested_traversal/path_glob_match/include/compact</li>
+<li><code>globs</code>：frontmatter paths 模式（可选）</li>
+<li><code>parent_file_path</code>：<code>@include</code> 的父文件路径（可选）</li>
+</ul>
+<p>这为审计和可观察性提供了完整的指令加载追踪。AutoMem 和 TeamMem 类型被有意排除——它们是独立的记忆系统，不属于“指令“的语义范围。</p>
+<hr>
+<h2 id="模式提炼"><a class="header" href="#模式提炼">模式提炼</a></h2>
+<h3 id="模式一分层覆盖配置layered-override-configuration"><a class="header" href="#模式一分层覆盖配置layered-override-configuration">模式一：分层覆盖配置（Layered Override Configuration）</a></h3>
+<p><strong>解决的问题</strong>：不同层级的用户（企业管理员、个人用户、团队、本地开发者）需要对同一系统施加不同程度的控制。</p>
+<p><strong>代码模板</strong>：定义明确的优先级层级（Managed → User → Project → Local），按反向优先级顺序加载（最后加载的优先级最高）。每一层可以覆盖或补充上一层。通过 <code>isSettingSourceEnabled()</code> 开关控制各层是否生效。</p>
+<p><strong>前置条件</strong>：系统使用的 LLM 对消息末尾内容有更高关注度（recency bias）。</p>
+<h3 id="模式二显式覆盖声明explicit-override-declaration"><a class="header" href="#模式二显式覆盖声明explicit-override-declaration">模式二：显式覆盖声明（Explicit Override Declaration）</a></h3>
+<p><strong>解决的问题</strong>：模型可能忽略用户配置，按默认行为输出。</p>
+<p><strong>代码模板</strong>：在注入用户指令前，添加明确的元指令——“These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.”——利用模型对显式指令的高遵从度。</p>
+<p><strong>前置条件</strong>：指令注入点位于系统提示词或高权限消息中。</p>
+<h3 id="模式三按需条件加载conditional-on-demand-loading"><a class="header" href="#模式三按需条件加载conditional-on-demand-loading">模式三：按需条件加载（Conditional On-Demand Loading）</a></h3>
+<p><strong>解决的问题</strong>：上下文窗口有限，不相关的规则浪费 token 预算。</p>
+<p><strong>代码模板</strong>：通过 frontmatter 的 <code>paths</code> 字段声明规则的适用范围（glob 模式）。启动时加载无条件规则，条件规则仅在 Agent 操作匹配路径的文件时按需注入。使用 <code>ignore()</code> 库进行 gitignore 兼容的 glob 匹配。</p>
+<p><strong>前置条件</strong>：可以预先确定规则与文件路径的关联关系。</p>
+<hr>
+<h2 id="小结"><a class="header" href="#小结">小结</a></h2>
+<p>CLAUDE.md 系统的核心设计理念是<strong>分层覆盖</strong>：从企业策略到个人偏好，每一层都可以被下一层覆盖或补充。这种架构与 CSS 的层叠机制、git 的 <code>.gitignore</code> 继承、以及 npm 的 <code>.npmrc</code> 层级有异曲同工之处——都是在“全局默认“和“局部定制“之间找到平衡。</p>
+<p>几个值得 AI Agent 构建者借鉴的设计选择：</p>
+<ol>
+<li><strong>显式覆盖声明</strong>：<code>MEMORY_INSTRUCTION_PROMPT</code> 告诉模型“这些指令覆盖默认行为“——不依赖模型自行判断优先级</li>
+<li><strong>按需加载</strong>：frontmatter paths 使得规则只在相关时才占用上下文——在 200K token 的竞技场中，每个 token 都是稀缺资源</li>
+<li><strong>安全边界明确</strong>：外部文件包含需要显式批准，二进制文件被过滤，HTML 注释剥离只处理已闭合的注释</li>
+<li><strong>缓存语义分离</strong>：<code>clearMemoryFileCaches</code> vs <code>resetGetMemoryFilesCache</code> 的区分，防止缓存失效时产生副作用</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part5/ch18.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part6/ch20.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part5/ch18.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part6/ch20.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

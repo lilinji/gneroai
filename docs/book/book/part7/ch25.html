@@ -1,0 +1,426 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第25章：上下文管理作为核心能力 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第25章上下文管理作为核心能力"><a class="header" href="#第25章上下文管理作为核心能力">第25章：上下文管理作为核心能力</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>如果从 Claude Code 的整个代码库中挑出一个最被低估的子系统，那一定是上下文管理。权限系统引人注目，Agent Loop 是核心，提示词工程广为人知——但上下文管理才是决定一个 AI Agent 能否“持续有效工作“的关键基础设施。</p>
+<p>200K token 的上下文窗口看似充裕，但在真实工作场景中消耗得比想象更快：系统提示词约 15-20K，每次工具调用结果 5-50K，几轮文件读取和代码搜索后就已经用掉一半。更关键的是，上下文窗口不仅是“容量“问题——它是“信息密度“问题。当窗口中充满过期的工具结果、冗余的文件内容和已解决的讨论时，模型的注意力被稀释，回答质量下降。</p>
+<p>第三篇（第9-12章）分析的上下文管理系统揭示了 5 条核心原则，共同主题是：<strong>上下文窗口是稀缺资源，必须像管理内存一样精心管理</strong>。</p>
+<hr>
+<h2 id="源码分析"><a class="header" href="#源码分析">源码分析</a></h2>
+<h3 id="251-原则一为一切设定预算"><a class="header" href="#251-原则一为一切设定预算">25.1 原则一：为一切设定预算</a></h3>
+<p><strong>定义</strong>：每个进入上下文窗口的内容都必须有明确的 token 预算上限，没有例外。</p>
+<p>Claude Code 的预算体系覆盖了上下文窗口中的每一个内容来源：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>内容来源</th><th>预算限制</th><th>源码位置</th></tr>
+</thead>
+<tbody>
+<tr><td>单个工具结果</td><td>50K 字符</td><td><code>restored-src/src/constants/toolLimits.ts:13</code></td></tr>
+<tr><td>单条消息中的所有工具结果</td><td>200K 字符</td><td><code>restored-src/src/constants/toolLimits.ts:49</code></td></tr>
+<tr><td>文件读取</td><td>默认 2000 行 + offset/limit 渐进读取</td><td>详见第8章</td></tr>
+<tr><td>技能列表</td><td>上下文窗口的 1%</td><td><code>restored-src/src/tools/SkillTool/prompt.ts:20-23</code></td></tr>
+<tr><td>压缩后文件恢复</td><td>最多 5 个文件、单文件 5K token、总计 50K</td><td><code>restored-src/src/services/compact/compact.ts:122</code></td></tr>
+<tr><td>压缩后技能恢复</td><td>单技能 5K token、总计 25K token</td><td>详见第10章</td></tr>
+<tr><td>Agent 描述列表</td><td>移至附件以控制主提示词大小</td><td>详见第15章</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 25-1：Claude Code 的 token 预算体系</strong></p>
+<p>注意设计的精细程度：不仅有“总预算“，还有“单项预算“。这两者的来源：</p>
+<pre><code class="language-text">// restored-src/src/constants/toolLimits.ts:13
+export const DEFAULT_MAX_RESULT_SIZE_CHARS = 50_000
+
+// restored-src/src/constants/toolLimits.ts:49
+export const MAX_TOOL_RESULTS_PER_MESSAGE_CHARS = 200_000
+</code></pre>
+<p><code>MAX_TOOL_RESULTS_PER_MESSAGE_CHARS = 200_000</code> 防止 N 个并行工具同时返回大结果导致上下文洪泛——即使每个工具结果在 50K 以内，10 个并行工具也能产出 500K 字符。单消息预算是对这种“合法但危险“组合的防护。</p>
+<p>技能列表的 1% 预算尤其值得关注：</p>
+<pre><code class="language-text">// restored-src/src/tools/SkillTool/prompt.ts:20-23
+// Skill listing gets 1% of the context window (in characters)
+export const SKILL_BUDGET_CONTEXT_PERCENT = 0.01
+export const CHARS_PER_TOKEN = 4
+export const DEFAULT_CHAR_BUDGET = 8_000 // Fallback: 1% of 200k × 4
+</code></pre>
+<p>随着用户安装越来越多的技能，技能列表可能无限增长。Claude Code 的解决方案是三级截断级联：先截断描述（<code>MAX_LISTING_DESC_CHARS = 250</code>）、再截断低优先级技能、最后只保留内置技能的名称。这确保技能列表永远不会占据超过上下文窗口 1% 的空间——哪怕用户安装了 1000 个技能。</p>
+<p><strong>反模式：无界内容注入</strong>。将工具结果、文件内容或配置信息不加限制地注入上下文窗口，最终导致上下文被低信息密度内容填满。</p>
+<hr>
+<h3 id="252-原则二保留重要内容"><a class="header" href="#252-原则二保留重要内容">25.2 原则二：保留重要内容</a></h3>
+<p><strong>定义</strong>：压缩是必要的，但压缩后必须有选择性地恢复最关键的上下文。</p>
+<p>自动压缩（详见第9章）将整个对话历史压缩为摘要，释放上下文空间。但压缩丢失了具体的代码内容、文件路径和精确行号引用。如果压缩后模型完全失去之前读过的文件内容，它就需要重新读取，浪费工具调用和用户等待时间。</p>
+<p>Claude Code 的解决方案是<strong>压缩后恢复</strong>（详见第10章）：</p>
+<pre><code class="language-text">// restored-src/src/services/compact/compact.ts:122
+export const POST_COMPACT_MAX_FILES_TO_RESTORE = 5
+</code></pre>
+<p>恢复策略的流程：</p>
+<pre><code class="language-mermaid">graph LR
+    A["压缩前快照&lt;br /&gt;cacheToObject()"] --&gt; B["执行压缩&lt;br /&gt;对话→摘要"]
+    B --&gt; C["选择性恢复"]
+    C --&gt; D["最近 5 个文件&lt;br /&gt;单文件 ≤5K token"]
+    C --&gt; E["总预算 ≤50K token"]
+    C --&gt; F["技能重注入&lt;br /&gt;单技能 ≤5K, 总计 ≤25K"]
+</code></pre>
+<p><strong>图 25-1：压缩-恢复流程</strong></p>
+<p>恢复策略的关键是<strong>选择性</strong>：不是恢复所有文件，而是最近 5 个；不是恢复完整文件内容，而是在 5K token 内截断；总量不超过 50K。这些数字反映了深思熟虑的权衡：<strong>恢复太多等于没压缩，恢复太少等于压缩过度</strong>。</p>
+<p>技能恢复的设计同样精细。压缩后不重注入已发送技能的名称（<code>sentSkillNames</code>），因为模型仍持有 SkillTool 的 Schema——它知道技能系统存在，只是忘记了具体的技能内容。这节省了约 4K token。</p>
+<p><strong>反模式：全量压缩或全量保留</strong>。要么什么都不恢复（模型被迫从头开始），要么试图保留一切（压缩效果为零）。</p>
+<hr>
+<h3 id="253-原则三告知而非隐藏"><a class="header" href="#253-原则三告知而非隐藏">25.3 原则三：告知而非隐藏</a></h3>
+<p><strong>定义</strong>：当内容被截断或压缩时，必须告知模型发生了什么，让它能够主动获取完整信息。</p>
+<p>Claude Code 在多个层面实践这一原则：</p>
+<p><strong>工具结果截断通知</strong>。当工具结果超过 50K 字符（<code>DEFAULT_MAX_RESULT_SIZE_CHARS</code>）时，完整结果写入磁盘（<code>restored-src/src/utils/toolResultStorage.ts</code>），模型收到预览消息，包含截断说明和完整内容的磁盘路径。模型因此知道：(1) 当前看到的不是全部，(2) 如何获取全部。</p>
+<p><strong>缓存微压缩通知</strong>（详见第11章）。当 <code>cache_edits</code> 删除旧工具结果时，<code>notifyCacheDeletion()</code> 告知模型“某些旧工具结果已被清理“。防止模型引用已不存在的内容。</p>
+<p><strong>文件读取分页</strong>。FileReadTool 默认读取 2000 行，通过 offset/limit 参数支持分页。工具描述中明确说明了这一行为——模型知道默认只看到前 2000 行，需要后面内容时可指定 offset。</p>
+<p><strong>压缩摘要中的显式声明</strong>。压缩提示词（详见第9章）要求摘要包含“进行到哪一步了“和“还需要做什么“——确保压缩后的模型知道自己处于任务的哪个阶段。压缩提示词中的 <code>&lt;analysis&gt;</code> 草稿块（<code>restored-src/src/services/compact/prompt.ts:31</code>）让模型先分析对话内容，再生成结构化摘要——分析块在格式化时被移除，不占用最终上下文空间。</p>
+<p><strong>反模式：静默截断</strong>。在模型不知情的情况下截断工具结果或删除上下文内容。模型可能基于不完整信息做出错误决策，或“编造“它记不清的内容——因为它不知道自己的信息是不完整的。</p>
+<hr>
+<h3 id="254-原则四熔断circuit-breaker失控循环"><a class="header" href="#254-原则四熔断circuit-breaker失控循环">25.4 原则四：熔断（Circuit Breaker）失控循环</a></h3>
+<p><strong>定义</strong>：当自动化流程连续失败时，必须有机制强制停止，而非无限重试。</p>
+<p>自动压缩的熔断器是最直接的实现。<code>MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3</code>（<code>restored-src/src/services/compact/autoCompact.ts:70</code>）——连续 3 次失败后停止尝试。源码注释（详见第24章原则六中的完整代码引用）记录了这个数字的工程理由：BigQuery 数据显示 1,279 个会话出现过 50+ 次连续压缩失败（最高达 3,272 次），每天浪费约 250K 次 API 调用。</p>
+<p>更广泛地看，Claude Code 在多个子系统中实现了类似的熔断机制：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>子系统</th><th>熔断条件</th><th>熔断行为</th><th>源码位置</th></tr>
+</thead>
+<tbody>
+<tr><td>自动压缩</td><td>连续 3 次失败</td><td>停止压缩直到会话结束</td><td><code>autoCompact.ts:70</code></td></tr>
+<tr><td>YOLO 分类器</td><td>连续 3 次/总计 20 次拒绝</td><td>回退到用户手动确认</td><td><code>denialTracking.ts:12-15</code></td></tr>
+<tr><td>max_output_tokens 恢复</td><td>最多 3 次重试</td><td>停止重试，接受截断输出</td><td>详见第3章</td></tr>
+<tr><td>Prompt-too-long</td><td>丢弃最旧轮次 → 丢弃 20%</td><td>降级处理，不无限丢弃</td><td>详见第9章</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 25-2：Claude Code 的熔断器一览</strong></p>
+<p>每个熔断器遵循相同模式：<strong>设定合理重试上限，超过后降级到安全但功能受限的状态，而非崩溃或无限循环</strong>。</p>
+<p><strong>反模式：无限重试</strong>。“压缩失败了？再试。又失败了？换参数再试。“在 AI Agent 中尤其危险——每次重试消耗 API 调用（真金白银），且失败原因往往是系统性的（上下文大到无法在摘要 token 预算内压缩），重试不会改变结果。</p>
+<hr>
+<h3 id="255-原则五保守估算"><a class="header" href="#255-原则五保守估算">25.5 原则五：保守估算</a></h3>
+<p><strong>定义</strong>：在 token 计数和预算分配中，宁可高估消耗也不要低估——低估导致溢出，高估只是略微浪费空间。</p>
+<p>Claude Code 的 token 估算在每个场景中都选择了保守方向（详见第12章）：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>内容类型</th><th>估算策略</th><th>保守程度</th><th>原因</th></tr>
+</thead>
+<tbody>
+<tr><td>普通文本</td><td>4 字节/token</td><td>中等</td><td>英文实际约 3.5-4.5</td></tr>
+<tr><td>JSON 内容</td><td>2 字节/token</td><td>高度保守</td><td>结构字符 token 化效率低</td></tr>
+<tr><td>图片/文档</td><td>固定 2000 token</td><td>高度保守</td><td>实际公式 width×height/750，但元数据不可用时用固定值</td></tr>
+<tr><td>缓存 token</td><td>从 API usage 获取</td><td>精确（当可用时）</td><td>只有 API 返回的计数是权威的</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 25-3：Token 估算策略对照表</strong></p>
+<p>JSON 按 2 字节/token 估算是特别有意义的设计选择。JSON 结构字符（<code>{}</code>、<code>[]</code>、<code>""</code>、<code>:</code>、<code>,</code>）的 token 化效率远低于自然语言——100 字节的 JSON 可能消耗 40-50 个 token，而 100 字节英文只需 25-30 个 token。如果使用 4 字节/token 的通用估算，JSON 密集的工具结果会被严重低估，可能导致上下文溢出。</p>
+<p>技能列表预算中同样体现了这一点（<code>restored-src/src/tools/SkillTool/prompt.ts:22</code>）：<code>CHARS_PER_TOKEN = 4</code> 用于将 token 预算转换为字符预算——用最保守的字符/token 比率来确保不会超支。</p>
+<p>保守估算的收益远大于成本。高估 token 消耗的最坏结果是提前触发压缩——用户多等几秒。低估 token 消耗的最坏结果是 <code>prompt_too_long</code> 错误——API 调用失败，需要紧急丢弃上下文，可能丢失关键信息。</p>
+<p><strong>反模式：精确计数的幻觉</strong>。试图在客户端精确计算 token 数量。只有 API 服务端的 tokenizer 才能给出精确值——客户端的任何计数都是估算。既然是估算，就应该向安全方向偏移。</p>
+<hr>
+<h2 id="模式提炼"><a class="header" href="#模式提炼">模式提炼</a></h2>
+<h3 id="五条原则汇总表"><a class="header" href="#五条原则汇总表">五条原则汇总表</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>原则</th><th>核心源码回溯</th><th>反模式</th></tr>
+</thead>
+<tbody>
+<tr><td>为一切设定预算</td><td><code>toolLimits.ts:13,49</code> — 单项 50K、单消息 200K</td><td>无界内容注入</td></tr>
+<tr><td>保留重要内容</td><td><code>compact.ts:122</code> — 恢复最近 5 个文件</td><td>全量压缩或全量保留</td></tr>
+<tr><td>告知而非隐藏</td><td><code>toolResultStorage.ts</code> — 截断时提供磁盘路径</td><td>静默截断</td></tr>
+<tr><td>熔断失控循环</td><td><code>autoCompact.ts:70</code> — 连续 3 次失败后停止</td><td>无限重试</td></tr>
+<tr><td>保守估算</td><td><code>SkillTool/prompt.ts:22</code> — <code>CHARS_PER_TOKEN = 4</code></td><td>精确计数的幻觉</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 25-4：上下文管理五原则汇总</strong></p>
+<h3 id="原则间的关系"><a class="header" href="#原则间的关系">原则间的关系</a></h3>
+<pre><code class="language-mermaid">graph LR
+    A["为一切&lt;br /&gt;设定预算"] --&gt; B["保留&lt;br /&gt;重要内容"]
+    B --&gt; C["告知&lt;br /&gt;而非隐藏"]
+    A --&gt; D["熔断&lt;br /&gt;失控循环"]
+    A --&gt; E["保守&lt;br /&gt;估算"]
+    E --&gt; A
+</code></pre>
+<p><strong>图 25-2：五条上下文管理原则的关系图</strong></p>
+<p><strong>为一切设定预算</strong>是基础——定义每个内容来源的 token 上限。<strong>保留重要内容</strong>决定压缩后恢复什么，<strong>告知而非隐藏</strong>确保模型知道什么被截断了，<strong>熔断失控循环</strong>防止自动化流程超出预算，<strong>保守估算</strong>确保预算不被低估绕过。</p>
+<h3 id="模式分层-token-预算"><a class="header" href="#模式分层-token-预算">模式：分层 Token 预算</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：多个内容来源竞争有限的上下文空间</li>
+<li><strong>核心做法</strong>：为每个来源设定独立预算 + 总量预算，截断级联处理超额</li>
+<li><strong>代码模板</strong>：单项限制（50K）→ 聚合限制（200K/消息）→ 全局限制（上下文窗口 - 输出预留 - 缓冲）</li>
+<li><strong>前置条件</strong>：能在注入前估算内容的 token 消耗</li>
+</ul>
+<h3 id="模式压缩-恢复循环"><a class="header" href="#模式压缩-恢复循环">模式：压缩-恢复循环</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：压缩丢失关键上下文</li>
+<li><strong>核心做法</strong>：压缩前快照 → 压缩 → 选择性恢复最近/最重要的内容</li>
+<li><strong>前置条件</strong>：能追踪哪些内容是“最近使用的“</li>
+</ul>
+<h3 id="模式熔断器"><a class="header" href="#模式熔断器">模式：熔断器</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：自动化流程在异常条件下无限循环</li>
+<li><strong>核心做法</strong>：连续 N 次失败后停止，降级到安全状态</li>
+<li><strong>前置条件</strong>：定义了“失败“的判定标准和降级后的行为</li>
+</ul>
+<hr>
+<h2 id="用户能做什么"><a class="header" href="#用户能做什么">用户能做什么</a></h2>
+<ol>
+<li><strong>审计 Agent 的上下文消耗</strong>。在真实场景中测量每个内容来源占用多少 token，找出最大消耗者</li>
+<li><strong>为工具结果设定大小限制</strong>。确保文件读取、数据库查询、API 调用的结果有字符/行数上限</li>
+<li><strong>实现压缩后恢复</strong>。如果你的 Agent 使用上下文压缩，设计恢复策略——让压缩后的模型不需要从零开始</li>
+<li><strong>截断时告知模型</strong>。告诉模型“这是截断的，完整版在哪里“——比静默截断后模型自己发现信息缺失好得多</li>
+<li><strong>添加熔断器</strong>。对任何可能循环执行的自动化流程设定重试上限。宁可降级也不要无限循环</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part7/ch24.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part7/ch26.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part7/ch24.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part7/ch26.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

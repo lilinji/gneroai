@@ -1,0 +1,453 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第24章：驾驭工程原则 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第24章驾驭工程原则"><a class="header" href="#第24章驾驭工程原则">第24章：驾驭工程原则</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>在前六篇中，我们从源码层面剖析了 Claude Code 的每一个子系统——工具注册、Agent Loop、系统提示词、上下文压缩、提示词缓存、权限安全、技能系统。这些分析揭示了大量的实现细节，但如果只停留在“它是怎么做的“层面，就浪费了逆向工程最有价值的产出：<strong>可复用的工程原则</strong>。</p>
+<p>本章从前 23 章的源码分析中提炼出 6 条驾驭工程（Harness Engineering）核心原则。每条原则都有明确的源码回溯、适用场景和反模式警示。这些原则的共同主题是：<strong>在 AI Agent 系统中，控制行为的最佳方式不是编写更多代码，而是设计更好的约束</strong>。</p>
+<hr>
+<h2 id="源码分析"><a class="header" href="#源码分析">源码分析</a></h2>
+<h3 id="241-原则一提示词即控制面"><a class="header" href="#241-原则一提示词即控制面">24.1 原则一：提示词即控制面</a></h3>
+<p><strong>定义</strong>：用系统提示词段落引导模型行为，而非用代码逻辑硬编码限制。</p>
+<p>Claude Code 的行为引导绝大多数通过提示词实现，而非通过代码中的 if/else 分支。最典型的例子是极简主义指令：</p>
+<pre><code class="language-text">// restored-src/src/constants/prompts.ts:203
+"Don't create helpers, utilities, or abstractions for one-time operations.
+Don't design for hypothetical future requirements. The right amount of
+complexity is what the task actually requires — no speculative abstractions,
+but no half-finished implementations either. Three similar lines of code
+is better than a premature abstraction."
+</code></pre>
+<p>这段文本不是代码注释——它是发送给模型的实际指令。Claude Code 没有在代码层面检测模型是否过度工程化（这在技术上几乎不可能），而是通过自然语言直接告诉模型“不要这么做“。</p>
+<p>同样的模式贯穿整个系统提示词架构（详见第5章）。<code>systemPromptSections.ts</code> 将系统提示词组织为多个可组合的段落，每个段落都有明确的缓存范围（<code>scope: 'global'</code> 或 <code>null</code>）。这种设计使得行为调整只需修改文本，不需要改代码、改测试、走发布流程。</p>
+<p>工具提示词是这一原则的精华体现（详见第8章）。BashTool 的 Git 安全协议——“绝不跳过 hooks、绝不 amend、优先指定文件 git add”——完全由提示词文本表达。如果某天团队决定允许 amend，只需删除一行提示词文本，无需触碰任何执行逻辑。</p>
+<p><strong>适用边界</strong>：用代码处理结构性约束（权限、token 预算），用提示词处理行为性约束（风格、策略、偏好）。</p>
+<p><strong>反模式：行为硬编码</strong>。为每种不希望的模型行为编写检测器和拦截器，最终得到一个庞大的规则引擎，永远追不上模型能力的变化速度。</p>
+<hr>
+<h3 id="242-原则二缓存感知设计是刚需"><a class="header" href="#242-原则二缓存感知设计是刚需">24.2 原则二：缓存感知设计是刚需</a></h3>
+<p><strong>定义</strong>：每次提示词变更都有以 <code>cache_creation</code> token 计量的成本，系统设计必须将缓存稳定性作为一等约束。</p>
+<p><code>SYSTEM_PROMPT_DYNAMIC_BOUNDARY</code> 标记（<code>restored-src/src/constants/prompts.ts:114-115</code>）将系统提示词分为两个区域：</p>
+<pre><code class="language-text">// restored-src/src/constants/prompts.ts:105-115
+/**
+ * Boundary marker separating static (cross-org cacheable) content
+ * from dynamic content.
+ * Everything BEFORE this marker in the system prompt array can use
+ * scope: 'global'.
+ * Everything AFTER contains user/session-specific content and should
+ * not be cached.
+ */
+export const SYSTEM_PROMPT_DYNAMIC_BOUNDARY =
+  '__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__'
+</code></pre>
+<p><code>splitSysPromptPrefix()</code>（<code>restored-src/src/utils/api.ts:321-435</code>）实现了三条代码路径来确保缓存断点放置正确：MCP 存在时的 tool-based 缓存、全局缓存+边界标记、默认 org 级别缓存。这个函数的复杂度完全来自缓存优化需求——如果不关心缓存，只需拼接字符串即可。</p>
+<p>缓存中断检测系统（详见第14章）追踪近 20 个字段的前后状态变化（<code>restored-src/src/services/api/promptCacheBreakDetection.ts:28-69</code>），包括 <code>systemHash</code>、<code>toolsHash</code>、<code>cacheControlHash</code>、<code>perToolHashes</code>、<code>betas</code> 等。任何一个字段的变化都可能触发缓存失效。</p>
+<p>Beta Header 锁存机制是极端案例：<strong>一旦发送过某个 beta header，就永远继续发送，即使对应功能已关闭</strong>——因为取消发送会改变请求签名，导致约 50-70K token 的缓存前缀失效。源码中的注释明确记录了锁存的原因：</p>
+<pre><code class="language-text">// restored-src/src/services/api/promptCacheBreakDetection.ts:47-48
+/** AFK_MODE_BETA_HEADER presence — should NOT break cache anymore
+ *  (sticky-on latched in claude.ts). Tracked to verify the fix. */
+</code></pre>
+<p>日期记忆化（<code>getSessionStartDate()</code>）是另一个例证：如果会话跨越午夜，模型看到的日期会“过期“——但这是有意为之，因为日期字符串变化会打断缓存前缀。</p>
+<p><strong>反模式：提示词频繁变动</strong>。Agent 列表曾内联在系统提示词中，占全球 <code>cache_creation</code> token 的 10.2%（详见第15章）。解决方案是将其移至 <code>system-reminder</code> 消息——这部分在缓存段之外，修改不影响缓存。</p>
+<hr>
+<h3 id="243-原则三失败关闭显式开放"><a class="header" href="#243-原则三失败关闭显式开放">24.3 原则三：失败关闭，显式开放</a></h3>
+<p><strong>定义</strong>：系统默认值应选择最安全的选项，只有在显式声明后才允许危险操作。</p>
+<p><code>buildTool()</code> 工厂函数为每个工具属性设置了防御性默认值：</p>
+<pre><code class="language-text">// restored-src/src/Tool.ts:748-761
+/**
+ * Defaults (fail-closed where it matters):
+ * - `isConcurrencySafe` → `false` (assume not safe)
+ * - `isReadOnly` → `false` (assume writes)
+ * - `isDestructive` → `false`
+ * - `checkPermissions` → `{ behavior: 'allow', updatedInput }`
+ *   (defer to general permission system)
+ * - `toAutoClassifierInput` → `''`
+ *   (skip classifier — security-relevant tools must override)
+ */
+const TOOL_DEFAULTS = {
+  isEnabled: () =&gt; true,
+  isConcurrencySafe: (_input?: unknown) =&gt; false,
+  isReadOnly: (_input?: unknown) =&gt; false,
+  ...
+}
+</code></pre>
+<p>这意味着新工具默认<strong>不可并发执行</strong>——<code>partitionToolCalls()</code>（<code>restored-src/src/services/tools/toolOrchestration.ts:91-116</code>）会将未声明 <code>isConcurrencySafe: true</code> 的工具放入串行队列。当 <code>isConcurrencySafe</code> 的调用抛出异常时，catch 块也返回 <code>false</code>——保守方向的兜底：</p>
+<pre><code class="language-text">// restored-src/src/services/tools/toolOrchestration.ts:98-108
+const isConcurrencySafe = parsedInput?.success
+  ? (() =&gt; {
+      try {
+        return Boolean(tool?.isConcurrencySafe(parsedInput.data))
+      } catch {
+        // If isConcurrencySafe throws, treat as not concurrency-safe
+        // to be conservative
+        return false
+      }
+    })()
+  : false
+</code></pre>
+<p>权限系统遵循同样的原则（详见第16章）。权限模式从最严格到最宽松：<code>default</code> → <code>acceptEdits</code> → <code>plan</code> → <code>bypassPermissions</code> → <code>auto</code> → <code>dontAsk</code>。系统默认使用 <code>default</code>——用户必须主动选择更宽松的模式。</p>
+<p>YOLO 分类器的拒绝追踪是另一种体现（<code>restored-src/src/utils/permissions/denialTracking.ts:12-15</code>）：<code>DENIAL_LIMITS</code> 设定连续 3 次或总计 20 次被分类器拒绝后，系统自动回退到用户手动确认——<strong>在自动化决策不可靠时，回退到人类决策</strong>（完整代码详见第26章模式二）。</p>
+<p><strong>反模式：默认开放，出事再关</strong>。工具默认可并发执行，某个有副作用的工具在并行执行中产生竞态条件——这种 bug 极难复现和诊断。</p>
+<hr>
+<h3 id="244-原则四ab-测试一切"><a class="header" href="#244-原则四ab-测试一切">24.4 原则四：A/B 测试一切</a></h3>
+<p><strong>定义</strong>：行为变更先在内部用户群体中验证，通过数据确认后再扩展到所有用户。</p>
+<p>Claude Code 拥有 89 个 Feature Flag（详见第23章），其中相当一部分用于 A/B 测试。最值得关注的不是 flag 数量，而是门控模式。</p>
+<p><code>USER_TYPE === 'ant'</code> 门控是最直接的暂存机制（详见第7章）。源码中存在大量的 ant-only 段落，例如 Capybara v8 的过度注释缓解措施：</p>
+<pre><code class="language-text">// restored-src/src/constants/prompts.ts:205-213
+...(process.env.USER_TYPE === 'ant'
+  ? [
+      `Default to writing no comments. Only add one when the WHY
+       is non-obvious...`,
+      // @[MODEL LAUNCH]: capy v8 thoroughness counterweight
+      // (PR #24302) — un-gate once validated on external via A/B
+      `Before reporting a task complete, verify it actually works...`,
+    ]
+  : []),
+</code></pre>
+<p>注释 <code>un-gate once validated on external via A/B</code> 清晰展示了这个流程：<strong>先在内部验证，确认有效后通过 A/B 测试推广给外部用户</strong>。</p>
+<p>GrowthBook 集成提供了更精细的实验能力：<code>tengu_*</code> 前缀的 Feature Flag 通过远程配置服务器控制，支持按百分比灰度。<code>_CACHED_MAY_BE_STALE</code> 和 <code>_CACHED_WITH_REFRESH</code> 两种缓存策略的存在（详见第7章），体现了“缓存感知的 A/B 测试“——flag 值的切换不应导致缓存失效。</p>
+<p><strong>反模式：Big Bang 发布</strong>。直接将行为变更推送给所有用户。在 AI Agent 领域，行为变更的影响通常不是“崩溃“而是“不够好“或“太激进“——需要量化度量和对照组才能发现。</p>
+<hr>
+<h3 id="245-原则五先观察再修复"><a class="header" href="#245-原则五先观察再修复">24.5 原则五：先观察再修复</a></h3>
+<p><strong>定义</strong>：在尝试修复问题之前，先建立可观测性基础设施来理解问题的全貌。</p>
+<p>缓存中断检测系统（<code>restored-src/src/services/api/promptCacheBreakDetection.ts</code>）是这一原则的典范。这个系统不修复任何问题——它的全部职责是<strong>观察和报告</strong>：</p>
+<ol>
+<li><strong>调用前</strong>：<code>recordPromptState()</code> 记录近 20 个字段的快照</li>
+<li><strong>调用后</strong>：<code>checkResponseForCacheBreak()</code> 对比前后状态，识别哪个字段变化</li>
+<li><strong>生成解释</strong>：翻译为人类可读原因——“system prompt changed”、“TTL likely expired”</li>
+<li><strong>生成 Diff</strong>：<code>createPatch()</code> 输出前后提示词状态对比</li>
+</ol>
+<p>特别值得注意的是 <code>PreviousState</code> 中的注释风格（<code>restored-src/src/services/api/promptCacheBreakDetection.ts:36-37</code>）：</p>
+<pre><code class="language-text">/** Per-tool schema hash. Diffed to name which tool's description changed
+ *  when toolSchemasChanged but added=removed=0 (77% of tool breaks per
+ *  BQ 2026-03-22). AgentTool/SkillTool embed dynamic agent/command lists. */
+perToolHashes: Record&lt;string, number&gt;
+</code></pre>
+<p>这里引用了具体的 BigQuery 查询日期和百分比数据（77%），说明团队在用数据驱动可观测性的粒度设计——不是随意追踪所有字段，而是基于生产数据发现“大多数工具 Schema 变化来自某个特定工具的描述变动“，然后有针对性地添加 per-tool 哈希。</p>
+<p>YOLO 分类器的 <code>CLAUDE_CODE_DUMP_AUTO_MODE=1</code>（详见第17章）遵循同样模式：提供完整的输入/输出导出能力，让开发者精确理解“分类器为什么拒绝了这个操作“。</p>
+<p><strong>反模式：凭直觉修复</strong>。看到缓存命中率下降就回滚最近修改，但实际原因可能是 Beta Header 切换、TTL 过期、或 MCP 工具列表变化。</p>
+<hr>
+<h3 id="246-原则六锁存latch以求稳定"><a class="header" href="#246-原则六锁存latch以求稳定">24.6 原则六：锁存（Latch）以求稳定</a></h3>
+<p><strong>定义</strong>：一旦进入某个状态，就不再摇摆——状态抖动比次优状态更有害。</p>
+<p>“锁存”（Latch）模式在 Claude Code 中有多处体现：</p>
+<p><strong>Beta Header 锁存</strong>（详见第13章）：<code>afkModeHeaderLatched</code>、<code>fastModeHeaderLatched</code>、<code>cacheEditingHeaderLatched</code>。会话中首次发送某个 Beta Header 后，后续所有请求继续发送，即使功能已关闭。原因：取消发送改变请求签名，导致缓存前缀失效。</p>
+<p><strong>缓存 TTL 资格锁存</strong>（详见第13章）：<code>should1hCacheTTL()</code> 在会话中只执行一次，结果被锁存。源码注释（<code>promptCacheBreakDetection.ts:50-51</code>）确认：</p>
+<pre><code class="language-text">/** Overage state flip — should NOT break cache anymore (eligibility is
+ *  latched session-stable in should1hCacheTTL). Tracked to verify the fix. */
+isUsingOverage: boolean
+</code></pre>
+<p><strong>自动压缩熔断器</strong>（<code>restored-src/src/services/compact/autoCompact.ts:67-70</code>）：</p>
+<pre><code class="language-text">// Stop trying autocompact after this many consecutive failures.
+// BQ 2026-03-10: 1,279 sessions had 50+ consecutive failures
+// (up to 3,272) in a single session, wasting ~250K API calls/day globally.
+const MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
+</code></pre>
+<p>连续 3 次失败后锁存到“停止压缩“状态。注释中的 BigQuery 数据（1,279 个会话、250K API 调用/天）提供了充分的工程理由。</p>
+<p><strong>反模式：状态抖动</strong>。每次请求都重新计算配置，导致状态在不同值之间切换。在缓存系统中意味着缓存键不断变化，命中率趋近于零。</p>
+<hr>
+<h2 id="模式提炼"><a class="header" href="#模式提炼">模式提炼</a></h2>
+<h3 id="六条原则汇总表"><a class="header" href="#六条原则汇总表">六条原则汇总表</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>原则</th><th>核心源码回溯</th><th>反模式</th></tr>
+</thead>
+<tbody>
+<tr><td>提示词即控制面</td><td><code>prompts.ts:203</code> — “三行代码优于过早抽象”</td><td>行为硬编码：为每种不希望的行为写检测器</td></tr>
+<tr><td>缓存感知设计</td><td><code>prompts.ts:114</code> — 动态边界标记</td><td>提示词频繁变动：agent 列表内联占 10.2% cache_creation</td></tr>
+<tr><td>失败关闭</td><td><code>Tool.ts:748-761</code> — <code>isConcurrencySafe: false</code></td><td>默认开放：新工具直接可并发，出竞态再修</td></tr>
+<tr><td>A/B 测试一切</td><td><code>prompts.ts:210</code> — <code>un-gate once validated via A/B</code></td><td>Big Bang 发布：变更直接推送所有用户</td></tr>
+<tr><td>先观察再修复</td><td><code>promptCacheBreakDetection.ts:36</code> — 77% 数据驱动</td><td>凭直觉修复：不看数据直接回滚</td></tr>
+<tr><td>锁存以求稳定</td><td><code>autoCompact.ts:68-70</code> — 250K API 调用/天的教训</td><td>状态抖动：每次请求重新计算所有状态</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 24-1：驾驭工程六原则汇总</strong></p>
+<h3 id="原则间的关系"><a class="header" href="#原则间的关系">原则间的关系</a></h3>
+<pre><code class="language-mermaid">graph TD
+    A["原则1: 提示词即控制面&lt;br /&gt;行为引导的主要手段"] --&gt; B["原则2: 缓存感知设计&lt;br /&gt;提示词变更有成本"]
+    B --&gt; F["原则6: 锁存以求稳定&lt;br /&gt;避免缓存抖动"]
+    A --&gt; C["原则3: 失败关闭&lt;br /&gt;安全默认值"]
+    C --&gt; D["原则4: A/B 测试一切&lt;br /&gt;验证后再开放"]
+    D --&gt; E["原则5: 先观察再修复&lt;br /&gt;数据驱动决策"]
+    E --&gt; B
+</code></pre>
+<p><strong>图 24-1：六条驾驭工程原则的关系图</strong></p>
+<p>从<strong>提示词即控制面</strong>出发：既然行为主要由提示词控制，提示词变更就需要<strong>缓存感知设计</strong>来控制成本，需要<strong>锁存以求稳定</strong>来防止抖动。行为的安全边界由<strong>失败关闭</strong>保障，从关闭到开放的过渡需要<strong>A/B 测试</strong>验证。出现问题时，<strong>先观察再修复</strong>确保理解全貌后再行动，观察结果反馈到缓存感知设计中。</p>
+<h3 id="模式提示词驱动行为控制"><a class="header" href="#模式提示词驱动行为控制">模式：提示词驱动行为控制</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：如何引导 AI 模型行为而不与模型能力迭代产生耦合</li>
+<li><strong>核心做法</strong>：用自然语言提示词表达行为期望，用代码仅处理结构性约束</li>
+<li><strong>前置条件</strong>：模型具备足够的指令跟随能力</li>
+</ul>
+<h3 id="模式缓存前缀稳定化"><a class="header" href="#模式缓存前缀稳定化">模式：缓存前缀稳定化</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：提示词缓存因微小变动频繁失效</li>
+<li><strong>核心做法</strong>：静态/动态边界分离 + 日期记忆化 + Header 锁存 + Schema 缓存</li>
+<li><strong>前置条件</strong>：使用支持前缀缓存的 API</li>
+</ul>
+<h3 id="模式失败关闭默认值"><a class="header" href="#模式失败关闭默认值">模式：失败关闭默认值</a></h3>
+<ul>
+<li><strong>解决的问题</strong>：新增组件引入安全或并发风险</li>
+<li><strong>核心做法</strong>：所有属性默认为最安全值，显式声明才能解锁</li>
+<li><strong>前置条件</strong>：有明确的“安全“和“不安全“定义</li>
+</ul>
+<hr>
+<h2 id="用户能做什么"><a class="header" href="#用户能做什么">用户能做什么</a></h2>
+<ol>
+<li><strong>将行为指令与代码逻辑分离</strong>。创建行为配置文件（类似 CLAUDE.md），让行为调整不需要代码变更</li>
+<li><strong>在引入提示词缓存前，先设计缓存边界</strong>。区分跨用户共享内容和会话级内容</li>
+<li><strong>审查你的默认值</strong>。对每个配置项问：如果用户不设置它，系统的行为是最安全的还是最危险的？</li>
+<li><strong>为关键行为变更设计灰度方案</strong>。即使只有两个用户群体（内部/外部），也比全量发布安全</li>
+<li><strong>在修复之前添加日志</strong>。缓存命中率下降或模型行为异常时，先记录完整上下文，再尝试修复</li>
+<li><strong>识别系统中的“锁存点“</strong>。哪些状态在会话生命周期中不应该变化？提前设计稳定性机制</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part6/ch23.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part7/ch25.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part6/ch23.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part7/ch25.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

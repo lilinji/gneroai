@@ -1,0 +1,774 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第17章：YOLO 分类器 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第17章yolo-分类器"><a class="header" href="#第17章yolo-分类器">第17章：YOLO 分类器</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>第 16 章剖析了 Claude Code 的权限系统——六种模式、三层规则匹配、以及从 <code>canUseTool</code> 入口到最终裁决的完整管线。但那条管线有一个特殊分支始终被一笔带过：当权限模式为 <code>auto</code> 时，系统不向用户弹出确认对话框，而是发起一次<strong>独立的 Claude API 调用</strong>，由另一个 AI 模型（通常是同一个模型的另一个实例）来裁决“这个操作是否安全“。</p>
+<p>这就是 YOLO 分类器（内部代号 “tengu auto mode”）——一个用 AI 审核 AI 的安全决策系统。</p>
+<p>它的设计核心是一个看似简单的问题：<strong>如何让 AI Agent 在无人值守时既保持自主执行效率，又不至于做出无法挽回的破坏？</strong> 答案不是写更多的正则规则，而是引入第二个 AI 作为安全裁判——它拥有完整的对话上下文，理解用户意图，能判断“在这个上下文中运行 <code>rm -rf build/</code> 是正常的构建清理“与“运行 <code>rm -rf /</code> 是灾难性操作“之间的区别。</p>
+<p>本章将完整拆解这个分类器的架构：安全白名单如何短路不必要的 API 调用、二阶段 XML 分类器如何在速度与准确性之间取得平衡、拒绝追踪如何防止 Agent 陷入死循环、以及模板系统如何为不同用户群体提供差异化的安全策略。</p>
+<hr>
+<h2 id="171-整体架构ai-审核-ai"><a class="header" href="#171-整体架构ai-审核-ai">17.1 整体架构：AI 审核 AI</a></h2>
+<p>YOLO 分类器的核心入口是 <code>classifyYoloAction</code> 函数（<code>yoloClassifier.ts</code> 第 1012-1306 行）。当 Agent 主循环在 <code>auto</code> 模式下试图执行一个工具调用时，权限系统不再弹出用户确认，而是调用这个函数。它的签名揭示了设计意图：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1012-1018
+export async function classifyYoloAction(
+  messages: Message[],
+  action: TranscriptEntry,
+  tools: Tools,
+  context: ToolPermissionContext,
+  signal: AbortSignal,
+): Promise&lt;YoloClassifierResult&gt;
+</code></pre>
+<p>接收完整的对话历史（<code>messages</code>）、待裁决的动作（<code>action</code>）、工具注册表（<code>tools</code>）和权限上下文（<code>context</code>），返回一个包含 <code>shouldBlock</code>、<code>reason</code> 和使用量统计的结果对象。</p>
+<p>这个函数的执行流程可以用一张决策图概括：</p>
+<pre><code class="language-mermaid">flowchart TD
+    INPUT["待裁决的工具调用"] --&gt; WL{"工具在安全白名单中?"}
+    WL -- 是 --&gt; ALLOW1["✅ 直接放行&lt;br /&gt;（无 API 调用）"]
+    WL -- 否 --&gt; ACI{"toAutoClassifierInput&lt;br /&gt;返回空字符串?"}
+    ACI -- 是 --&gt; ALLOW2["✅ 直接放行&lt;br /&gt;（无安全相关输入）"]
+    ACI -- 否 --&gt; BUILD["构建系统提示词&lt;br /&gt;+ 对话转录&lt;br /&gt;+ 动作描述"]
+    BUILD --&gt; STAGE1["阶段 1：快速判定&lt;br /&gt;max_tokens: 64"]
+    STAGE1 -- 放行 --&gt; ALLOW3["✅ allow"]
+    STAGE1 -- "阻止/不确定" --&gt; STAGE2["阶段 2：深度推理&lt;br /&gt;max_tokens: 4096&lt;br /&gt;含 &amp;lt;thinking&amp;gt;"]
+    STAGE2 --&gt; RESULT["解析分类结果&lt;br /&gt;{shouldBlock, reason}"]
+    RESULT -- "shouldBlock: false" --&gt; ALLOW4["✅ allow"]
+    RESULT -- "shouldBlock: true" --&gt; BLOCK["❌ block"]
+    RESULT -- "解析失败" --&gt; BLOCK
+</code></pre>
+<p>关键的设计决策在于：分类器是一次<strong>独立的侧查询</strong>（side query），与主循环的 Agent 会话完全隔离。它有自己的系统提示词、自己的消息序列、自己的 token 预算。这种隔离确保了分类器不会被主循环中可能被注入的恶意内容所影响——至少不会通过 API 状态的方式。</p>
+<hr>
+<h2 id="172-安全白名单零成本短路"><a class="header" href="#172-安全白名单零成本短路">17.2 安全白名单：零成本短路</a></h2>
+<p>并非所有工具调用都需要经过分类器。只读操作——文件读取、搜索、LSP 查询——天然无副作用，不可能造成安全风险。为它们发起 API 调用是纯粹的浪费。</p>
+<p><code>classifierDecision.ts</code> 定义了完整的安全白名单（第 56-94 行）：</p>
+<pre><code class="language-text">// classifierDecision.ts:56-94
+const SAFE_YOLO_ALLOWLISTED_TOOLS = new Set([
+  // Read-only file operations
+  FILE_READ_TOOL_NAME,
+  // Search / read-only
+  GREP_TOOL_NAME,
+  GLOB_TOOL_NAME,
+  LSP_TOOL_NAME,
+  TOOL_SEARCH_TOOL_NAME,
+  LIST_MCP_RESOURCES_TOOL_NAME,
+  'ReadMcpResourceTool',
+  // Task management (metadata only)
+  TODO_WRITE_TOOL_NAME,
+  TASK_CREATE_TOOL_NAME,
+  TASK_GET_TOOL_NAME,
+  TASK_UPDATE_TOOL_NAME,
+  TASK_LIST_TOOL_NAME,
+  TASK_STOP_TOOL_NAME,
+  TASK_OUTPUT_TOOL_NAME,
+  // Plan mode / UI
+  ASK_USER_QUESTION_TOOL_NAME,
+  ENTER_PLAN_MODE_TOOL_NAME,
+  EXIT_PLAN_MODE_TOOL_NAME,
+  // Swarm coordination
+  TEAM_CREATE_TOOL_NAME,
+  TEAM_DELETE_TOOL_NAME,
+  SEND_MESSAGE_TOOL_NAME,
+  // ...conditional tools...
+  // Internal classifier tool
+  YOLO_CLASSIFIER_TOOL_NAME,
+])
+</code></pre>
+<p>对外暴露的查询函数只有一行（第 96-98 行）：</p>
+<pre><code class="language-text">// classifierDecision.ts:96-98
+      // export function isAutoModeAllowlistedTool(toolName: string): boolean {
+  return SAFE_YOLO_ALLOWLISTED_TOOLS.has(toolName)
+}
+</code></pre>
+<p>白名单的设计值得注意几个细节：</p>
+<p><strong>1. 写操作不在白名单中。</strong> 代码注释明确指出（第 53-55 行）：“Does NOT include write/edit tools – those are handled by the acceptEdits fast path (allowed in CWD, classified outside CWD).” 文件编辑由另一条快速路径处理——工作目录内的编辑自动放行，工作目录外的编辑才进入分类器。</p>
+<p><strong>2. Swarm 协调工具在白名单中。</strong> <code>TEAM_CREATE_TOOL_NAME</code> 和 <code>SEND_MESSAGE_TOOL_NAME</code> 等 Swarm 工具虽然看起来有副作用，但注释解释了安全理由（第 79-80 行）：子 Agent 有各自独立的权限检查，所以协调层面的操作不构成安全绕过。</p>
+<p><strong>3. 条件性工具通过展开运算符添加。</strong> 例如 <code>TERMINAL_CAPTURE_TOOL_NAME</code> 只在 <code>feature('TERMINAL_PANEL')</code> 为真时注册（第 89 行），确保外部构建中不会出现内部工具名。</p>
+<p><strong>4. 分类器自身也在白名单中。</strong> <code>YOLO_CLASSIFIER_TOOL_NAME</code>（即 <code>classify_result</code>）被加入白名单（第 93 行），避免分类器递归调用自己时再次触发分类——这是一个容易被忽略的自引用陷阱。</p>
+<p>除了白名单之外，还有第二层短路机制。每个工具的 <code>toAutoClassifierInput</code> 方法控制哪些字段被暴露给分类器。当这个方法返回空字符串时，<code>classifyYoloAction</code> 在第 1023-1029 行直接放行：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1023-1029
+if (actionCompact === '') {
+  return {
+    shouldBlock: false,
+    reason: 'Tool declares no classifier-relevant input',
+    model: getClassifierModel(),
+  }
+}
+</code></pre>
+<p>这是一个精巧的设计：白名单决定“哪些工具不需要审查“，而 <code>toAutoClassifierInput</code> 决定“工具的哪些输入需要审查“。两层过滤共同最小化了不必要的 API 调用。</p>
+<hr>
+<h2 id="173-分类器输出格式"><a class="header" href="#173-分类器输出格式">17.3 分类器输出格式</a></h2>
+<p>分类器的输出被严格约束为一个三字段的 JSON 对象。响应 Schema 由 Zod 定义（第 252-258 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:252-258
+const yoloClassifierResponseSchema = lazySchema(() =&gt;
+  z.object({
+    thinking: z.string(),
+    shouldBlock: z.boolean(),
+    reason: z.string(),
+  }),
+)
+</code></pre>
+<p>对应的工具定义通过 <code>tool_choice: { type: 'tool', name: 'classify_result' }</code> 强制模型以结构化工具调用的形式输出（第 1152-1155 行），而非自由文本。这消除了解析歧义——模型必须在 <code>shouldBlock</code> 中给出明确的 <code>true</code> 或 <code>false</code> 布尔值。</p>
+<p>三个字段各有用途：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>字段</th><th>类型</th><th>用途</th></tr>
+</thead>
+<tbody>
+<tr><td><code>thinking</code></td><td><code>string</code></td><td>分类器的推理过程，用于调试和审计</td></tr>
+<tr><td><code>shouldBlock</code></td><td><code>boolean</code></td><td>核心裁决——<code>true</code> 阻止操作，<code>false</code> 放行</td></tr>
+<tr><td><code>reason</code></td><td><code>string</code></td><td>人类可读的裁决理由，在拒绝时展示给用户</td></tr>
+</tbody>
+</table>
+</div>
+<p>当模型返回的内容无法解析为有效 Schema 时，系统默认阻止操作（第 1220-1237 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1220-1230
+const parsed = parseClassifierResponse(
+  toolUseBlock,
+  yoloClassifierResponseSchema(),
+)
+if (!parsed) {
+  // ...
+  return {
+    shouldBlock: true,
+    reason: 'Invalid classifier response - blocking for safety',
+    // ...
+  }
+}
+</code></pre>
+<p>这体现了一条贯穿整个分类器设计的原则：<strong>在不确定时，默认阻止</strong>。无论是 Schema 解析失败、API 错误、还是分类器不可用，系统始终回退到最安全的状态。</p>
+<hr>
+<h2 id="174-二阶段-xml-分类器"><a class="header" href="#174-二阶段-xml-分类器">17.4 二阶段 XML 分类器</a></h2>
+<p>工具调用格式的分类器（tool_use classifier）虽然结构清晰，但有一个性能问题：强制工具调用需要模型生成完整的 JSON 对象，即使对于明显安全的操作（如 <code>ls</code>）也是如此。为此，Claude Code 引入了一套二阶段 XML 分类器（第 541-996 行），通过 GrowthBook 特性开关控制启用：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1308-1316
+type TwoStageMode = 'both' | 'fast' | 'thinking'
+
+type AutoModeConfig = {
+  // ...
+  twoStageClassifier?: boolean | 'fast' | 'thinking'
+  // ...
+}
+</code></pre>
+<h3 id="阶段-1快速判定fast"><a class="header" href="#阶段-1快速判定fast">阶段 1：快速判定（Fast）</a></h3>
+<p>阶段 1 的目标是用最少的 token 做出快速判定。它将系统提示词中的工具调用格式替换为简洁的 XML 标签格式（第 648-664 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:651-663（简化）
+const xmlFormat = [
+  '## Output Format',
+  '',
+  'If the action should be blocked:',
+  '&lt;block&gt;yes&lt;/block&gt;&lt;reason&gt;one short sentence&lt;/reason&gt;',
+  '',
+  'If the action should be allowed:',
+  '&lt;block&gt;no&lt;/block&gt;',
+  '',
+  'Do NOT include a &lt;reason&gt; tag when the action is allowed.',
+  'Your ENTIRE response MUST begin with &lt;block&gt;...',
+].join('\n')
+</code></pre>
+<p>阶段 1 使用极小的 token 预算（<code>max_tokens: 64</code>）和停止序列 <code>&lt;/block&gt;</code>（第 780-793 行），迫使模型在输出 <code>&lt;block&gt;yes&lt;/block&gt;</code> 或 <code>&lt;block&gt;no&lt;/block&gt;</code> 后立即停止。同时附加一个引导后缀（第 550 行）：</p>
+<pre><code>Err on the side of blocking. &lt;block&gt; immediately.
+</code></pre>
+<p>当阶段 1 判定为“允许“时，直接返回（第 807-823 行）——这是快速路径，一次 API 调用，约 64 token 的输出预算，亚秒级延迟。整个主循环几乎感觉不到分类器的存在。</p>
+<h3 id="阶段-2深度推理thinking"><a class="header" href="#阶段-2深度推理thinking">阶段 2：深度推理（Thinking）</a></h3>
+<p>当阶段 1 判定为“阻止“或无法解析时，系统升级到阶段 2。阶段 2 使用更大的 token 预算（<code>max_tokens: 4096</code>），并附加一个不同的引导后缀（第 560-561 行）：</p>
+<pre><code>Review the classification process and follow it carefully, making sure
+you deny actions that should be blocked. As a reminder, explicit (not
+suggestive or implicit) user confirmation is required to override blocks.
+Use &lt;thinking&gt; before responding with &lt;block&gt;.
+</code></pre>
+<p>阶段 2 要求模型先输出 <code>&lt;thinking&gt;</code> 标签进行推理，然后再给出最终判定。这种链式思考（chain-of-thought）显著降低了误判率——阶段 1 可能因为过于激进的“宁可错杀“策略而误阻正常操作，阶段 2 的推理过程能纠正这些误判。</p>
+<h3 id="阶段间的缓存优化"><a class="header" href="#阶段间的缓存优化">阶段间的缓存优化</a></h3>
+<p>两个阶段共享相同的系统提示词和对话转录内容。差异仅在最后附加的引导后缀。这意味着阶段 2 的 API 调用可以命中阶段 1 创建的提示词缓存——系统在动作块上设置了 <code>cache_control</code>（第 1102-1106 行），确保阶段 2 获得缓存命中：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1102-1106
+userContentBlocks.push({
+  type: 'text' as const,
+  text: actionCompact,
+  cache_control: cacheControl,
+})
+</code></pre>
+<p>usage 数据在两个阶段之间合并（第 633-641 行的 <code>combineUsage</code> 函数），遥测系统看到的是总开销而非单阶段开销。</p>
+<h3 id="xml-解析的防御性处理"><a class="header" href="#xml-解析的防御性处理">XML 解析的防御性处理</a></h3>
+<p>XML 响应的解析需要特别小心。模型可能在 <code>&lt;thinking&gt;</code> 块中生成包含 <code>&lt;block&gt;</code> 标签的文本（比如在推理过程中举例说明），这会干扰解析器。<code>stripThinking</code> 函数（第 567-571 行）在解析前先移除所有 <code>&lt;thinking&gt;</code> 内容：</p>
+<pre><code class="language-text">// yoloClassifier.ts:567-571
+      // function stripThinking(text: string): string {
+  return text
+    .replace(/&lt;thinking&gt;[\s\S]*?&lt;\/thinking&gt;/g, '')
+    .replace(/&lt;thinking&gt;[\s\S]*$/, '')
+}
+</code></pre>
+<p>注意第二个正则——它处理的是 <code>&lt;thinking&gt;</code> 标签未闭合的情况（模型输出被截断时），将从 <code>&lt;thinking&gt;</code> 开始到文本末尾的所有内容都移除。</p>
+<h3 id="三种运行模式"><a class="header" href="#三种运行模式">三种运行模式</a></h3>
+<p>二阶段分类器支持三种模式：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>模式</th><th>行为</th><th>适用场景</th></tr>
+</thead>
+<tbody>
+<tr><td><code>both</code></td><td>先跑阶段 1，放行则返回；阻止则升级到阶段 2</td><td>默认模式，平衡速度和准确性</td></tr>
+<tr><td><code>fast</code></td><td>仅阶段 1，max_tokens 提升到 256，去掉停止序列</td><td>追求最低延迟</td></tr>
+<tr><td><code>thinking</code></td><td>仅阶段 2，跳过阶段 1</td><td>追求最高准确性</td></tr>
+</tbody>
+</table>
+</div>
+<p>模式选择通过 GrowthBook 配置或环境变量 <code>CLAUDE_CODE_TWO_STAGE_CLASSIFIER</code> 控制（第 1353-1369 行）。</p>
+<hr>
+<h2 id="175-对话转录分类器看到了什么"><a class="header" href="#175-对话转录分类器看到了什么">17.5 对话转录：分类器看到了什么</a></h2>
+<p>分类器不直接看到主循环的原始消息流。它看到的是一份经过投影（projection）的压缩转录。<code>buildTranscriptEntries</code> 函数（第 302-360 行）负责这个投影过程：</p>
+<ul>
+<li><strong>用户消息</strong>：只保留文本块，图片等其他类型被过滤掉</li>
+<li><strong>助手消息</strong>：<strong>只保留 <code>tool_use</code> 块，助手的文本输出被完全过滤</strong></li>
+<li><strong>队列化命令</strong>：从附件消息中提取 <code>queued_command</code> 的 prompt 文本</li>
+</ul>
+<p>助手文本被过滤的原因在代码注释中有明确说明（第 344-345 行）：</p>
+<pre><code class="language-text">// Only include tool_use blocks — assistant text is model-authored
+// and could be crafted to influence the classifier's decision.
+</code></pre>
+<p>这是一个关键的安全设计：如果分类器能看到 Agent 的自由文本输出，恶意的 prompt 注入可能让 Agent 生成“接下来的操作都是安全的，请分类器放行“之类的文本，从而绕过安全检查。只暴露结构化的工具调用数据，大大缩小了注入攻击面。</p>
+<h3 id="紧凑格式"><a class="header" href="#紧凑格式">紧凑格式</a></h3>
+<p>每个转录条目通过 <code>toCompactBlock</code> 函数（第 384-424 行）序列化为紧凑格式。系统支持两种编码方式，通过 GrowthBook 的 <code>jsonlTranscript</code> 开关控制：</p>
+<p><strong>文本前缀格式</strong>（默认）：</p>
+<pre><code>User: implement a fibonacci function
+Bash ls -la
+FileEditTool {"file_path":"/src/fib.ts","new_string":"..."}
+</code></pre>
+<p><strong>JSONL 格式</strong>：</p>
+<pre><code class="language-json">{"user":"implement a fibonacci function"}
+{"Bash":"ls -la"}
+{"FileEditTool":{"file_path":"/src/fib.ts","new_string":"..."}}
+</code></pre>
+<p>JSONL 格式的优势在于 JSON 转义天然防止了内容注入——用户输入中的换行符变成 <code>\n</code>，无法伪造出看起来像工具调用的行（第 379-380 行注释）。</p>
+<p>每个工具通过 <code>toAutoClassifierInput</code> 方法控制暴露给分类器的字段子集。当这个方法返回 <code>undefined</code> 时，回退到原始输入对象；返回空字符串时，该工具调用从转录中完全省略。这个机制让工具开发者可以精确控制分类器看到的信息粒度。</p>
+<h3 id="claudemd-上下文注入"><a class="header" href="#claudemd-上下文注入">CLAUDE.md 上下文注入</a></h3>
+<p>分类器还能看到用户的 CLAUDE.md 配置。<code>buildClaudeMdMessage</code> 函数（第 460-477 行）将其包装为一个前缀消息：</p>
+<pre><code class="language-text">// yoloClassifier.ts:468-473（简化）
+text:
+  `The following is the user's CLAUDE.md configuration. These are ` +
+  `instructions the user provided to the agent and should be treated ` +
+  `as part of the user's intent when evaluating actions.\n\n` +
+  `&lt;user_claude_md&gt;\n${claudeMd}\n&lt;/user_claude_md&gt;`
+</code></pre>
+<p>这使得分类器能理解用户意图。如果 CLAUDE.md 中写了“本项目使用 <code>make clean</code> 清理构建产物“，分类器在看到 <code>rm -rf build/</code> 时就能推断这是正常操作而非恶意行为。</p>
+<hr>
+<h2 id="176-模板系统差异化的安全策略"><a class="header" href="#176-模板系统差异化的安全策略">17.6 模板系统：差异化的安全策略</a></h2>
+<p>分类器的系统提示词不是硬编码的——它由一个基础模板（base prompt）和一个权限模板（permissions template）组合而成。权限模板有两套（第 54-68 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:54-68
+const BASE_PROMPT: string = feature('TRANSCRIPT_CLASSIFIER')
+  ? txtRequire(require('./yolo-classifier-prompts/auto_mode_system_prompt.txt'))
+  : ''
+
+const EXTERNAL_PERMISSIONS_TEMPLATE: string = feature('TRANSCRIPT_CLASSIFIER')
+  ? txtRequire(require('./yolo-classifier-prompts/permissions_external.txt'))
+  : ''
+
+const ANTHROPIC_PERMISSIONS_TEMPLATE: string =
+  feature('TRANSCRIPT_CLASSIFIER') &amp;&amp; process.env.USER_TYPE === 'ant'
+    ? txtRequire(require('./yolo-classifier-prompts/permissions_anthropic.txt'))
+    : ''
+</code></pre>
+<p><strong>外部用户模板</strong>（<code>permissions_external.txt</code>）面向所有公开版本用户，安全策略更保守。<strong>Anthropic 内部模板</strong>（<code>permissions_anthropic.txt</code>）仅在 <code>USER_TYPE === 'ant'</code> 时加载，可能包含更宽松的内部开发规则。</p>
+<p>模板选择逻辑在 <code>isUsingExternalPermissions</code> 函数中（第 71-78 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:71-78
+      // function isUsingExternalPermissions(): boolean {
+  if (process.env.USER_TYPE !== 'ant') return true
+  const config = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_auto_mode_config',
+    {} as AutoModeConfig,
+  )
+  return config?.forceExternalPermissions === true
+}
+</code></pre>
+<p>非 Anthropic 用户始终使用外部模板。Anthropic 内部用户默认使用内部模板，但可以通过 GrowthBook 的 <code>forceExternalPermissions</code> 开关强制切换到外部模板——这是一个 dogfood（自我体验）机制，让内部开发者能测试外部用户的体验。</p>
+<h3 id="用户可自定义的规则段"><a class="header" href="#用户可自定义的规则段">用户可自定义的规则段</a></h3>
+<p>两套模板都包含三个可替换的规则段：</p>
+<pre><code class="language-text">// yoloClassifier.ts:85-89
+export type AutoModeRules = {
+  allow: string[]      // 允许规则
+  soft_deny: string[]  // 软拒绝规则
+  environment: string[] // 环境描述
+}
+</code></pre>
+<p>用户通过 <code>settings.autoMode</code> 配置这些规则。替换机制使用 XML 标签定界（第 527-539 行）：</p>
+<pre><code class="language-text">// yoloClassifier.ts:527-539
+return systemPrompt
+  .replace(
+    /&lt;user_allow_rules_to_replace&gt;([\s\S]*?)&lt;\/user_allow_rules_to_replace&gt;/,
+    (_m, defaults: string) =&gt; userAllow ?? defaults,
+  )
+  .replace(
+    /&lt;user_deny_rules_to_replace&gt;([\s\S]*?)&lt;\/user_deny_rules_to_replace&gt;/,
+    (_m, defaults: string) =&gt; userDeny ?? defaults,
+  )
+  .replace(
+    /&lt;user_environment_to_replace&gt;([\s\S]*?)&lt;\/user_environment_to_replace&gt;/,
+    (_m, defaults: string) =&gt; userEnvironment ?? defaults,
+  )
+</code></pre>
+<p>外部模板和内部模板在替换行为上有微妙差异（第 511-516 行注释）：外部模板将默认规则放在 <code>&lt;foo_to_replace&gt;</code> 标签<strong>内部</strong>，用户规则会<strong>替换</strong>默认值；内部模板将默认规则放在标签<strong>外部</strong>，标签内为空，用户规则是<strong>追加</strong>性质。这意味着外部用户可以完全覆盖默认安全策略（自担风险），而内部用户只能在内部基线之上添加额外规则。</p>
+<h3 id="bash-规则与-powershell-规则的注入"><a class="header" href="#bash-规则与-powershell-规则的注入">Bash 规则与 PowerShell 规则的注入</a></h3>
+<p>除了用户自定义规则，系统还会自动注入 Bash 和 PowerShell 相关的安全规则。<code>buildYoloSystemPrompt</code> 函数（第 484-540 行）根据用户类型决定是否注入这些规则：</p>
+<pre><code class="language-text">// yoloClassifier.ts:495-509（简化）
+const includeBashPromptRules = feature('BASH_CLASSIFIER')
+  ? !usingExternal : false
+const allowDescriptions = [
+  ...(includeBashPromptRules ? getBashPromptAllowDescriptions(context) : []),
+  ...(autoMode?.allow ?? []),
+]
+const denyDescriptions = [
+  ...(includeBashPromptRules ? getBashPromptDenyDescriptions(context) : []),
+  ...(includePowerShellGuidance ? POWERSHELL_DENY_GUIDANCE : []),
+  ...(autoMode?.soft_deny ?? []),
+]
+</code></pre>
+<p>PowerShell 的拒绝规则（第 1402-1411 行）将 Windows 特有的危险模式映射到已有的安全类别：</p>
+<ul>
+<li><code>iex (iwr ...)</code> → “Code from External”（等同于 <code>curl | bash</code>）</li>
+<li><code>Remove-Item -Recurse -Force</code> → “Irreversible Local Destruction”（等同于 <code>rm -rf</code>）</li>
+<li>修改 <code>$PROFILE</code> → “Unauthorized Persistence”（等同于修改 <code>.bashrc</code>）</li>
+<li><code>Start-Process -Verb RunAs</code> → “Security Weaken”</li>
+</ul>
+<hr>
+<h2 id="177-拒绝追踪防止死循环"><a class="header" href="#177-拒绝追踪防止死循环">17.7 拒绝追踪：防止死循环</a></h2>
+<p>分类器可能陷入一种病态循环：Agent 反复尝试同一操作，分类器反复拒绝，Agent 换个说法再试，分类器再次拒绝……这不仅浪费 token，更让用户等得不耐烦却无法介入。</p>
+<p><code>denialTracking.ts</code> 用极少的代码解决了这个问题。状态结构只有两个计数器（第 7-10 行）：</p>
+<pre><code class="language-text">// denialTracking.ts:7-10
+export type DenialTrackingState = {
+  consecutiveDenials: number
+  totalDenials: number
+}
+</code></pre>
+<p>阈值常量（第 12-15 行）：</p>
+<pre><code class="language-text">// denialTracking.ts:12-15
+export const DENIAL_LIMITS = {
+  maxConsecutive: 3,
+  maxTotal: 20,
+} as const
+</code></pre>
+<p>状态更新函数遵循不可变模式——每次调用返回新对象：</p>
+<ul>
+<li><code>recordDenial</code>（第 24-30 行）：连续计数和总计数都加一</li>
+<li><code>recordSuccess</code>（第 32-38 行）：只重置连续计数，<strong>不重置总计数</strong></li>
+</ul>
+<p>回退判定函数（第 40-45 行）：</p>
+<pre><code class="language-text">// denialTracking.ts:40-45
+      // export function shouldFallbackToPrompting(state: DenialTrackingState): boolean {
+  return (
+    state.consecutiveDenials &gt;= DENIAL_LIMITS.maxConsecutive ||
+    state.totalDenials &gt;= DENIAL_LIMITS.maxTotal
+  )
+}
+
+</code></pre>
+<p>当<strong>连续 3 次拒绝</strong>或<strong>总计 20 次拒绝</strong>时，系统从自动模式回退到用户提示模式。这两个阈值的设计意图不同：</p>
+<ul>
+<li><strong>连续 3 次</strong>：捕获“Agent 反复尝试同一被禁操作“的情况——3 次足以确认这不是偶然的判定波动，而是 Agent 确实在做分类器不允许的事</li>
+<li><strong>总计 20 次</strong>：捕获“Agent 频繁触碰安全边界但每次换不同操作“的情况——即使没有连续被拒，累积的拒绝次数表明 Agent 的行为模式可能需要人类介入</li>
+</ul>
+<p><code>recordSuccess</code> 重置连续计数但保留总计数的设计确保了：一次成功的操作不会“洗白“之前的拒绝历史。一个在 20 次操作中被拒 19 次的 Agent，即使每次拒绝之间都穿插了成功操作，仍然会触发回退。</p>
+<hr>
+<h2 id="178-自动模式状态管理"><a class="header" href="#178-自动模式状态管理">17.8 自动模式状态管理</a></h2>
+<p><code>autoModeState.ts</code> 管理自动模式的全局运行时状态。它用模块级变量实现了一个极简的状态机（第 4-9 行）：</p>
+<pre><code class="language-text">// autoModeState.ts:4-9
+let autoModeActive = false
+let autoModeFlagCli = false
+let autoModeCircuitBroken = false
+</code></pre>
+<p>三个布尔值各有用途：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>含义</th><th>设置时机</th></tr>
+</thead>
+<tbody>
+<tr><td><code>autoModeActive</code></td><td>自动模式当前是否激活</td><td>用户通过 Shift+Tab 切换或 CLI 参数启用</td></tr>
+<tr><td><code>autoModeFlagCli</code></td><td>是否通过 CLI 参数传入了自动模式标志</td><td>启动时解析 CLI 参数</td></tr>
+<tr><td><code>autoModeCircuitBroken</code></td><td>自动模式是否被熔断</td><td>GrowthBook 配置下发 <code>enabled === 'disabled'</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>autoModeCircuitBroken</code> 是一个远程“杀开关“。注释说明了它的触发条件（第 8-9 行）：当 <code>verifyAutoModeGateAccess</code> 检查读取到 GrowthBook 中 <code>tengu_auto_mode_config.enabled === 'disabled'</code> 时设置为 <code>true</code>。一旦熔断，<code>isAutoModeGateEnabled()</code> 返回 <code>false</code>，阻止任何重新进入自动模式的尝试——即使用户在会话中手动切换也无效。</p>
+<p>这个模块被设计为可选加载（第 1-2 行注释）：“lives in its own module so callers can conditionally require() it on <code>feature('TRANSCRIPT_CLASSIFIER')</code>.” 在外部构建中，整个模块可以被树摇（tree-shake）掉。</p>
+<p><code>_resetForTesting</code> 函数（第 35-39 行）将所有状态重置为初始值，专门用于测试隔离——前缀下划线是 Claude Code 代码库中“仅测试使用“的命名约定。</p>
+<hr>
+<h2 id="179-分类器模型选择"><a class="header" href="#179-分类器模型选择">17.9 分类器模型选择</a></h2>
+<p>分类器使用的模型不一定与主循环相同。<code>getClassifierModel</code> 函数（第 1334-1347 行）定义了优先级链：</p>
+<pre><code class="language-text">// yoloClassifier.ts:1334-1347
+      // function getClassifierModel(): string {
+  if (process.env.USER_TYPE === 'ant') {
+    const envModel = process.env.CLAUDE_CODE_AUTO_MODE_MODEL
+    if (envModel) return envModel
+  }
+  const config = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_auto_mode_config',
+    {} as AutoModeConfig,
+  )
+  if (config?.model) {
+    return config.model
+  }
+  return getMainLoopModel()
+}
+</code></pre>
+<ol>
+<li><strong>环境变量</strong>（仅 Anthropic 内部）：<code>CLAUDE_CODE_AUTO_MODE_MODEL</code></li>
+<li><strong>GrowthBook 配置</strong>：<code>tengu_auto_mode_config.model</code></li>
+<li><strong>回退</strong>：主循环模型</li>
+</ol>
+<p>这允许团队在不影响用户体验的前提下 A/B 测试不同的分类器模型。例如，用一个更小、更快的模型做分类可以降低延迟和成本，而用一个更大的模型可以提高准确率。</p>
+<h3 id="thinking-模式的特殊处理"><a class="header" href="#thinking-模式的特殊处理">Thinking 模式的特殊处理</a></h3>
+<p>某些模型默认启用了“always-on thinking“（自适应思考），分类器需要特殊处理这种情况。<code>getClassifierThinkingConfig</code> 函数（第 683-693 行）返回一个元组 <code>[disableThinking, headroom]</code>：</p>
+<ul>
+<li>普通模型：<code>[false, 0]</code> —— 显式禁用 thinking，无额外 token 预算</li>
+<li>always-on thinking 模型：<code>[undefined, 2048]</code> —— 不传 thinking 参数（让服务端使用默认值），并增加 2048 token 的预算空间</li>
+</ul>
+<p>注释中记录了不加预算空间的后果（第 676-678 行）：自适应思考可能消耗 0-1114 个 token，如果不预留空间，<code>stop_reason=max_tokens</code> 会导致空响应，进而导致安全命令被误阻。</p>
+<hr>
+<h2 id="1710-调试基础设施"><a class="header" href="#1710-调试基础设施">17.10 调试基础设施</a></h2>
+<p>分类器的决策过程对用户完全透明——或者说，对有权限的开发者完全透明。<code>CLAUDE_CODE_DUMP_AUTO_MODE</code> 环境变量启用完整的请求/响应转储。</p>
+<p><code>maybeDumpAutoMode</code> 函数（第 153-180 行）在每次分类器调用后将请求体和响应体写入磁盘：</p>
+<pre><code class="language-text">// yoloClassifier.ts:158-161
+if (process.env.USER_TYPE !== 'ant') return
+if (!isEnvTruthy(process.env.CLAUDE_CODE_DUMP_AUTO_MODE)) return
+const base = suffix ? `${timestamp}.${suffix}` : `${timestamp}`
+</code></pre>
+<p>文件命名格式为 <code>{unix_timestamp}[.{stage}].{req|res}.json</code>，写入 <code>~/.claude/tmp/auto-mode/</code> 目录。对于二阶段分类器，会生成两组文件：<code>{ts}.stage1.req.json</code> + <code>{ts}.stage1.res.json</code> 和 <code>{ts}.stage2.req.json</code> + <code>{ts}.stage2.res.json</code>。</p>
+<p>这个功能有两个安全限制：首先，仅对 Anthropic 内部用户可用（第 159 行的 <code>USER_TYPE</code> 检查）；其次，需要显式设置环境变量才启用。这确保了生产环境不会意外地将分类器的完整提示词和对话内容写入磁盘。</p>
+<h3 id="错误状态转储"><a class="header" href="#错误状态转储">错误状态转储</a></h3>
+<p>除了主动开启的调试转储，系统还有一个被动的错误转储机制。当分类器 API 调用失败时，<code>dumpErrorPrompts</code> 函数（第 213-250 行）将错误信息、上下文比较数据、系统提示词和用户提示词写入一个会话级文件：</p>
+<pre><code class="language-text">// yoloClassifier.ts:228-243（简化）
+const content =
+  `=== ERROR ===\n${errorMessage(error)}\n\n` +
+  `=== CONTEXT COMPARISON ===\n` +
+  `timestamp: ${new Date().toISOString()}\n` +
+  `model: ${contextInfo.model}\n` +
+  `mainLoopTokens: ${contextInfo.mainLoopTokens}\n` +
+  `classifierChars: ${contextInfo.classifierChars}\n` +
+  `classifierTokensEst: ${contextInfo.classifierTokensEst}\n` +
+  // ...
+  `=== SYSTEM PROMPT ===\n${systemPrompt}\n\n` +
+  `=== USER PROMPT (transcript) ===\n${userPrompt}\n`
+</code></pre>
+<p>“CONTEXT COMPARISON” 段特别重要——它记录了主循环 token 数量与分类器 token 估算值的对比。当分类器的转录内容超过模型的上下文窗口时，这些数据帮助诊断是转录投影出了问题还是主循环本身就已经接近上下文上限。</p>
+<p>错误转储文件路径由 <code>getAutoModeClassifierErrorDumpPath</code> 函数（第 186-192 行）生成，基于会话 ID，确保每个会话有独立的错误日志。用户通过 <code>/share</code> 命令分享会话时，这个文件会被自动收集。</p>
+<h3 id="上下文偏差遥测"><a class="header" href="#上下文偏差遥测">上下文偏差遥测</a></h3>
+<p>分类器在每次调用时都会计算一个关键指标：主循环 token 数与分类器 token 估算值的比率。代码注释中记载了期望值（第 1250-1252 行）：</p>
+<pre><code>classifierInputTokens / mainLoopTokens
+Expect ~0.6-0.8 steady state; alert on p95 &gt; 1.0
+</code></pre>
+<p>当比率超过 1.0，意味着分类器的输入量比主循环还大——这是一个严重问题，因为自动压缩（auto-compact）是根据主循环的 token 数触发的。如果分类器先于主循环耗尽上下文窗口，自动压缩将无法挽救局面，分类器会遇到“prompt is too long“错误。</p>
+<p><code>detectPromptTooLong</code> 函数（第 1463-1471 行）专门识别这类错误并解析出实际 token 数和限制值，用于遥测分析。</p>
+<hr>
+<h2 id="1711-错误处理与安全降级"><a class="header" href="#1711-错误处理与安全降级">17.11 错误处理与安全降级</a></h2>
+<p>分类器的错误处理策略可以用一句话概括：<strong>任何不确定性都等同于阻止</strong>。</p>
+<p>以下是各种故障场景的降级行为：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>场景</th><th>行为</th><th>返回标志</th></tr>
+</thead>
+<tbody>
+<tr><td>API 返回成功但响应无法解析</td><td>阻止操作</td><td><code>shouldBlock: true</code></td></tr>
+<tr><td>API 返回 400（prompt 过长）</td><td>阻止操作</td><td><code>transcriptTooLong: true</code></td></tr>
+<tr><td>API 返回 429/500（暂时不可用）</td><td>sideQuery 内部重试，最终失败则阻止</td><td><code>unavailable: true</code></td></tr>
+<tr><td>用户取消（AbortSignal）</td><td>阻止操作</td><td><code>unavailable: true</code></td></tr>
+<tr><td>阶段 1 阻止，阶段 2 失败</td><td>基于阶段 1 结果阻止</td><td><code>stage: 'thinking'</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>unavailable: true</code> 标志让调用者能区分“分类器主动判定阻止“和“分类器宕机了“。在后一种情况下，调用者可能选择回退到用户确认模式而非直接拒绝操作。</p>
+<p>整个分类器的 token 使用量通过 <code>YoloClassifierResult.usage</code> 字段返回给调用者，包含四个维度：<code>inputTokens</code>、<code>outputTokens</code>、<code>cacheReadInputTokens</code>、<code>cacheCreationInputTokens</code>。这使得调用者能精确追踪分类器的开销并在遥测中上报。</p>
+<hr>
+<h2 id="模式提炼"><a class="header" href="#模式提炼">模式提炼</a></h2>
+<h3 id="模式一分层短路过滤layered-short-circuit-filtering"><a class="header" href="#模式一分层短路过滤layered-short-circuit-filtering">模式一：分层短路过滤（Layered Short-Circuit Filtering）</a></h3>
+<p><strong>解决的问题</strong>：AI 分类器调用成本高（延迟 + token），但大量请求其实无需分类。</p>
+<p><strong>代码模板</strong>：在分类器入口前设置多层短路——白名单（工具级）→ 输入过滤（字段级）→ 快速判定（阶段 1）→ 深度推理（阶段 2）。每层仅处理上层无法决定的请求。</p>
+<p><strong>前置条件</strong>：需要明确定义“哪些操作天然安全“的分类标准。</p>
+<h3 id="模式二失败即阻止fail-closed"><a class="header" href="#模式二失败即阻止fail-closed">模式二：失败即阻止（Fail-Closed）</a></h3>
+<p><strong>解决的问题</strong>：分类器可能返回无法解析的结果、API 超时或内部错误，此时系统必须有安全的默认行为。</p>
+<p><strong>代码模板</strong>：所有异常路径（Schema 解析失败、API 错误、响应截断）统一返回 <code>shouldBlock: true</code>，将控制权交还给人类。</p>
+<p><strong>前置条件</strong>：系统有人类回退路径（如权限对话框）。</p>
+<h3 id="模式三连续异常降级consecutive-anomaly-degradation"><a class="header" href="#模式三连续异常降级consecutive-anomaly-degradation">模式三：连续异常降级（Consecutive Anomaly Degradation）</a></h3>
+<p><strong>解决的问题</strong>：自动化决策系统可能陷入反复失败的死循环。</p>
+<p><strong>代码模板</strong>：维护 <code>consecutiveFailures</code> 和 <code>totalFailures</code> 两个计数器，连续 N 次失败或总计 M 次失败时降级到人工模式。成功时重置连续计数但保留总计数。</p>
+<p><strong>前置条件</strong>：存在可降级的备选路径。</p>
+<hr>
+<h2 id="用户能做什么"><a class="header" href="#用户能做什么">用户能做什么</a></h2>
+<h3 id="auto-模式调试"><a class="header" href="#auto-模式调试">Auto 模式调试</a></h3>
+<ul>
+<li>如果 auto 模式频繁阻塞正常操作，检查是否缺少 <code>settings.autoMode.allow</code> 规则。例如，在 CLAUDE.md 中声明“本项目使用 <code>make clean</code> 清理构建“可帮助分类器理解上下文</li>
+<li>连续 3 次被拒后系统会自动回退到人工确认——此时建议手动放行并观察分类器是否在后续操作中自我纠正</li>
+</ul>
+<h3 id="自定义安全规则"><a class="header" href="#自定义安全规则">自定义安全规则</a></h3>
+<ul>
+<li>通过 <code>settings.autoMode.allow</code> 添加允许规则描述（自然语言，非正则），例如：“Allow running <code>npm test</code> and <code>npm run build</code>”</li>
+<li>通过 <code>settings.autoMode.soft_deny</code> 添加软拒绝规则，例如：“Deny any command that modifies files outside the project directory”</li>
+<li>这些规则会注入分类器的系统提示词，影响 AI 裁决</li>
+</ul>
+<h3 id="性能优化"><a class="header" href="#性能优化">性能优化</a></h3>
+<ul>
+<li>确保自定义工具实现了 <code>toAutoClassifierInput</code> 方法——返回空字符串可跳过分类器调用</li>
+<li>二阶段分类器（<code>both</code> 模式）在大多数场景下是最优选择——阶段 1 快速放行安全操作，仅对模糊操作触发阶段 2</li>
+</ul>
+<hr>
+<h2 id="1712-小结"><a class="header" href="#1712-小结">17.12 小结</a></h2>
+<p>YOLO 分类器是 Claude Code 安全架构中最精妙的组件之一。它不是一堆正则表达式的堆砌，而是一个完整的 AI 安全裁决系统——有白名单短路、有二阶段审核、有拒绝追踪、有远程熔断、有差异化模板、有全链路调试能力。</p>
+<p>它的核心设计原则是<strong>分层过滤</strong>：</p>
+<ol>
+<li>安全白名单在工具级别短路，零成本</li>
+<li><code>toAutoClassifierInput</code> 在字段级别短路，零成本</li>
+<li>阶段 1 用 64 token 做快速判定，放行立即返回</li>
+<li>阶段 2 用 4096 token 做深度推理，仅在必要时触发</li>
+<li>拒绝追踪在会话级别监控，防止死循环</li>
+<li>远程熔断在服务级别控制，应急时一键关闭</li>
+</ol>
+<p>每一层都在为下一层减少工作量。白名单过滤掉 70%+ 的工具调用，阶段 1 过滤掉大部分安全操作，阶段 2 只需要处理真正模糊的边界情况。这种分层设计使得分类器的平均延迟和 token 开销远低于“每次都做全量推理“的朴素方案。</p>
+<p>但这个系统也有其内在张力：分类器本身是一个 AI 模型，它的判断不可能 100% 准确。过于保守会频繁误阻正常操作（用户体验退化），过于宽松则可能放过危险行为（安全事故）。二阶段设计和用户可配置规则试图在这个光谱上提供灵活性，但最终的安全底线仍然是：<strong>在不确定时，阻止操作并交给人类裁决</strong>。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part5/ch16.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part5/ch18.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part5/ch16.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part5/ch18.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

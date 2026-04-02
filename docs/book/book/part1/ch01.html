@@ -1,0 +1,614 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第1章：AI 编码 Agent 的完整技术栈 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第1章ai-编码-agent-的完整技术栈"><a class="header" href="#第1章ai-编码-agent-的完整技术栈">第1章：AI 编码 Agent 的完整技术栈</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>要理解一个 AI 编码 Agent 如何从“接收用户输入“走到“在你的代码库中执行操作“，首先必须理解它的技术栈（technology stack）。技术栈不仅决定了性能天花板，更决定了架构边界——哪些事情可以在编译时完成，哪些必须推迟到运行时，哪些需要模型自己去决策。</p>
+<p>Claude Code 的技术栈选择揭示了一个核心理念：<strong>AI 编码 Agent 不是传统的 CLI 工具，它是一个“在分发状态下（on distribution）运行“的系统——模型不仅使用工具，还能编写自己的工具</strong>。这意味着整个技术栈必须为“模型作为一等公民“而设计，从入口点的启动优化到 Feature Flag 的构建时消除，每一层都在为这个目标服务。</p>
+<p>本章将建立一个贯穿全书的核心概念——<strong>三层架构</strong>——并通过源码分析展示它如何在 Claude Code v2.1.88 中具体落地。</p>
+<hr>
+<h2 id="11-技术栈概览typescript--react-ink--bun"><a class="header" href="#11-技术栈概览typescript--react-ink--bun">1.1 技术栈概览：TypeScript + React Ink + Bun</a></h2>
+<p>Claude Code 的技术选型可以用一句话概括：<strong>用 TypeScript 获得类型安全，用 React Ink 获得终端 UI 的组件化能力，用 Bun 获得启动速度和构建时优化</strong>。</p>
+<h3 id="typescript应用层的语言"><a class="header" href="#typescript应用层的语言">TypeScript：应用层的语言</a></h3>
+<p>整个代码库由 1,902 个 TypeScript 源文件组成。TypeScript 的类型系统在 AI Agent 开发中有一个独特优势：工具的输入/输出 Schema 可以直接从类型定义生成，而这些 Schema 又直接成为发送给模型的 JSON Schema——类型定义、运行时验证和模型指令三者合一。</p>
+<h3 id="react-ink终端-ui-框架"><a class="header" href="#react-ink终端-ui-框架">React Ink：终端 UI 框架</a></h3>
+<p>Claude Code 的交互界面不是传统的 readline REPL，而是一个完整的 React 应用。React Ink 将 React 的组件模型带入终端，使得复杂的 UI 状态管理（流式输出、多工具并行显示、权限对话框）可以用声明式的方式表达。主要的 UI 组件位于 <code>restored-src/src/screens/REPL.tsx</code>，它本身就是一个超过 5,000 行的 React 组件。</p>
+<h3 id="bun运行时与构建工具"><a class="header" href="#bun运行时与构建工具">Bun：运行时与构建工具</a></h3>
+<p>Bun 在这里承担双重角色：</p>
+<ol>
+<li><strong>运行时</strong>：比 Node.js 更快的启动速度，对 CLI 工具至关重要——用户期望输入 <code>claude</code> 后立即看到响应</li>
+<li><strong>构建工具</strong>：通过 <code>bun:bundle</code> 提供的 <code>feature()</code> 函数实现编译时死代码消除（Dead Code Elimination, DCE），这是整个 Feature Flag 系统的基石</li>
+</ol>
+<hr>
+<h2 id="12-入口点分析maintsx-的启动编排"><a class="header" href="#12-入口点分析maintsx-的启动编排">1.2 入口点分析：<code>main.tsx</code> 的启动编排</a></h2>
+<p><code>main.tsx</code> 是整个应用的入口点，它的前 20 行代码就展示了一种经过深思熟虑的启动优化策略。</p>
+<h3 id="并行预取parallel-prefetch"><a class="header" href="#并行预取parallel-prefetch">并行预取（Parallel Prefetch）</a></h3>
+<pre><code class="language-text">// restored-src/src/main.tsx:1-20
+import { profileCheckpoint, profileReport } from './utils/startupProfiler.js';
+profileCheckpoint('main_tsx_entry');
+
+import { startMdmRawRead } from './utils/settings/mdm/rawRead.js';
+startMdmRawRead();
+
+import { ensureKeychainPrefetchCompleted, startKeychainPrefetch }
+  from './utils/secureStorage/keychainPrefetch.js';
+startKeychainPrefetch();
+</code></pre>
+<p>注意这里的代码组织方式：每个 <code>import</code> 后面紧跟一个立即执行的副作用调用（side-effect call）。源码注释（<code>restored-src/src/main.tsx:1-8</code>）明确解释了设计意图：</p>
+<ol>
+<li><strong><code>profileCheckpoint</code></strong>：在任何重量级模块求值开始前标记入口时间点</li>
+<li><strong><code>startMdmRawRead</code></strong>：启动 MDM（Mobile Device Management）子进程（macOS 上的 <code>plutil</code> / Windows 上的 <code>reg query</code>），使其与后续约 135ms 的 import 评估并行执行</li>
+<li><strong><code>startKeychainPrefetch</code></strong>：并行启动两个 macOS Keychain 读取操作（OAuth 令牌和旧版 API 密钥）——如果不做预取，<code>isRemoteManagedSettingsEligible()</code> 会通过同步 spawn 顺序读取，每次启动多花约 65ms</li>
+</ol>
+<p>这三个操作遵循同一个模式：<strong>将 I/O 密集型操作提前到模块加载的“死时间“中并行执行</strong>。这不是偶然的优化——ESLint 注释 <code>// eslint-disable-next-line custom-rules/no-top-level-side-effects</code> 表明团队有一条自定义规则禁止顶层副作用，这里是经过审慎考虑后的豁免。</p>
+<h3 id="延迟导入lazy-import"><a class="header" href="#延迟导入lazy-import">延迟导入（Lazy Import）</a></h3>
+<p>在并行预取之后，<code>main.tsx</code> 展示了第二种启动优化策略——条件性延迟导入：</p>
+<pre><code class="language-text">// restored-src/src/main.tsx:69-81
+const getTeammateUtils = () =&gt;
+  require('./utils/teammate.js') as typeof import('./utils/teammate.js');
+const getTeammatePromptAddendum = () =&gt;
+  require('./utils/swarm/teammatePromptAddendum.js') as ...;
+
+const coordinatorModeModule = feature('COORDINATOR_MODE')
+  ? require('./coordinator/coordinatorMode.js') as ...
+  : null;
+
+const assistantModule = feature('KAIROS')
+  ? require('./assistant/index.js') as ...
+  : null;
+</code></pre>
+<p>这里有两种不同的延迟加载策略：</p>
+<ul>
+<li><strong>函数包装的 <code>require</code></strong>（如 <code>getTeammateUtils</code>）：用于打破循环依赖（<code>teammate.ts -&gt; AppState.tsx -&gt; ... -&gt; main.tsx</code>），每次调用时才解析模块</li>
+<li><strong>Feature Flag 守卫的 <code>require</code></strong>（如 <code>coordinatorModeModule</code>）：利用 Bun 的 <code>feature()</code> 实现构建时消除——当 <code>COORDINATOR_MODE</code> 为 <code>false</code> 时，整个 <code>require</code> 表达式及其导入的模块树都会在构建产物中被移除</li>
+</ul>
+<h3 id="feature-flag-作为门控"><a class="header" href="#feature-flag-作为门控">Feature Flag 作为门控</a></h3>
+<p>从第 21 行开始，<code>feature('...')</code> 函数的身影贯穿整个入口文件：</p>
+<pre><code class="language-text">// restored-src/src/main.tsx:21
+import { feature } from 'bun:bundle';
+</code></pre>
+<p>这个来自 <code>bun:bundle</code> 的 <code>feature()</code> 函数是理解整个 Feature Flag 系统的关键。它不是运行时的条件判断——它是一个<strong>编译时常量</strong>。当 Bun 打包器处理 <code>feature('X')</code> 时，会根据构建配置将其替换为 <code>true</code> 或 <code>false</code> 字面量，然后 JavaScript 引擎的死代码消除会移除不可达的分支。注意 <code>bun:bundle</code> 的 <code>feature()</code> 并非 Bun 公开文档化的 API，而是 Anthropic 构建流水线中的定制条件编译机制。</p>
+<hr>
+<h2 id="13-三层架构"><a class="header" href="#13-三层架构">1.3 三层架构</a></h2>
+<p>Claude Code 的架构可以分为三层，每一层有明确的职责边界。这个架构模型将在后续章节中反复引用——第3章的 Agent Loop 运行在应用层，第4章的工具执行编排跨越应用层和运行时层，第13-15章的缓存优化则涉及所有三层的协作。</p>
+<pre><code class="language-mermaid">graph TB
+    subgraph L1["应用层 (Application Layer)"]
+        direction TB
+        TS["TypeScript 源码&lt;br /&gt;1,902 个文件"]
+        RI["React Ink&lt;br /&gt;终端 UI 框架"]
+        AL["Agent Loop&lt;br /&gt;query.ts 状态机"]
+        TL["工具系统&lt;br /&gt;40+ 个工具"]
+        SP["系统提示词&lt;br /&gt;分段式组合"]
+
+        TS --&gt; RI
+        TS --&gt; AL
+        TS --&gt; TL
+        TS --&gt; SP
+
+    subgraph L2["运行时层 (Runtime Layer)"]
+        direction TB
+        BUN["Bun 运行时&lt;br /&gt;快速启动 + ESM"]
+        ZIG["Zig 底层&lt;br /&gt;Bun 内核"]
+        BB["bun:bundle&lt;br /&gt;feature() DCE"]
+        JSC["JavaScriptCore&lt;br /&gt;JS 引擎"]
+
+        BUN --&gt; ZIG
+        BUN --&gt; BB
+        BUN --&gt; JSC
+
+    subgraph L3["外部依赖层 (External Dependencies)"]
+        direction TB
+        NPM["npm 包&lt;br /&gt;commander, chalk, lodash-es..."]
+        API["Anthropic API&lt;br /&gt;模型调用 + 提示词缓存"]
+        MCP["MCP Servers&lt;br /&gt;外部工具扩展"]
+        GB["GrowthBook&lt;br /&gt;运行时 Feature Flag"]
+
+        NPM --- API
+        NPM --- MCP
+        NPM --- GB
+
+    L1 --&gt; L2
+    L2 --&gt; L3
+
+    style L1 fill:#e8f4f8,stroke:#2196F3,stroke-width:2px
+    style L2 fill:#fff3e0,stroke:#FF9800,stroke-width:2px
+    style L3 fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px
+</code></pre>
+<h3 id="应用层typescript"><a class="header" href="#应用层typescript">应用层（TypeScript）</a></h3>
+<p>应用层是所有业务逻辑所在的地方。它包含：</p>
+<ul>
+<li><strong>Agent Loop</strong>（<code>query.ts</code>）：核心状态机，编排“模型调用 → 工具执行 → 继续判定“的循环（详见第3章）</li>
+<li><strong>工具系统</strong>（<code>tools.ts</code> + <code>tools/</code> 目录）：40+ 个工具的注册、权限检查和执行（详见第2章）</li>
+<li><strong>系统提示词</strong>（<code>constants/prompts.ts</code>）：分段式组合的提示词架构（详见第5章）</li>
+<li><strong>React Ink UI</strong>（<code>screens/REPL.tsx</code>）：终端界面的声明式渲染</li>
+</ul>
+<h3 id="运行时层bunzigjsc"><a class="header" href="#运行时层bunzigjsc">运行时层（Bun/Zig/JSC）</a></h3>
+<p>运行时层提供三个关键能力：</p>
+<ol>
+<li><strong>快速启动</strong>：Bun 的启动速度比 Node.js 快数倍，对 CLI 工具体验至关重要</li>
+<li><strong>构建时优化</strong>：<code>bun:bundle</code> 的 <code>feature()</code> 函数实现编译时 Feature Flag 消除</li>
+<li><strong>JavaScript 引擎</strong>：Bun 底层使用 JavaScriptCore（JSC，Safari 的 JS 引擎）而非 V8，配合 Zig 编写的底层运行时内核</li>
+</ol>
+<h3 id="外部依赖层"><a class="header" href="#外部依赖层">外部依赖层</a></h3>
+<p>外部依赖层包括：</p>
+<ul>
+<li><strong>npm 包</strong>：<code>commander</code>（CLI 参数解析）、<code>chalk</code>（终端着色）、<code>lodash-es</code>（实用函数）等</li>
+<li><strong>Anthropic API</strong>：模型调用和提示词缓存（Prompt Cache）的服务端</li>
+<li><strong>MCP Servers</strong>：Model Context Protocol 服务器，提供外部工具扩展能力</li>
+<li><strong>GrowthBook</strong>：运行时 A/B 测试和 Feature Flag 服务</li>
+</ul>
+<h3 id="层间边界的意义"><a class="header" href="#层间边界的意义">层间边界的意义</a></h3>
+<p>三层架构的关键在于<strong>层间的信息流方向</strong>：</p>
+<ul>
+<li>应用层 → 运行时层：TypeScript 代码编译为 JavaScript，<code>feature()</code> 调用在此时被解析</li>
+<li>运行时层 → 外部依赖层：HTTP 请求、npm 包加载、MCP 连接</li>
+<li>外部依赖层 → 应用层：模型响应、工具结果、Feature Flag 值——这些信息<strong>向上穿透</strong>两层回到应用层</li>
+</ul>
+<p>理解这个穿透路径很重要：当 GrowthBook 返回一个 <code>tengu_*</code> Feature Flag 的新值时，它影响的不是构建时的 <code>feature()</code> 函数（那些在构建时已经固化），而是运行时的条件逻辑。Claude Code 中存在<strong>两套并行的 Feature Flag 机制</strong>：构建时的 <code>feature()</code> 和运行时的 GrowthBook，它们服务于不同的目的（后面详述）。</p>
+<hr>
+<h2 id="14-为什么-on-distribution-很重要"><a class="header" href="#14-为什么-on-distribution-很重要">1.4 为什么 “On Distribution” 很重要</a></h2>
+<p>“On distribution” 是理解 Claude Code 架构决策的一个关键概念。传统的 CLI 工具在<strong>开发时</strong>定义好所有功能，然后分发给用户。但 AI 编码 Agent 不同——它在<strong>被用户使用时</strong>，其行为由模型动态决定。</p>
+<p>具体来说：</p>
+<ol>
+<li><strong>模型选择工具</strong>：Agent Loop 的每次迭代中，模型决定调用哪个工具、传入什么参数。工具的 <code>description</code> 和 <code>inputSchema</code> 不仅是文档——它们是发送给模型的指令</li>
+<li><strong>模型编写自己的工具</strong>：通过 <code>BashTool</code>，模型可以执行任意 shell 命令；通过 <code>FileWriteTool</code>，模型可以创建新文件；通过 <code>SkillTool</code>，模型可以加载和执行用户定义的提示词模板</li>
+<li><strong>模型作用于自己的上下文</strong>：通过压缩（Compaction）、微压缩（Microcompact）和上下文折叠（Context Collapse），模型参与管理自己的上下文窗口</li>
+</ol>
+<p>这意味着技术栈必须考虑一个传统软件不需要考虑的维度：<strong>模型作为运行时的一部分，它的行为不完全由代码控制，而是由提示词、工具描述和上下文共同塑造</strong>。</p>
+<p>这就是为什么 Feature Flag 系统如此重要——它不仅控制代码路径，还控制模型能“看到“哪些工具。当 <code>feature('WEB_BROWSER_TOOL')</code> 为 <code>false</code> 时，<code>WebBrowserTool</code> 不仅不会被加载，它的整个模块树都从构建产物中消失，模型永远无法知道它的存在：</p>
+<pre><code class="language-text">// restored-src/src/tools.ts:117-119
+const WebBrowserTool = feature('WEB_BROWSER_TOOL')
+  ? require('./tools/WebBrowserTool/WebBrowserTool.js').WebBrowserTool
+  : null;
+</code></pre>
+<hr>
+<h2 id="15-构建时死代码消除feature-的工作原理"><a class="header" href="#15-构建时死代码消除feature-的工作原理">1.5 构建时死代码消除：<code>feature()</code> 的工作原理</a></h2>
+<p><code>feature()</code> 函数来自 Bun 的打包器模块 <code>bun:bundle</code>，它在 Claude Code 中被大量使用来实现构建时的条件编译。</p>
+<h3 id="机制"><a class="header" href="#机制">机制</a></h3>
+<p>当 Bun 的打包器遇到 <code>feature('X')</code> 调用时：</p>
+<ol>
+<li>查找构建配置中 <code>X</code> 的值</li>
+<li>将 <code>feature('X')</code> 替换为字面量 <code>true</code> 或 <code>false</code></li>
+<li>JavaScript 引擎的优化器识别出不可达分支并将其移除</li>
+</ol>
+<p>这意味着以下代码：</p>
+<pre><code class="language-text">const SleepTool = feature('PROACTIVE') || feature('KAIROS')
+  ? require('./tools/SleepTool/SleepTool.js').SleepTool
+  : null;
+</code></pre>
+<p>在 <code>PROACTIVE=false, KAIROS=false</code> 的构建中会变成：</p>
+<pre><code class="language-text">const SleepTool = false || false
+  ? require('./tools/SleepTool/SleepTool.js').SleepTool
+  : null;
+</code></pre>
+<p>进而被优化为 <code>const SleepTool = null;</code>，而 <code>SleepTool.js</code> 及其整个依赖树都不会出现在最终的 bundle 中。</p>
+<h3 id="使用模式"><a class="header" href="#使用模式">使用模式</a></h3>
+<p>在 <code>tools.ts</code> 中，<code>feature()</code> 的使用呈现四种模式：单 Flag 守卫、多 Flag OR 组合、多 Flag AND 组合、数组展开。这些模式在 <code>commands.ts</code> 中同样出现（<code>restored-src/src/commands.ts:59-100</code>），用于控制 slash 命令的可用性。工具注册管线的完整分析详见第2章。</p>
+<h3 id="与运行时-flag-的区别"><a class="header" href="#与运行时-flag-的区别">与运行时 Flag 的区别</a></h3>
+<p>Claude Code 中存在两套 Feature Flag 机制，容易混淆：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>维度</th><th>构建时 <code>feature()</code></th><th>运行时 GrowthBook <code>tengu_*</code></th></tr>
+</thead>
+<tbody>
+<tr><td>解析时机</td><td>Bun 打包时</td><td>会话启动时从 GrowthBook 拉取</td></tr>
+<tr><td>影响范围</td><td>代码是否存在于 bundle</td><td>代码逻辑的运行时分支</td></tr>
+<tr><td>修改方式</td><td>需要重新构建和发布</td><td>服务端配置即时生效</td></tr>
+<tr><td>典型用途</td><td>实验性功能的完整模块树消除</td><td>A/B 测试、渐进灰度</td></tr>
+<tr><td>示例</td><td><code>feature('KAIROS')</code></td><td><code>tengu_ultrathink_enabled</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>两者互补：<code>feature()</code> 用于“这个功能是否存在“，GrowthBook 用于“这个功能对哪些用户开放“。一个功能通常先由 <code>feature()</code> 守卫其模块加载，再由 GrowthBook 控制其运行时行为。</p>
+<hr>
+<h2 id="16-89-个-feature-flag-全景"><a class="header" href="#16-89-个-feature-flag-全景">1.6 89 个 Feature Flag 全景</a></h2>
+<p>通过对源码中所有 <code>feature('...')</code> 调用的提取，我们得到 89 个构建时 Feature Flag。按功能分类如下：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>分类</th><th>Feature Flag</th><th>简述</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>核心 Agent 循环</strong></td><td><code>REACTIVE_COMPACT</code></td><td>响应式压缩——根据上下文动态触发</td></tr>
+<tr><td></td><td><code>CONTEXT_COLLAPSE</code></td><td>上下文折叠——结构化的上下文修剪</td></tr>
+<tr><td></td><td><code>CACHED_MICROCOMPACT</code></td><td>缓存感知的微压缩</td></tr>
+<tr><td></td><td><code>TOKEN_BUDGET</code></td><td>Token 预算追踪器</td></tr>
+<tr><td></td><td><code>HISTORY_SNIP</code></td><td>历史记录精确裁剪</td></tr>
+<tr><td></td><td><code>COMPACTION_REMINDERS</code></td><td>压缩后的上下文提醒注入</td></tr>
+<tr><td><strong>工具与能力</strong></td><td><code>WEB_BROWSER_TOOL</code></td><td>内置浏览器工具（Bun WebView）</td></tr>
+<tr><td></td><td><code>MONITOR_TOOL</code></td><td>监控工具</td></tr>
+<tr><td></td><td><code>OVERFLOW_TEST_TOOL</code></td><td>溢出测试工具</td></tr>
+<tr><td></td><td><code>TERMINAL_PANEL</code></td><td>终端面板捕获</td></tr>
+<tr><td></td><td><code>WORKFLOW_SCRIPTS</code></td><td>工作流脚本系统</td></tr>
+<tr><td></td><td><code>POWERSHELL_AUTO_MODE</code></td><td>PowerShell 自动模式</td></tr>
+<tr><td></td><td><code>TREE_SITTER_BASH</code></td><td>Tree-sitter Bash 解析</td></tr>
+<tr><td></td><td><code>TREE_SITTER_BASH_SHADOW</code></td><td>Tree-sitter Bash 影子模式</td></tr>
+<tr><td></td><td><code>BASH_CLASSIFIER</code></td><td>Bash 命令分类器</td></tr>
+<tr><td><strong>助手与自主模式</strong></td><td><code>KAIROS</code></td><td>助手模式——后台自主 Agent</td></tr>
+<tr><td></td><td><code>KAIROS_BRIEF</code></td><td>助手模式简报</td></tr>
+<tr><td></td><td><code>KAIROS_CHANNELS</code></td><td>助手模式频道</td></tr>
+<tr><td></td><td><code>KAIROS_DREAM</code></td><td>助手模式记忆整理（autoDream）</td></tr>
+<tr><td></td><td><code>KAIROS_GITHUB_WEBHOOKS</code></td><td>助手模式 GitHub Webhook</td></tr>
+<tr><td></td><td><code>KAIROS_PUSH_NOTIFICATION</code></td><td>助手模式推送通知</td></tr>
+<tr><td></td><td><code>PROACTIVE</code></td><td>主动模式——自主感知终端焦点</td></tr>
+<tr><td></td><td><code>AWAY_SUMMARY</code></td><td>离开摘要</td></tr>
+<tr><td><strong>多 Agent 编排</strong></td><td><code>COORDINATOR_MODE</code></td><td>协调者模式——多 Worker 编排</td></tr>
+<tr><td></td><td><code>FORK_SUBAGENT</code></td><td>子 Agent 分叉执行</td></tr>
+<tr><td></td><td><code>TEAMMEM</code></td><td>队友记忆共享</td></tr>
+<tr><td></td><td><code>UDS_INBOX</code></td><td>Unix Domain Socket 消息收件箱</td></tr>
+<tr><td></td><td><code>VERIFICATION_AGENT</code></td><td>验证 Agent</td></tr>
+<tr><td></td><td><code>BUILTIN_EXPLORE_PLAN_AGENTS</code></td><td>内置探索/计划 Agent</td></tr>
+<tr><td><strong>远程与分布式</strong></td><td><code>BRIDGE_MODE</code></td><td>远程控制桥接</td></tr>
+<tr><td></td><td><code>DAEMON</code></td><td>后台守护进程</td></tr>
+<tr><td></td><td><code>CCR_AUTO_CONNECT</code></td><td>CCR 自动连接</td></tr>
+<tr><td></td><td><code>CCR_MIRROR</code></td><td>CCR 镜像</td></tr>
+<tr><td></td><td><code>CCR_REMOTE_SETUP</code></td><td>CCR 远程设置</td></tr>
+<tr><td></td><td><code>SSH_REMOTE</code></td><td>SSH 远程模式</td></tr>
+<tr><td></td><td><code>DIRECT_CONNECT</code></td><td>直连模式</td></tr>
+<tr><td></td><td><code>SELF_HOSTED_RUNNER</code></td><td>自托管 Runner</td></tr>
+<tr><td></td><td><code>BYOC_ENVIRONMENT_RUNNER</code></td><td>BYOC 环境 Runner</td></tr>
+<tr><td><strong>技能系统</strong></td><td><code>EXPERIMENTAL_SKILL_SEARCH</code></td><td>实验性技能搜索</td></tr>
+<tr><td></td><td><code>RUN_SKILL_GENERATOR</code></td><td>技能生成器</td></tr>
+<tr><td></td><td><code>SKILL_IMPROVEMENT</code></td><td>技能改进</td></tr>
+<tr><td></td><td><code>MCP_SKILLS</code></td><td>MCP 技能桥接</td></tr>
+<tr><td></td><td><code>BUILDING_CLAUDE_APPS</code></td><td>构建 Claude 应用技能</td></tr>
+<tr><td><strong>用户界面</strong></td><td><code>VOICE_MODE</code></td><td>语音模式</td></tr>
+<tr><td></td><td><code>BUDDY</code></td><td>伴侣精灵（动画角色）</td></tr>
+<tr><td></td><td><code>AUTO_THEME</code></td><td>自动主题切换</td></tr>
+<tr><td></td><td><code>MESSAGE_ACTIONS</code></td><td>消息操作（交互按钮）</td></tr>
+<tr><td></td><td><code>NATIVE_CLIPBOARD_IMAGE</code></td><td>原生剪贴板图片</td></tr>
+<tr><td></td><td><code>HISTORY_PICKER</code></td><td>历史选择器</td></tr>
+<tr><td></td><td><code>STREAMLINED_OUTPUT</code></td><td>精简输出模式</td></tr>
+<tr><td></td><td><code>QUICK_SEARCH</code></td><td>快速搜索</td></tr>
+<tr><td></td><td><code>CONNECTOR_TEXT</code></td><td>连接器文本</td></tr>
+<tr><td><strong>调度与触发</strong></td><td><code>AGENT_TRIGGERS</code></td><td>Agent 定时触发器（Cron）</td></tr>
+<tr><td></td><td><code>AGENT_TRIGGERS_REMOTE</code></td><td>远程 Agent 触发器</td></tr>
+<tr><td></td><td><code>BG_SESSIONS</code></td><td>后台会话</td></tr>
+<tr><td></td><td><code>TEMPLATES</code></td><td>模板系统（任务模板）</td></tr>
+<tr><td><strong>安全与权限</strong></td><td><code>TRANSCRIPT_CLASSIFIER</code></td><td>会话转录分类器</td></tr>
+<tr><td></td><td><code>HOOK_PROMPTS</code></td><td>Hook 提示词</td></tr>
+<tr><td></td><td><code>ANTI_DISTILLATION_CC</code></td><td>反蒸馏保护</td></tr>
+<tr><td></td><td><code>NATIVE_CLIENT_ATTESTATION</code></td><td>原生客户端证明</td></tr>
+<tr><td><strong>记忆与上下文</strong></td><td><code>EXTRACT_MEMORIES</code></td><td>记忆提取</td></tr>
+<tr><td></td><td><code>AGENT_MEMORY_SNAPSHOT</code></td><td>Agent 记忆快照</td></tr>
+<tr><td></td><td><code>MEMORY_SHAPE_TELEMETRY</code></td><td>记忆形状遥测</td></tr>
+<tr><td></td><td><code>FILE_PERSISTENCE</code></td><td>文件持久化</td></tr>
+<tr><td><strong>计划与执行</strong></td><td><code>ULTRAPLAN</code></td><td>超级计划模式</td></tr>
+<tr><td></td><td><code>ULTRATHINK</code></td><td>超级思考模式</td></tr>
+<tr><td></td><td><code>REVIEW_ARTIFACT</code></td><td>审查工件</td></tr>
+<tr><td></td><td><code>UNATTENDED_RETRY</code></td><td>无人值守重试</td></tr>
+<tr><td><strong>遥测与调试</strong></td><td><code>ENHANCED_TELEMETRY_BETA</code></td><td>增强遥测（Beta）</td></tr>
+<tr><td></td><td><code>COWORKER_TYPE_TELEMETRY</code></td><td>协作者类型遥测</td></tr>
+<tr><td></td><td><code>PERFETTO_TRACING</code></td><td>Perfetto 跟踪</td></tr>
+<tr><td></td><td><code>SLOW_OPERATION_LOGGING</code></td><td>慢操作日志</td></tr>
+<tr><td></td><td><code>SHOT_STATS</code></td><td>Shot 统计</td></tr>
+<tr><td></td><td><code>PROMPT_CACHE_BREAK_DETECTION</code></td><td>提示词缓存中断检测</td></tr>
+<tr><td></td><td><code>BREAK_CACHE_COMMAND</code></td><td>缓存中断命令</td></tr>
+<tr><td><strong>MCP 扩展</strong></td><td><code>CHICAGO_MCP</code></td><td>Chicago MCP 集成</td></tr>
+<tr><td></td><td><code>MCP_RICH_OUTPUT</code></td><td>MCP 富输出</td></tr>
+<tr><td><strong>实验性</strong></td><td><code>ABLATION_BASELINE</code></td><td>消融基线测试</td></tr>
+<tr><td></td><td><code>DUMP_SYSTEM_PROMPT</code></td><td>导出系统提示词</td></tr>
+<tr><td></td><td><code>LODESTONE</code></td><td>Lodestone 引导系统</td></tr>
+<tr><td></td><td><code>TORCH</code></td><td>Torch 功能</td></tr>
+<tr><td><strong>设置与配置</strong></td><td><code>DOWNLOAD_USER_SETTINGS</code></td><td>下载用户设置</td></tr>
+<tr><td></td><td><code>UPLOAD_USER_SETTINGS</code></td><td>上传用户设置</td></tr>
+<tr><td></td><td><code>NEW_INIT</code></td><td>新版初始化流程</td></tr>
+<tr><td></td><td><code>HARD_FAIL</code></td><td>硬失败模式</td></tr>
+<tr><td></td><td><code>ALLOW_TEST_VERSIONS</code></td><td>允许测试版本</td></tr>
+<tr><td><strong>平台检测</strong></td><td><code>IS_LIBC_GLIBC</code></td><td>glibc 检测</td></tr>
+<tr><td></td><td><code>IS_LIBC_MUSL</code></td><td>musl 检测</td></tr>
+<tr><td></td><td><code>COMMIT_ATTRIBUTION</code></td><td>提交归因</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="从-flag-看产品路线图"><a class="header" href="#从-flag-看产品路线图">从 Flag 看产品路线图</a></h3>
+<p>89 个 Feature Flag 不仅是技术实现细节，它们是产品路线图的投影：</p>
+<ul>
+<li><strong>KAIROS 家族</strong>（6 个 Flag）：这是最大的 Flag 集群，指向一个完整的“助手模式“产品——后台自主运行、记忆整理、推送通知、GitHub Webhook 集成。这不是一个 CLI 工具的增强，而是一个完全不同的产品形态</li>
+<li><strong>COORDINATOR_MODE + TEAMMEM + UDS_INBOX</strong>：多 Agent 协作的基础设施——Worker 分配、队友记忆、进程间通信</li>
+<li><strong>BRIDGE_MODE + DAEMON + CCR_</strong>*：远程控制和分布式执行——将 Claude Code 从本地 CLI 扩展为可远程操控的 Agent 平台</li>
+<li><strong>ULTRAPLAN + ULTRATHINK</strong>：模型推理能力的升级——更深层的计划和思考能力</li>
+</ul>
+<hr>
+<h2 id="17-工具注册管线feature-flag-的实战应用"><a class="header" href="#17-工具注册管线feature-flag-的实战应用">1.7 工具注册管线：Feature Flag 的实战应用</a></h2>
+<p><code>tools.ts</code> 的 <code>getAllBaseTools()</code> 函数（<code>restored-src/src/tools.ts:193-251</code>）是 Feature Flag 系统最集中的展示。它展示了三种不同的工具注册策略：</p>
+<h3 id="策略一无条件注册"><a class="header" href="#策略一无条件注册">策略一：无条件注册</a></h3>
+<pre><code class="language-text">// restored-src/src/tools.ts:195-209
+AgentTool,
+TaskOutputTool,
+BashTool,
+FileReadTool,
+FileEditTool,
+FileWriteTool,
+</code></pre>
+<p>这些是核心工具，始终可用，无需任何条件。</p>
+<h3 id="策略二构建时-feature-flag-守卫"><a class="header" href="#策略二构建时-feature-flag-守卫">策略二：构建时 Feature Flag 守卫</a></h3>
+<pre><code class="language-text">// restored-src/src/tools.ts:217-218
+...(WebBrowserTool ? [WebBrowserTool] : []),
+</code></pre>
+<p><code>WebBrowserTool</code> 在文件顶部通过 <code>feature('WEB_BROWSER_TOOL')</code> 守卫——如果 Flag 为 false，变量为 <code>null</code>，此处展开为空数组。<strong>整个工具的代码在构建产物中不存在</strong>。</p>
+<h3 id="策略三运行时环境变量守卫"><a class="header" href="#策略三运行时环境变量守卫">策略三：运行时环境变量守卫</a></h3>
+<pre><code class="language-text">// restored-src/src/tools.ts:214-215
+...(process.env.USER_TYPE === 'ant' ? [ConfigTool] : []),
+...(process.env.USER_TYPE === 'ant' ? [TungstenTool] : []),
+</code></pre>
+<p><code>ConfigTool</code> 和 <code>TungstenTool</code> 通过运行时环境变量 <code>USER_TYPE</code> 控制——它们的代码存在于构建产物中，但只对 Anthropic 内部用户（<code>ant</code>）可见。这是 A/B 测试的“暂存区“模式：在内部验证后再向外部用户开放。</p>
+<h3 id="策略四运行时函数守卫"><a class="header" href="#策略四运行时函数守卫">策略四：运行时函数守卫</a></h3>
+<pre><code class="language-text">// restored-src/src/tools.ts:200-201
+...(hasEmbeddedSearchTools() ? [] : [GlobTool, GrepTool]),
+</code></pre>
+<p>这是一个有趣的反向守卫：当 Bun 的单文件可执行中内嵌了搜索工具（<code>bfs</code>/<code>ugrep</code>）时，独立的 <code>GlobTool</code> 和 <code>GrepTool</code> 反而被移除——因为模型可以直接通过 <code>BashTool</code> 访问这些内嵌的快速工具。</p>
+<hr>
+<h2 id="18-模式提炼"><a class="header" href="#18-模式提炼">1.8 模式提炼</a></h2>
+<p>从 Claude Code 的技术栈选择中，我们可以提炼出几个适用于所有 AI Agent 构建者的模式：</p>
+<h3 id="模式一启动时间是-ux"><a class="header" href="#模式一启动时间是-ux">模式一：启动时间是 UX</a></h3>
+<p>CLI 工具的启动时间直接影响用户体验。Claude Code 通过三种手段优化启动：并行预取（I/O 与模块加载重叠）、延迟导入（按需加载）、构建时消除（减小 bundle 体积）。对于 AI Agent 来说，启动慢意味着用户在等待期间失去上下文，这比传统工具更糟糕。</p>
+<h3 id="模式二双层-feature-flag"><a class="header" href="#模式二双层-feature-flag">模式二：双层 Feature Flag</a></h3>
+<p>构建时 Flag（<code>feature()</code>）和运行时 Flag（GrowthBook）服务于不同目的。前者控制代码的物理存在，后者控制行为的逻辑分支。在 AI Agent 中，这个区分尤为重要——构建时 Flag 决定模型能“看到“哪些工具（因为不存在的工具不会出现在 Schema 中），运行时 Flag 决定模型的行为参数（如 effort 级别、thinking 预算）。</p>
+<h3 id="模式三模型感知的架构"><a class="header" href="#模式三模型感知的架构">模式三：模型感知的架构</a></h3>
+<p>传统软件的架构是为人类开发者设计的——API 边界、模块划分、抽象层次。AI Agent 的架构还需要为模型设计——工具描述是否清晰、Schema 是否自解释、提示词是否与代码行为一致。Claude Code 的三层架构中，应用层不仅是代码逻辑的组织，更是模型交互界面的组织。</p>
+<h3 id="模式四失败关闭是默认值"><a class="header" href="#模式四失败关闭是默认值">模式四：失败关闭是默认值</a></h3>
+<p>工具系统中，工具默认标记为“不安全“（<code>isReadOnly: false</code>）和“不可并发“（<code>isConcurrencySafe: false</code>）。必须显式声明安全才能获得并发执行的优化。这个“失败关闭（fail closed）“原则贯穿整个架构——在 AI Agent 中，一个未经审查的工具调用可能修改用户的代码库，因此保守是正确的默认值。</p>
+<hr>
+<h2 id="本章小结"><a class="header" href="#本章小结">本章小结</a></h2>
+<p>本章建立了理解 Claude Code 的基础框架：</p>
+<ol>
+<li><strong>技术栈</strong>：TypeScript + React Ink + Bun 的组合，为类型安全、声明式 UI 和构建时优化服务</li>
+<li><strong>入口点</strong>：<code>main.tsx</code> 通过并行预取、延迟导入和 Feature Flag 实现快速启动</li>
+<li><strong>三层架构</strong>：应用层（TS）→ 运行时层（Bun/Zig/JSC）→ 外部依赖层（npm/API/MCP/GrowthBook），这是全书的参考框架</li>
+<li><strong>Feature Flag 系统</strong>：89 个构建时 Flag 通过 <code>bun:bundle</code> 的 <code>feature()</code> 实现死代码消除，与运行时 GrowthBook Flag 互补</li>
+<li><strong>On distribution</strong>：AI Agent 的行为由模型在运行时决定，技术栈必须为此设计</li>
+</ol>
+<p>在下一章中，我们将深入工具系统——模型的“双手“——看看 40+ 个工具如何通过统一的接口契约、权限模型和 Feature Flag 守卫组成一个可扩展的能力体系。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../preface.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part1/ch02.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../preface.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part1/ch02.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

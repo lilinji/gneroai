@@ -1,0 +1,789 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第11章：微压缩 — 精准上下文修剪 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-3e4c3f6b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第11章微压缩--精准上下文修剪"><a class="header" href="#第11章微压缩--精准上下文修剪">第11章：微压缩 — 精准上下文修剪</a></h1>
+<blockquote>
+<p><em>“The cheapest token is the one you never send.”</em></p>
+</blockquote>
+<p>上一章（第9章）我们详尽分析了自动压缩——当上下文接近窗口上限时，Claude Code 将整个对话浓缩为一份结构化摘要。这是一种“核选项“：有效但代价高昂，它会丢失对话的原始细节，而且需要一次完整的 LLM 调用来生成摘要。</p>
+<p>本章的主角是<strong>微压缩</strong>（microcompact）——一种轻量级的上下文修剪策略。它不生成摘要，不调用 LLM，而是直接<strong>清除或删除</strong>旧的工具调用结果。你三分钟前 <code>grep</code> 搜索的 200 行输出、半小时前 <code>cat</code> 读取的配置文件、一小时前 <code>bash</code> 命令的日志——这些信息对模型当前的推理任务来说已经“过时“了。微压缩的核心哲学是：<strong>与其让这些过时内容占据宝贵的上下文空间，不如在恰当的时机精准地移除它们</strong>。</p>
+<p>Claude Code 实现了三种微压缩机制，它们在触发条件、执行方式和缓存影响上截然不同：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>维度</th><th>基于时间的微压缩</th><th>缓存微压缩（cache_edits）</th><th>API Context Management</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>触发方式</strong></td><td>距上次助手消息的时间间隔超过阈值</td><td>可压缩工具数量超过阈值</td><td>API 侧 input_tokens 超过阈值</td></tr>
+<tr><td><strong>执行位置</strong></td><td>客户端（修改消息内容）</td><td>服务端（cache_edits 指令）</td><td>服务端（context_management 策略）</td></tr>
+<tr><td><strong>缓存影响</strong></td><td>破坏缓存前缀（预期行为，因为缓存已过期）</td><td>保持缓存前缀完整</td><td>由 API 层管理</td></tr>
+<tr><td><strong>修改方式</strong></td><td>替换 tool_result.content 为占位文本</td><td>发送 cache_edits delete 指令</td><td>声明式策略，API 自动执行</td></tr>
+<tr><td><strong>适用条件</strong></td><td>长时间空闲后恢复会话</td><td>实时会话中的增量修剪</td><td>所有会话（ant 用户，thinking 模型）</td></tr>
+<tr><td><strong>源码入口</strong></td><td><code>maybeTimeBasedMicrocompact()</code></td><td><code>cachedMicrocompactPath()</code></td><td><code>getAPIContextManagement()</code></td></tr>
+<tr><td><strong>feature gate</strong></td><td><code>tengu_slate_heron</code> (GrowthBook)</td><td><code>CACHED_MICROCOMPACT</code> (build)</td><td>环境变量开关</td></tr>
+</tbody>
+</table>
+</div>
+<p>这三种机制的优先级关系也很明确：时间触发最先执行并短路，缓存微压缩其次，API Context Management 作为独立的声明式层始终存在。</p>
+<hr>
+<h2 id="111-基于时间的微压缩缓存过期后的批量清理"><a class="header" href="#111-基于时间的微压缩缓存过期后的批量清理">11.1 基于时间的微压缩：缓存过期后的批量清理</a></h2>
+<h3 id="1111-设计直觉"><a class="header" href="#1111-设计直觉">11.1.1 设计直觉</a></h3>
+<p>想象这样一个场景：你在上午 10 点用 Claude Code 完成了一次复杂的重构，然后去吃午饭。下午 1 点回来继续工作——中间间隔了 3 个小时。</p>
+<p>在这 3 个小时里发生了什么？<strong>服务端的 prompt cache 已经过期了</strong>。Anthropic 的 prompt cache 有两个 TTL 档位：5 分钟（标准）和 1 小时（扩展）。无论是哪个档位，3 小时后都已失效。这意味着你的下一次 API 调用会将<strong>完整的对话历史</strong>重新写入缓存——每一个 token 都要重新计费为 cache creation。</p>
+<p>基于时间的微压缩的逻辑因此非常自然：<strong>既然缓存已经过期，整个前缀都要重写，那不如先把不需要的旧内容清掉，让重写的内容更小更便宜</strong>。</p>
+<h3 id="1112-配置参数"><a class="header" href="#1112-配置参数">11.1.2 配置参数</a></h3>
+<p>配置通过 GrowthBook 功能开关 <code>tengu_slate_heron</code> 下发，类型为 <code>TimeBasedMCConfig</code>：</p>
+<pre><code class="language-text">// services/compact/timeBasedMCConfig.ts:18-28
+export type TimeBasedMCConfig = {
+  /** Master switch. When false, time-based microcompact is a no-op. */
+  enabled: boolean
+  /** Trigger when (now − last assistant timestamp) exceeds this many minutes. */
+  gapThresholdMinutes: number
+  /** Keep this many most-recent compactable tool results. */
+  keepRecent: number
+}
+
+const TIME_BASED_MC_CONFIG_DEFAULTS: TimeBasedMCConfig = {
+  enabled: false,
+  gapThresholdMinutes: 60,
+  keepRecent: 5,
+}
+</code></pre>
+<p>三个参数各有其考量：</p>
+<ul>
+<li><strong><code>enabled</code></strong> 默认关闭——这是一个灰度发布特性，通过 GrowthBook 逐步开启</li>
+<li><strong><code>gapThresholdMinutes: 60</code></strong> 对齐服务端 1 小时 cache TTL——这是“安全选择“，源码注释（第 23 行）明确说明：“the server’s 1h cache TTL is guaranteed expired for all users, so we never force a miss that wouldn’t have happened”</li>
+<li><strong><code>keepRecent: 5</code></strong> 保留最近 5 个工具结果，为模型提供最小工作上下文</li>
+</ul>
+<h3 id="1113-触发判定"><a class="header" href="#1113-触发判定">11.1.3 触发判定</a></h3>
+<p><code>evaluateTimeBasedTrigger()</code> 函数（<code>microCompact.ts:422-444</code>）是一个纯判定函数，不产生副作用：</p>
+<pre><code class="language-text">// microCompact.ts:422-444
+      // export function evaluateTimeBasedTrigger(
+  messages: Message[],
+  querySource: QuerySource | undefined,
+): { gapMinutes: number; config: TimeBasedMCConfig } | null {
+  const config = getTimeBasedMCConfig()
+  if (!config.enabled || !querySource || !isMainThreadSource(querySource)) {
+    return null
+  }
+  const lastAssistant = messages.findLast(m =&gt; m.type === 'assistant')
+  if (!lastAssistant) {
+    return null
+  }
+  const gapMinutes =
+    (Date.now() - new Date(lastAssistant.timestamp).getTime()) / 60_000
+  if (!Number.isFinite(gapMinutes) || gapMinutes &lt; config.gapThresholdMinutes) {
+    return null
+  }
+  return { gapMinutes, config }
+}
+</code></pre>
+<p>注意第 428 行的守卫条件：<code>!querySource</code> 时直接返回 null。这与缓存微压缩的行为不同——<code>isMainThreadSource()</code>（第 249-251 行）将 <code>undefined</code> 视为主线程（为了缓存 MC 的向后兼容），但时间触发<strong>显式要求</strong> querySource 存在。源码注释（第 429-431 行）解释了原因：<code>/context</code>、<code>/compact</code> 等分析性调用会在不带 source 的情况下调用 <code>microcompactMessages()</code>，它们不应该触发时间清理。</p>
+<h3 id="1114-执行逻辑"><a class="header" href="#1114-执行逻辑">11.1.4 执行逻辑</a></h3>
+<p>当触发条件满足时，<code>maybeTimeBasedMicrocompact()</code> 执行以下步骤：</p>
+<pre><code class="language-mermaid">flowchart TD
+    A["maybeTimeBasedMicrocompact(messages, querySource)"] --&gt; B{"evaluateTimeBasedTrigger()"}
+    B --&gt;|null| C["返回 null（不触发）"]
+    B --&gt;|触发| D["collectCompactableToolIds(messages)&lt;br /&gt;收集所有可压缩工具 ID"]
+    D --&gt; E["keepRecent = Math.max(1, config.keepRecent)&lt;br /&gt;至少保留 1 个&lt;br /&gt;（slice(-0) 返回整个数组）"]
+    E --&gt; F["keepSet = compactableIds.slice(-keepRecent)&lt;br /&gt;保留最近 N 个"]
+    F --&gt; G["clearSet = 其余全部清除"]
+    G --&gt; H["遍历 messages，将 clearSet 中的&lt;br /&gt;tool_result.content 替换为占位文本"]
+    H --&gt; I["suppressCompactWarning()&lt;br /&gt;抑制上下文压力警告"]
+    I --&gt; J["resetMicrocompactState()&lt;br /&gt;重置缓存 MC 状态"]
+    J --&gt; K["notifyCacheDeletion()&lt;br /&gt;通知缓存中断检测器"]
+</code></pre>
+<p>关键实现细节在 <code>microCompact.ts:470-492</code>——消息修改采用不可变风格：</p>
+<pre><code class="language-text">// microCompact.ts:470-492
+let tokensSaved = 0
+const result: Message[] = messages.map(message =&gt; {
+  if (message.type !== 'user' || !Array.isArray(message.message.content)) {
+    return message
+  }
+  let touched = false
+  const newContent = message.message.content.map(block =&gt; {
+    if (
+      block.type === 'tool_result' &amp;&amp;
+      clearSet.has(block.tool_use_id) &amp;&amp;
+      block.content !== TIME_BASED_MC_CLEARED_MESSAGE
+    ) {
+      tokensSaved += calculateToolResultTokens(block)
+      touched = true
+      return { ...block, content: TIME_BASED_MC_CLEARED_MESSAGE }
+    }
+    return block
+  })
+  if (!touched) return message
+  return {
+    ...message,
+    message: { ...message.message, content: newContent },
+  }
+})
+</code></pre>
+<p>注意第 479 行的 <code>block.content !== TIME_BASED_MC_CLEARED_MESSAGE</code> 守卫——防止对已清除的内容重复计算 <code>tokensSaved</code>。这是幂等性保证：多次执行不会改变 tokensSaved 的统计值。</p>
+<h3 id="1115-副作用链"><a class="header" href="#1115-副作用链">11.1.5 副作用链</a></h3>
+<p>时间触发执行完毕后，会产生三个重要的副作用：</p>
+<ol>
+<li><strong><code>suppressCompactWarning()</code></strong>（第 511 行）：微压缩释放了上下文空间，抑制“上下文即将满“的用户可见警告</li>
+<li><strong><code>resetMicrocompactState()</code></strong>（第 517 行）：清空缓存 MC 的工具注册状态——因为我们刚修改了消息内容、破坏了服务端缓存，缓存 MC 的旧状态（哪些工具已注册、哪些已删除）全部失效</li>
+<li><strong><code>notifyCacheDeletion(querySource)</code></strong>（第 526 行）：通知 <code>promptCacheBreakDetection</code> 模块，下一次 API 响应的 cache_read_tokens 会下降——这是预期行为，不是缓存中断 bug</li>
+</ol>
+<p>第三个副作用特别微妙。源码注释（第 520-522 行）解释了为什么使用 <code>notifyCacheDeletion</code> 而不是 <code>notifyCompaction</code>：“notifyCacheDeletion (not notifyCompaction) because it’s already imported here and achieves the same false-positive suppression — adding the second symbol to the import was flagged by the circular-deps check.” 这是循环依赖约束下的务实选择：两个函数的效果相同（都防止误报），但引入额外的 import symbol 会触发循环依赖检测。</p>
+<hr>
+<h2 id="112-缓存微压缩不破坏缓存的精准手术"><a class="header" href="#112-缓存微压缩不破坏缓存的精准手术">11.2 缓存微压缩：不破坏缓存的精准手术</a></h2>
+<h3 id="1121-核心挑战"><a class="header" href="#1121-核心挑战">11.2.1 核心挑战</a></h3>
+<p>时间触发的微压缩有一个本质局限：它<strong>必须修改消息内容</strong>，这意味着<strong>缓存前缀被改变</strong>，下一次 API 调用会产生完整的 cache creation 费用。当缓存已过期时这无所谓（反正都要重写），但在实时会话中，这是不可接受的——你刚积累的缓存前缀可能价值数万 tokens 的 cache creation 费用。</p>
+<p>缓存微压缩（cached microcompact）通过 Anthropic API 的 <code>cache_edits</code> 特性解决了这个问题：它<strong>不修改本地消息内容</strong>，而是向 API 发送“在服务端缓存中删除指定工具结果“的指令。服务端在缓存前缀中原地移除这些内容，保持前缀的连续性——下一次请求仍然能命中已有缓存。</p>
+<h3 id="1122-cache_edits-工作原理"><a class="header" href="#1122-cache_edits-工作原理">11.2.2 cache_edits 工作原理</a></h3>
+<p>以下序列图展示了缓存微压缩的完整生命周期：</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant MC as microCompact.ts
+    participant API as claude.ts (API layer)
+    participant Server as Anthropic API Server
+
+    MC-&gt;&gt;MC: ① registerToolResult()&lt;br /&gt;注册 tool_results
+    MC-&gt;&gt;MC: ② getToolResultsToDelete()&lt;br /&gt;检查是否达到阈值
+    MC-&gt;&gt;MC: ③ createCacheEditsBlock()&lt;br /&gt;创建 cache_edits block
+    MC-&gt;&gt;API: ④ 存入 pendingCacheEdits
+
+    API-&gt;&gt;API: ⑤ consumePendingCacheEdits()
+    API-&gt;&gt;API: ⑥ getPinnedCacheEdits()
+    API-&gt;&gt;API: ⑦ addCacheBreakpoints()&lt;br /&gt;在 user message 中插入 cache_edits block&lt;br /&gt;为 tool_result 添加 cache_reference
+
+    API-&gt;&gt;Server: ⑧ API Request: messages 包含 cache_edits
+    Server-&gt;&gt;Server: ⑨ 在缓存中删除对应 tool_result&lt;br /&gt;缓存前缀保持连续
+    Server--&gt;&gt;API: ⑩ Response: cache_deleted_input_tokens (累积值)
+
+    API-&gt;&gt;API: ⑪ pinCacheEdits()
+    API-&gt;&gt;API: ⑫ markToolsSentToAPIState()
+</code></pre>
+<p>让我们逐步拆解这个流程。</p>
+<h3 id="1123-工具注册与阈值判定"><a class="header" href="#1123-工具注册与阈值判定">11.2.3 工具注册与阈值判定</a></h3>
+<p><code>cachedMicrocompactPath()</code> 函数（<code>microCompact.ts:305-399</code>）首先扫描所有消息，注册可压缩的工具结果：</p>
+<pre><code class="language-text">// microCompact.ts:313-329
+const compactableToolIds = new Set(collectCompactableToolIds(messages))
+// Second pass: register tool results grouped by user message
+for (const message of messages) {
+  if (message.type === 'user' &amp;&amp; Array.isArray(message.message.content)) {
+    const groupIds: string[] = []
+    for (const block of message.message.content) {
+      if (
+        block.type === 'tool_result' &amp;&amp;
+        compactableToolIds.has(block.tool_use_id) &amp;&amp;
+        !state.registeredTools.has(block.tool_use_id)
+      ) {
+        mod.registerToolResult(state, block.tool_use_id)
+        groupIds.push(block.tool_use_id)
+      }
+    }
+    mod.registerToolMessage(state, groupIds)
+  }
+}
+</code></pre>
+<p>注册分两步：<code>collectCompactableToolIds()</code> 先从 assistant 消息中收集所有属于可压缩工具集的 <code>tool_use</code> ID，然后在 user 消息中找到对应的 <code>tool_result</code>，按消息分组注册。分组是因为 cache_edits 的删除粒度是单个 tool_result，但触发判定基于工具总数。</p>
+<p>注册后调用 <code>mod.getToolResultsToDelete(state)</code> 获取需要删除的工具列表。这个函数的逻辑由 GrowthBook 配置的 <code>triggerThreshold</code> 和 <code>keepRecent</code> 控制——当注册的工具总数超过 <code>triggerThreshold</code> 时，保留最近 <code>keepRecent</code> 个，其余标记为待删除。</p>
+<h3 id="1124-cache_edits-block-的生命周期"><a class="header" href="#1124-cache_edits-block-的生命周期">11.2.4 cache_edits block 的生命周期</a></h3>
+<p>当有工具需要删除时，代码创建一个 <code>CacheEditsBlock</code> 并存入模块级变量 <code>pendingCacheEdits</code>：</p>
+<pre><code class="language-text">// microCompact.ts:334-339
+const toolsToDelete = mod.getToolResultsToDelete(state)
+
+if (toolsToDelete.length &gt; 0) {
+  const cacheEdits = mod.createCacheEditsBlock(state, toolsToDelete)
+  if (cacheEdits) {
+    pendingCacheEdits = cacheEdits
+  }
+</code></pre>
+<p>这个 <code>pendingCacheEdits</code> 变量的消费者是 API 层的 <code>claude.ts</code>。在构建 API 请求参数前（第 1531 行），代码调用 <code>consumePendingCacheEdits()</code> 一次性取出待发送的编辑指令：</p>
+<pre><code class="language-text">// claude.ts:1531-1532
+const consumedCacheEdits = cachedMCEnabled ? consumePendingCacheEdits() : null
+const consumedPinnedEdits = cachedMCEnabled ? getPinnedCacheEdits() : []
+</code></pre>
+<p><code>consumePendingCacheEdits()</code> 的设计是<strong>单次消费</strong>（<code>microCompact.ts:88-94</code>）：调用后立即清空 <code>pendingCacheEdits</code>。源码注释（第 1528-1530 行）解释了为什么不能在 <code>paramsFromContext</code> 内部消费：“paramsFromContext is called multiple times (logging, retries), so consuming inside it would cause the first call to steal edits from subsequent calls.”</p>
+<h3 id="1125-在-api-请求中插入-cache_edits"><a class="header" href="#1125-在-api-请求中插入-cache_edits">11.2.5 在 API 请求中插入 cache_edits</a></h3>
+<p><code>addCacheBreakpoints()</code> 函数（<code>claude.ts:3063-3162</code>）负责将 cache_edits 指令织入消息数组。核心逻辑分三步：</p>
+<p><strong>第一步：重新插入已固定的编辑</strong>（第 3128-3139 行）</p>
+<pre><code class="language-text">// claude.ts:3128-3139
+for (const pinned of pinnedEdits ?? []) {
+  const msg = result[pinned.userMessageIndex]
+  if (msg &amp;&amp; msg.role === 'user') {
+    if (!Array.isArray(msg.content)) {
+      msg.content = [{ type: 'text', text: msg.content as string }]
+    }
+    const dedupedBlock = deduplicateEdits(pinned.block)
+    if (dedupedBlock.edits.length &gt; 0) {
+      insertBlockAfterToolResults(msg.content, dedupedBlock)
+    }
+  }
+}
+</code></pre>
+<p>每一轮 API 调用，之前已发送过的 cache_edits 必须在<strong>相同位置</strong>重新发送——服务端需要看到完整一致的编辑历史才能正确重建缓存前缀。这就是 <code>pinnedEdits</code> 的作用。</p>
+<p><strong>第二步：插入新的编辑</strong>（第 3142-3162 行）</p>
+<p>新的 cache_edits block 被插入到<strong>最后一个 user 消息</strong>中，然后通过 <code>pinCacheEdits(i, newCacheEdits)</code> 固定位置索引，确保后续调用在同一位置重复发送。</p>
+<p><strong>第三步：去重</strong></p>
+<p><code>deduplicateEdits()</code> 辅助函数（第 3116-3125 行）使用 <code>seenDeleteRefs</code> Set 确保同一个 <code>cache_reference</code> 不会在多个 block 中重复出现。这防止了一种边缘情况：同一个工具结果在不同轮次被标记为待删除。</p>
+<h3 id="1126-cache_edits-数据结构"><a class="header" href="#1126-cache_edits-数据结构">11.2.6 cache_edits 数据结构</a></h3>
+<p>在 API 层，cache_edits block 的类型定义（<code>claude.ts:3052-3055</code>）非常简洁：</p>
+<pre><code class="language-text">type CachedMCEditsBlock = {
+  type: 'cache_edits'
+  edits: { type: 'delete'; cache_reference: string }[]
+}
+</code></pre>
+<p>每个 edit 是一个 <code>delete</code> 操作，指向一个 <code>cache_reference</code>——这是服务端为每个 <code>tool_result</code> 分配的唯一标识符。客户端在之前的 API 响应中获取这些引用，然后在后续请求中引用它们来指定要删除的内容。</p>
+<h3 id="1127-baseline-与-delta-追踪"><a class="header" href="#1127-baseline-与-delta-追踪">11.2.7 baseline 与 delta 追踪</a></h3>
+<p><code>cachedMicrocompactPath()</code> 在返回结果时，记录了一个 <code>baselineCacheDeletedTokens</code> 值（第 374-383 行）：</p>
+<pre><code class="language-text">// microCompact.ts:374-383
+const lastAsst = messages.findLast(m =&gt; m.type === 'assistant')
+const baseline =
+  lastAsst?.type === 'assistant'
+    ? ((
+        lastAsst.message.usage as unknown as Record&lt;
+          string,
+          number | undefined
+        &gt;
+      )?.cache_deleted_input_tokens ?? 0)
+    : 0
+</code></pre>
+<p>API 返回的 <code>cache_deleted_input_tokens</code> 是一个<strong>累积值</strong>——它包含本次会话中所有 cache_edits 操作删除的总 token 数。为了计算当前操作的实际 delta，需要记录操作前的 baseline，然后用 API 响应中的新累积值减去它。这个设计避免了在客户端做不精确的 token 估算。</p>
+<h3 id="1128-与时间触发的互斥"><a class="header" href="#1128-与时间触发的互斥">11.2.8 与时间触发的互斥</a></h3>
+<p><code>microcompactMessages()</code> 的入口函数（第 253-293 行）定义了严格的优先级：</p>
+<pre><code class="language-text">// microCompact.ts:267-270
+const timeBasedResult = maybeTimeBasedMicrocompact(messages, querySource)
+if (timeBasedResult) {
+  return timeBasedResult
+}
+</code></pre>
+<p>时间触发优先执行并短路。源码注释（第 261-266 行）解释了为什么：“If the gap since the last assistant message exceeds the threshold, the server cache has expired and the full prefix will be rewritten regardless — so content-clear old tool results now … Cached MC (cache-editing) is skipped when this fires: editing assumes a warm cache, and we just established it’s cold.”</p>
+<p>这是一个精妙的互斥设计：</p>
+<ul>
+<li><strong>缓存热（warm cache）</strong>：使用 cache_edits，在不破坏缓存的前提下删除内容</li>
+<li><strong>缓存冷（cold cache）</strong>：使用时间触发，直接修改内容，反正缓存已经失效</li>
+</ul>
+<p>两种机制不会同时执行。</p>
+<hr>
+<h2 id="113-api-context-management声明式上下文管理"><a class="header" href="#113-api-context-management声明式上下文管理">11.3 API Context Management：声明式上下文管理</a></h2>
+<h3 id="1131-从命令式到声明式"><a class="header" href="#1131-从命令式到声明式">11.3.1 从命令式到声明式</a></h3>
+<p>前两种微压缩机制都是<strong>命令式</strong>的——客户端决定删除哪些工具、何时删除、怎么删除。API Context Management 则是<strong>声明式</strong>的：客户端只需描述“当上下文超过 X tokens 时，清除 Y 类型的内容，保留最近 Z 个“，API 服务端自动执行。</p>
+<p>这段逻辑位于 <code>apiMicrocompact.ts</code>，函数 <code>getAPIContextManagement()</code> 构建一个 <code>ContextManagementConfig</code> 对象，随 API 请求一起发送：</p>
+<pre><code class="language-text">// apiMicrocompact.ts:59-62
+export type ContextManagementConfig = {
+  edits: ContextEditStrategy[]
+}
+</code></pre>
+<h3 id="1132-两种策略类型"><a class="header" href="#1132-两种策略类型">11.3.2 两种策略类型</a></h3>
+<p><code>ContextEditStrategy</code> 联合类型定义了两种服务端可执行的编辑策略：</p>
+<p><strong>策略一：<code>clear_tool_uses_20250919</code></strong></p>
+<pre><code class="language-text">// apiMicrocompact.ts:36-53
+| {
+    type: 'clear_tool_uses_20250919'
+    trigger?: {
+      type: 'input_tokens'
+      value: number        // 当 input tokens 超过此值时触发
+    }
+    keep?: {
+      type: 'tool_uses'
+      value: number        // 保留最近 N 个工具使用
+    }
+    clear_tool_inputs?: boolean | string[]  // 清除哪些工具的输入
+    exclude_tools?: string[]                // 排除哪些工具
+    clear_at_least?: {
+      type: 'input_tokens'
+      value: number        // 至少清除这么多 tokens
+    }
+  }
+</code></pre>
+<p><strong>策略二：<code>clear_thinking_20251015</code></strong></p>
+<pre><code class="language-text">// apiMicrocompact.ts:54-56
+| {
+    type: 'clear_thinking_20251015'
+    keep: { type: 'thinking_turns'; value: number } | 'all'
+  }
+</code></pre>
+<p>这种策略专门处理 thinking blocks——extended thinking 模型（如 Claude Sonnet 4 with thinking）会生成大量思考过程，这些内容在后续轮次中的价值迅速衰减。</p>
+<h3 id="1133-策略组合逻辑"><a class="header" href="#1133-策略组合逻辑">11.3.3 策略组合逻辑</a></h3>
+<p><code>getAPIContextManagement()</code> 根据运行时条件组合多个策略：</p>
+<pre><code class="language-text">// apiMicrocompact.ts:64-88
+      // export function getAPIContextManagement(options?: {
+  hasThinking?: boolean
+  isRedactThinkingActive?: boolean
+  clearAllThinking?: boolean
+}): ContextManagementConfig | undefined {
+  const {
+    hasThinking = false,
+    isRedactThinkingActive = false,
+    clearAllThinking = false,
+  } = options ?? {}
+
+  const strategies: ContextEditStrategy[] = []
+
+  // 策略 1: thinking 管理
+  if (hasThinking &amp;&amp; !isRedactThinkingActive) {
+    strategies.push({
+      type: 'clear_thinking_20251015',
+      keep: clearAllThinking
+        ? { type: 'thinking_turns', value: 1 }
+        : 'all',
+    })
+  }
+  // ...
+}
+</code></pre>
+<p>thinking 策略的三个分支：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>条件</th><th>行为</th><th>原因</th></tr>
+</thead>
+<tbody>
+<tr><td><code>hasThinking &amp;&amp; !isRedactThinkingActive &amp;&amp; !clearAllThinking</code></td><td><code>keep: 'all'</code></td><td>保留所有 thinking（正常工作状态）</td></tr>
+<tr><td><code>hasThinking &amp;&amp; !isRedactThinkingActive &amp;&amp; clearAllThinking</code></td><td><code>keep: { type: 'thinking_turns', value: 1 }</code></td><td>只保留最后 1 轮 thinking（超过 1 小时空闲 = 缓存失效）</td></tr>
+<tr><td><code>isRedactThinkingActive</code></td><td>不添加策略</td><td>redacted thinking 块没有模型可见内容，无需管理</td></tr>
+</tbody>
+</table>
+</div>
+<p>注意 <code>clearAllThinking</code> 时 value 设为 1 而不是 0——源码注释（第 81 行）解释：“the API schema requires value &gt;= 1, and omitting the edit falls back to the model-policy default (often ‘all’), which wouldn’t clear.”</p>
+<h3 id="1134-工具清除的两种模式"><a class="header" href="#1134-工具清除的两种模式">11.3.4 工具清除的两种模式</a></h3>
+<p>在 <code>clear_tool_uses_20250919</code> 策略中，工具清除有两种互补模式：</p>
+<p><strong>模式一：清除工具结果（<code>clear_tool_inputs</code>）</strong></p>
+<pre><code class="language-text">// apiMicrocompact.ts:104-124
+if (useClearToolResults) {
+  const strategy: ContextEditStrategy = {
+    type: 'clear_tool_uses_20250919',
+    trigger: { type: 'input_tokens', value: triggerThreshold },
+    clear_at_least: {
+      type: 'input_tokens',
+      value: triggerThreshold - keepTarget,
+    },
+    clear_tool_inputs: TOOLS_CLEARABLE_RESULTS,
+  }
+  strategies.push(strategy)
+}
+</code></pre>
+<p><code>TOOLS_CLEARABLE_RESULTS</code>（第 19-26 行）包含那些<strong>输出量大但可丢弃</strong>的工具：Shell 命令、Glob、Grep、FileRead、WebFetch、WebSearch。这些工具的结果通常是搜索输出或文件内容——模型已经处理过了，清除它们不影响后续推理。</p>
+<p><strong>模式二：清除工具使用（<code>exclude_tools</code>）</strong></p>
+<pre><code class="language-text">// apiMicrocompact.ts:128-149
+if (useClearToolUses) {
+  const strategy: ContextEditStrategy = {
+    type: 'clear_tool_uses_20250919',
+    trigger: { type: 'input_tokens', value: triggerThreshold },
+    clear_at_least: {
+      type: 'input_tokens',
+      value: triggerThreshold - keepTarget,
+    },
+    exclude_tools: TOOLS_CLEARABLE_USES,
+  }
+  strategies.push(strategy)
+}
+</code></pre>
+<p><code>TOOLS_CLEARABLE_USES</code>（第 28-32 行）包含 FileEdit、FileWrite 和 NotebookEdit——这些工具的<strong>输入</strong>（即模型发送的编辑指令）通常比输出更大。<code>exclude_tools</code> 的语义是“清除除这些工具外的所有工具使用“，这让 API 侧可以更激进地清理。</p>
+<p>两种模式的默认参数相同：<code>triggerThreshold = 180,000</code>（约等于自动压缩的警告阈值），<code>keepTarget = 40,000</code>（保留最后 40K tokens），<code>clear_at_least = triggerThreshold - keepTarget = 140,000</code>（至少释放 140K tokens）。这些值可通过 <code>API_MAX_INPUT_TOKENS</code> 和 <code>API_TARGET_INPUT_TOKENS</code> 环境变量覆盖。</p>
+<hr>
+<h2 id="114-可压缩工具集清单"><a class="header" href="#114-可压缩工具集清单">11.4 可压缩工具集清单</a></h2>
+<p>三种微压缩机制各自定义了不同的可压缩工具集。理解这些差异对于预测哪些工具结果会被清除至关重要。</p>
+<h3 id="1141-compactable_tools时间触发--缓存微压缩共用"><a class="header" href="#1141-compactable_tools时间触发--缓存微压缩共用">11.4.1 <code>COMPACTABLE_TOOLS</code>（时间触发 + 缓存微压缩共用）</a></h3>
+<pre><code class="language-text">// microCompact.ts:41-50
+const COMPACTABLE_TOOLS = new Set&lt;string&gt;([
+  FILE_READ_TOOL_NAME,      // Read
+  ...SHELL_TOOL_NAMES,       // Bash (多个 shell 变体)
+  GREP_TOOL_NAME,            // Grep
+  GLOB_TOOL_NAME,            // Glob
+  WEB_SEARCH_TOOL_NAME,      // WebSearch
+  WEB_FETCH_TOOL_NAME,       // WebFetch
+  FILE_EDIT_TOOL_NAME,       // Edit
+  FILE_WRITE_TOOL_NAME,      // Write
+])
+</code></pre>
+<h3 id="1142-tools_clearable_resultsapi-clear_tool_inputs"><a class="header" href="#1142-tools_clearable_resultsapi-clear_tool_inputs">11.4.2 <code>TOOLS_CLEARABLE_RESULTS</code>（API clear_tool_inputs）</a></h3>
+<pre><code class="language-text">// apiMicrocompact.ts:19-26
+const TOOLS_CLEARABLE_RESULTS = [
+  ...SHELL_TOOL_NAMES,
+  GLOB_TOOL_NAME,
+  GREP_TOOL_NAME,
+  FILE_READ_TOOL_NAME,
+  WEB_FETCH_TOOL_NAME,
+  WEB_SEARCH_TOOL_NAME,
+]
+</code></pre>
+<h3 id="1143-tools_clearable_usesapi-exclude_tools"><a class="header" href="#1143-tools_clearable_usesapi-exclude_tools">11.4.3 <code>TOOLS_CLEARABLE_USES</code>（API exclude_tools）</a></h3>
+<pre><code class="language-text">// apiMicrocompact.ts:28-32
+const TOOLS_CLEARABLE_USES = [
+  FILE_EDIT_TOOL_NAME,       // Edit
+  FILE_WRITE_TOOL_NAME,      // Write
+  NOTEBOOK_EDIT_TOOL_NAME,   // NotebookEdit
+]
+</code></pre>
+<p>关键差异：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>工具</th><th style="text-align: center">COMPACTABLE_TOOLS</th><th style="text-align: center">CLEARABLE_RESULTS</th><th style="text-align: center">CLEARABLE_USES</th></tr>
+</thead>
+<tbody>
+<tr><td>Shell (Bash)</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>Grep</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>Glob</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>FileRead (Read)</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>WebSearch</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>WebFetch</td><td style="text-align: center">yes</td><td style="text-align: center">yes</td><td style="text-align: center">–</td></tr>
+<tr><td>FileEdit (Edit)</td><td style="text-align: center">yes</td><td style="text-align: center">–</td><td style="text-align: center">yes</td></tr>
+<tr><td>FileWrite (Write)</td><td style="text-align: center">yes</td><td style="text-align: center">–</td><td style="text-align: center">yes</td></tr>
+<tr><td>NotebookEdit</td><td style="text-align: center">–</td><td style="text-align: center">–</td><td style="text-align: center">yes</td></tr>
+</tbody>
+</table>
+</div>
+<p>NotebookEdit 只出现在 API 的 <code>TOOLS_CLEARABLE_USES</code> 中——客户端微压缩不处理它。FileEdit 和 FileWrite 在客户端清除的是<strong>结果</strong>（tool_result），在 API 模式下则从 <code>clear_tool_inputs</code> 中排除、改为在 <code>exclude_tools</code> 中处理。这种分层设计让客户端和服务端各自处理最适合的部分。</p>
+<hr>
+<h2 id="115-缓存中断检测的协调"><a class="header" href="#115-缓存中断检测的协调">11.5 缓存中断检测的协调</a></h2>
+<h3 id="1151-问题微压缩会触发误报"><a class="header" href="#1151-问题微压缩会触发误报">11.5.1 问题：微压缩会触发误报</a></h3>
+<p><code>promptCacheBreakDetection.ts</code> 模块持续监控 API 响应中的 <code>cache_read_tokens</code>。当该值相比上次请求下降超过 5% 且绝对值超过 2,000 tokens 时，它会报告一次“缓存中断“（cache break）——这通常意味着某些变更（系统提示词修改、工具列表变化）导致缓存前缀失效。</p>
+<p>但微压缩<strong>故意</strong>减少了缓存内容。如果不做协调，每次微压缩都会触发一次误报。Claude Code 通过两个通知函数解决这个问题：</p>
+<h3 id="1152-notifycachedeletion"><a class="header" href="#1152-notifycachedeletion">11.5.2 <code>notifyCacheDeletion()</code></a></h3>
+<pre><code class="language-text">// promptCacheBreakDetection.ts:673-682
+      // export function notifyCacheDeletion(
+  querySource: QuerySource,
+  agentId?: AgentId,
+): void {
+  const key = getTrackingKey(querySource, agentId)
+  const state = key ? previousStateBySource.get(key) : undefined
+  if (state) {
+    state.cacheDeletionsPending = true
+  }
+}
+</code></pre>
+<p><strong>调用时机</strong>：缓存微压缩发送 cache_edits 后（<code>microCompact.ts:366</code>），以及时间触发修改消息内容后（<code>microCompact.ts:526</code>）。</p>
+<p><strong>效果</strong>：设置 <code>cacheDeletionsPending = true</code>。当下一次 API 响应到来时，<code>checkResponseForCacheBreak()</code>（第 472-481 行）看到此标志，直接跳过中断检测：</p>
+<pre><code class="language-text">// promptCacheBreakDetection.ts:472-481
+if (state.cacheDeletionsPending) {
+  state.cacheDeletionsPending = false
+  logForDebugging(
+    `[PROMPT CACHE] cache deletion applied, cache read: ${prevCacheRead}
+     → ${cacheReadTokens} (expected drop)`,
+  )
+  state.pendingChanges = null
+  return
+}
+</code></pre>
+<h3 id="1153-notifycompaction"><a class="header" href="#1153-notifycompaction">11.5.3 <code>notifyCompaction()</code></a></h3>
+<pre><code class="language-text">// promptCacheBreakDetection.ts:689-698
+      // export function notifyCompaction(
+  querySource: QuerySource,
+  agentId?: AgentId,
+): void {
+  const key = getTrackingKey(querySource, agentId)
+  const state = key ? previousStateBySource.get(key) : undefined
+  if (state) {
+    state.prevCacheReadTokens = null
+  }
+}
+</code></pre>
+<p><strong>调用时机</strong>：完整压缩（<code>compact.ts:699</code>）和自动压缩（<code>autoCompact.ts:303</code>）完成后。</p>
+<p><strong>效果</strong>：将 <code>prevCacheReadTokens</code> 重置为 null，这意味着下一次 API 响应时没有“上一次的值“可以比较——检测器会将其视为“第一次调用“，不报告中断。</p>
+<p><strong>两个函数的区别</strong>：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>函数</th><th>重置方式</th><th>适用场景</th></tr>
+</thead>
+<tbody>
+<tr><td><code>notifyCacheDeletion</code></td><td>标记 <code>cacheDeletionsPending = true</code>，下次检测时跳过但保留 baseline</td><td>微压缩（部分删除，baseline 仍有参考价值）</td></tr>
+<tr><td><code>notifyCompaction</code></td><td>将 <code>prevCacheReadTokens</code> 置 null，完全重置 baseline</td><td>完整压缩（消息结构彻底改变，旧 baseline 无意义）</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="116-子代理隔离"><a class="header" href="#116-子代理隔离">11.6 子代理隔离</a></h2>
+<p>微压缩系统必须处理的一个重要场景是<strong>子代理</strong>（sub-agent）。Claude Code 的主线程可以 fork 出多个子代理（session_memory、prompt_suggestion 等），每个子代理有独立的对话历史。</p>
+<p><code>cachedMicrocompactPath</code> 只对主线程执行（<code>microCompact.ts:275-285</code>）：</p>
+<pre><code class="language-text">// microCompact.ts:275-285
+if (feature('CACHED_MICROCOMPACT')) {
+  const mod = await getCachedMCModule()
+  const model = toolUseContext?.options.mainLoopModel ?? getMainLoopModel()
+  if (
+    mod.isCachedMicrocompactEnabled() &amp;&amp;
+    mod.isModelSupportedForCacheEditing(model) &amp;&amp;
+    isMainThreadSource(querySource)
+  ) {
+    return await cachedMicrocompactPath(messages, querySource)
+  }
+}
+</code></pre>
+<p>源码注释（第 272-276 行）解释了原因：“Only run cached MC for the main thread to prevent forked agents from registering their tool_results in the global cachedMCState, which would cause the main thread to try deleting tools that don’t exist in its own conversation.”</p>
+<p><code>cachedMCState</code> 是一个模块级全局变量。如果子代理注册了自己的工具 ID，主线程在下次执行时会尝试删除这些 ID——但它们不存在于主线程的消息中，导致无效的 cache_edits 指令。通过 <code>isMainThreadSource(querySource)</code> 守卫，子代理被完全排除在缓存微压缩之外。</p>
+<p><code>isMainThreadSource()</code> 的实现（第 249-251 行）使用前缀匹配而非精确匹配：</p>
+<pre><code class="language-text">// microCompact.ts:249-251
+      // function isMainThreadSource(querySource: QuerySource | undefined): boolean {
+  return !querySource || querySource.startsWith('repl_main_thread')
+}
+</code></pre>
+<p>这是因为 <code>promptCategory.ts</code> 会将 querySource 设置为 <code>'repl_main_thread:outputStyle:&lt;style&gt;'</code>——如果使用严格的 <code>=== 'repl_main_thread'</code> 检查，使用非默认输出样式的用户会被静默排除在缓存微压缩之外。源码注释（第 246-248 行）将旧的精确匹配标注为“latent bug“。</p>
+<hr>
+<h2 id="117-用户能做什么"><a class="header" href="#117-用户能做什么">11.7 用户能做什么</a></h2>
+<p>理解微压缩的三种机制后，你可以采取以下策略来优化日常使用体验：</p>
+<h3 id="1171-理解工具结果消失的原因"><a class="header" href="#1171-理解工具结果消失的原因">11.7.1 理解“工具结果消失“的原因</a></h3>
+<p>当你发现模型在对话中后期“忘记“了之前某次 <code>grep</code> 或 <code>cat</code> 的结果，这很可能不是模型的幻觉，而是微压缩主动清除了旧的工具结果。被清除的工具结果会被替换为 <code>[Old tool result content cleared]</code> 占位文本。如果你需要模型重新参考某个搜索结果，直接要求它重新执行搜索即可——这比试图让模型“回忆“已被清除的内容更可靠。</p>
+<h3 id="1172-长时间离开后的预期管理"><a class="header" href="#1172-长时间离开后的预期管理">11.7.2 长时间离开后的预期管理</a></h3>
+<p>如果你离开超过 1 小时再回来继续对话，基于时间的微压缩可能已经清除了大部分旧工具结果（只保留最近 5 个）。这是设计如此——因为服务端缓存已经过期，清除旧内容可以显著减少下一次 API 调用的 cache creation 成本。回来后，让模型重新读取关键文件是正常且高效的操作。</p>
+<h3 id="1173-利用-claudemd-保留关键上下文"><a class="header" href="#1173-利用-claudemd-保留关键上下文">11.7.3 利用 CLAUDE.md 保留关键上下文</a></h3>
+<p>微压缩只清除工具调用的结果，不影响系统提示词中注入的 <code>CLAUDE.md</code> 内容。如果某些信息（如项目约定、架构决策、关键文件路径）需要在整个会话中持续生效，将它们写入 <code>CLAUDE.md</code> 是最可靠的方式——它们不受任何压缩或微压缩机制的影响。</p>
+<h3 id="1174-并行工具调用的成本意识"><a class="header" href="#1174-并行工具调用的成本意识">11.7.4 并行工具调用的成本意识</a></h3>
+<p>当模型同时发起多个搜索或读取操作时，这些结果的聚合大小受 200K 字符的消息级预算限制。如果你观察到某些并行工具的结果被持久化到磁盘（模型会提示“Output too large, saved to file“），这是预算机制在防止上下文膨胀。你可以通过更精确的搜索条件来减少单次工具输出的大小。</p>
+<h3 id="1175-不可压缩工具的认知"><a class="header" href="#1175-不可压缩工具的认知">11.7.5 不可压缩工具的认知</a></h3>
+<p>并非所有工具结果都会被微压缩清除。<code>FileEdit</code>、<code>FileWrite</code> 等写入类工具的<strong>结果</strong>在客户端微压缩中是可清除的，但像 <code>ToolSearch</code>、<code>SendMessage</code> 等工具不在可压缩集合中。了解哪些工具结果会被清除（参见 11.4 节的对比表），有助于你理解模型在长会话中的行为变化。</p>
+<hr>
+<h2 id="118-设计模式总结"><a class="header" href="#118-设计模式总结">11.8 设计模式总结</a></h2>
+<p>微压缩系统展现了几个值得学习的工程模式：</p>
+<p><strong>分层降级</strong>：三种机制形成层次——API Context Management 作为声明式基线始终存在；缓存微压缩在支持 cache_edits 的环境中提供精准手术；时间触发作为缓存失效后的兜底。每一层都有明确的前提条件和退化路径。</p>
+<p><strong>副作用协调</strong>：微压缩不是孤立操作——它必须通知缓存中断检测器（防误报）、重置相关状态（防脏数据）、抑制用户警告（防困惑）。这三个副作用通过显式的函数调用（<code>notifyCacheDeletion</code>、<code>resetMicrocompactState</code>、<code>suppressCompactWarning</code>）而非事件系统协调，保持了因果链的可追踪性。</p>
+<p><strong>单次消费语义</strong>：<code>consumePendingCacheEdits()</code> 返回数据后立即清空——这防止了在 API 重试场景下的重复消费。这种模式在需要跨模块传递一次性状态时非常实用。</p>
+<p><strong>不可变消息修改</strong>：时间触发路径使用 <code>map</code> + 展开运算符创建新的消息数组，而不是原地修改。这确保了如果微压缩逻辑有 bug，原始消息不会被污染。缓存微压缩更进一步——它<strong>完全不修改</strong>本地消息，所有修改都在服务端完成。</p>
+<p><strong>循环依赖规避</strong>：<code>notifyCacheDeletion</code> 被复用来替代 <code>notifyCompaction</code>，仅仅是因为后者的 import 会触发循环依赖检测。这种务实的妥协在大型代码库中很常见——完美的模块边界让位于构建系统的约束。源码注释坦诚记录了这个取舍，而不是试图隐藏它。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part3/ch10.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part3/ch12.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part3/ch10.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part3/ch12.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,5 +1,5 @@
 [book]
-authors = ["Zhang Alex"]
+authors = ["Linji Li"]
 language = "zh"
 src = "src"
 title = "驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践"

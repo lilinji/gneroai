@@ -6,13 +6,13 @@ on:
     paths:
       - 'docs/book/src/**'
       - 'docs/book/book.toml'
+      - 'docs/book-en/src/**'
+      - 'docs/book-en/book.toml'
       - '.github/workflows/deploy-book.yml'
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -22,10 +22,41 @@ jobs:
           source $HOME/.cargo/env
           cargo install mdbook
 
-      - name: Build mdbook
+      - name: Build book
         run: |
           source $HOME/.cargo/env
           mdbook build docs/book
+
+      - name: Build book-en
+        run: |
+          source $HOME/.cargo/env
+          mdbook build docs/book-en
+
+      - name: Upload book artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book
+          path: docs/book/book
+
+      - name: Upload book-en artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-en
+          path: docs/book-en/book
+
+  deploy-gh-pages:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download book artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book
+          path: docs/book/book
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
@@ -34,9 +65,28 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
 
+  deploy-vercel:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download book artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book
+          path: docs/book/book
+
+      - name: Download book-en artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book-en
+          path: docs/book-en/book
+
       - name: Deploy to Vercel
         run: |
           npm install -g vercel
           vercel deploy ./docs/book/book --yes --prod
+          vercel deploy ./docs/book-en/book --yes --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

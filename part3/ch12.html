@@ -1,0 +1,588 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第12章：Token 预算策略 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-7fa999ac.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第12章token-预算策略"><a class="header" href="#第12章token-预算策略">第12章：Token 预算策略</a></h1>
+<h2 id="为什么这很重要"><a class="header" href="#为什么这很重要">为什么这很重要</a></h2>
+<p>在第9-11章中，我们分析了 Claude Code 在上下文窗口“满“了之后如何压缩和修剪。但还有一个更基本的问题：<strong>在内容进入上下文窗口之前，如何控制它的大小？</strong></p>
+<p>一次 <code>grep</code> 返回 80KB 的搜索结果，一次 <code>cat</code> 读取 200KB 的日志文件，五个并行工具调用每个返回 50KB——这些都是真实场景。如果不加控制，单个工具结果就可能吃掉上下文窗口的四分之一，而一组并行工具调用则可能直接将上下文推到需要压缩的临界点。</p>
+<p>Token 预算策略是 Claude Code 上下文管理的“入口闸门“。它在三个层级运作：</p>
+<ol>
+<li><strong>单工具结果级别</strong>：超过阈值的结果持久化到磁盘，只向模型展示预览</li>
+<li><strong>单消息级别</strong>：一轮并行工具调用的结果总量不超过 200K 字符</li>
+<li><strong>Token 计数级别</strong>：通过规范 API 或粗略估算追踪上下文窗口使用量</li>
+</ol>
+<p>本章将深入这三个层级的实现，揭示其中的工程权衡——特别是并行工具调用场景下的 token 计数陷阱。</p>
+<hr>
+<h2 id="121-工具结果持久化50k-字符的入口闸门"><a class="header" href="#121-工具结果持久化50k-字符的入口闸门">12.1 工具结果持久化：50K 字符的入口闸门</a></h2>
+<h3 id="核心常量"><a class="header" href="#核心常量">核心常量</a></h3>
+<p>工具结果的大小控制围绕两个核心常量展开，定义在 <code>constants/toolLimits.ts</code> 中：</p>
+<pre><code class="language-text">// constants/toolLimits.ts:13
+export const DEFAULT_MAX_RESULT_SIZE_CHARS = 50_000
+
+// constants/toolLimits.ts:49
+export const MAX_TOOL_RESULTS_PER_MESSAGE_CHARS = 200_000
+</code></pre>
+<p>第一个常量是<strong>单工具结果</strong>的全局上限——当一个工具的输出超过 50,000 个字符时，完整内容被写入磁盘文件，模型只收到一个包含文件路径和前 2,000 字节预览的替代消息。第二个常量是<strong>单消息</strong>内所有工具结果的聚合上限，用于防范并行工具调用的累积效应。</p>
+<p>这两个常量之间的关系值得注意：200K / 50K = 4，意味着即使四个工具都各自达到单工具上限，它们在一条消息内仍然安全。但如果五个或更多并行工具同时返回接近上限的结果，就会触发消息级别的预算执行。</p>
+<h3 id="持久化阈值的计算"><a class="header" href="#持久化阈值的计算">持久化阈值的计算</a></h3>
+<p>单工具的持久化阈值并非简单等于 50K——它是一个多层决策：</p>
+<pre><code class="language-text">// utils/toolResultStorage.ts:55-78
+      // export function getPersistenceThreshold(
+  toolName: string,
+  declaredMaxResultSizeChars: number,
+): number {
+  // Infinity = hard opt-out
+  if (!Number.isFinite(declaredMaxResultSizeChars)) {
+    return declaredMaxResultSizeChars
+  }
+  const overrides = getFeatureValue_CACHED_MAY_BE_STALE&lt;Record&lt;
+    string, number
+  &gt; | null&gt;(PERSIST_THRESHOLD_OVERRIDE_FLAG, {})
+  const override = overrides?.[toolName]
+  if (
+    typeof override === 'number' &amp;&amp;
+    Number.isFinite(override) &amp;&amp;
+    override &gt; 0
+  ) {
+    return override
+  }
+  return Math.min(declaredMaxResultSizeChars, DEFAULT_MAX_RESULT_SIZE_CHARS)
+}
+</code></pre>
+<p>这个函数的决策逻辑构成一个优先级链：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>优先级</th><th>条件</th><th>结果</th></tr>
+</thead>
+<tbody>
+<tr><td>1（最高）</td><td>工具声明 <code>maxResultSizeChars: Infinity</code></td><td>永不持久化（Read 工具使用此机制）</td></tr>
+<tr><td>2</td><td>GrowthBook flag <code>tengu_satin_quoll</code> 中有该工具的覆盖值</td><td>使用远程覆盖值</td></tr>
+<tr><td>3</td><td>工具声明了自定义 <code>maxResultSizeChars</code></td><td><code>Math.min(声明值, 50_000)</code></td></tr>
+<tr><td>4（默认）</td><td>无特殊声明</td><td>50,000 字符</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 12-1：单工具持久化阈值优先级链</strong></p>
+<p>第一个优先级特别有意思：Read 工具将自己的 <code>maxResultSizeChars</code> 设为 <code>Infinity</code>，意味着它<strong>永远不会</strong>被持久化。源码注释（第59-61行）解释了原因——Read 工具的输出如果被持久化到文件，模型就需要再次调用 Read 去读取那个文件，形成循环。Read 工具通过自己的 <code>maxTokens</code> 参数控制输出大小，不依赖通用的持久化机制。</p>
+<h3 id="持久化流程"><a class="header" href="#持久化流程">持久化流程</a></h3>
+<p>当工具结果超过阈值时，<code>maybePersistLargeToolResult</code> 函数执行以下流程：</p>
+<pre><code class="language-mermaid">flowchart TD
+    A["工具执行完成，产生结果"] --&gt; B{"结果内容为空？"}
+    B --&gt;|是| C["注入占位符文本&lt;br /&gt;(toolName completed with no output)"]
+    B --&gt;|否| D{"包含图片 block？"}
+    D --&gt;|是| E["原样返回&lt;br /&gt;（图片必须发送给模型）"]
+    D --&gt;|否| F{"size ≤ 阈值？"}
+    F --&gt;|是| G["原样返回"]
+    F --&gt;|否| H["persistToolResult()&lt;br /&gt;写入磁盘文件，生成 2KB 预览"]
+    H --&gt; I["buildLargeToolResultMessage()&lt;br /&gt;构建替代消息：&lt;br /&gt;persisted-output 文件路径 + 预览"]
+</code></pre>
+<p><strong>图 12-1：工具结果持久化决策流程</strong></p>
+<p>有两个值得关注的实现细节：</p>
+<p><strong>空结果的特殊处理</strong>（第280-295行）：空的 <code>tool_result</code> 内容会导致某些模型（注释中提到 “capybara”）误判为对话轮次边界，从而错误地结束输出。这是因为服务端渲染器在 <code>tool_result</code> 之后不插入 <code>\n\nAssistant:</code> 标记，空内容会匹配到 <code>\n\nHuman:</code> 的停止序列模式。解决方案是注入一个简短的占位字符串 <code>(toolName completed with no output)</code>。</p>
+<p><strong>文件写入的幂等性</strong>（第161-172行）：<code>persistToolResult</code> 使用 <code>flag: 'wx'</code> 写入文件，这意味着如果文件已存在则抛出 <code>EEXIST</code> 错误——函数捕获并忽略这个错误。这个设计是为了应对 microcompact 重放原始消息时的重复持久化问题：<code>tool_use_id</code> 在每次调用中是唯一的，相同 ID 的内容是确定性的，所以跳过已存在的文件是安全的。</p>
+<h3 id="持久化后的消息格式"><a class="header" href="#持久化后的消息格式">持久化后的消息格式</a></h3>
+<p>当结果被持久化后，模型实际看到的消息如下：</p>
+<pre><code class="language-xml">&lt;persisted-output&gt;
+Output too large (82.3 KB). Full output saved to:
+  /path/to/session/tool-results/toolu_01XYZ.txt
+
+Preview (first 2.0 KB):
+[前 2000 字节的内容，在换行符处截断]
+...
+&lt;/persisted-output&gt;
+</code></pre>
+<p>预览的生成逻辑（第339-356行）会尽量在换行符处截断，避免切断一行的中间位置。如果最后一个换行符的位置在限制值的 50% 之前（意味着要么只有一行，要么行非常长），则回退到精确的字节限制。</p>
+<hr>
+<h2 id="122-单消息预算200k-聚合上限"><a class="header" href="#122-单消息预算200k-聚合上限">12.2 单消息预算：200K 聚合上限</a></h2>
+<h3 id="为什么需要消息级别的预算"><a class="header" href="#为什么需要消息级别的预算">为什么需要消息级别的预算</a></h3>
+<p>单工具的 50K 上限不足以应对并行工具调用的场景。考虑这种情况：模型同时发起 10 个 <code>Grep</code> 调用搜索不同的关键词，每个返回 40K 字符——单独看都在 50K 阈值以下，但合计 400K 字符将在一条 user 消息中发送给 API。这会立即消耗大量上下文窗口，可能触发不必要的压缩。</p>
+<p><code>MAX_TOOL_RESULTS_PER_MESSAGE_CHARS = 200_000</code>（第49行）就是为这个场景设计的聚合预算。注释（第40-48行）明确说明了核心设计原则：<strong>消息之间独立评估</strong>——一轮对话中 150K 的结果和另一轮中 150K 的结果各自都在预算内，不会互相影响。</p>
+<h3 id="消息分组的复杂性"><a class="header" href="#消息分组的复杂性">消息分组的复杂性</a></h3>
+<p>并行工具调用在 Claude Code 内部的消息表示并不简单。当模型发起多个并行工具调用时，流式处理代码为每个 <code>content_block_stop</code> 事件产生一个<strong>独立的</strong> AssistantMessage 记录，然后每个 <code>tool_result</code> 作为独立的 user 消息紧随其后。所以内部消息数组看起来像：</p>
+<pre><code>[..., assistant(id=A), user(result_1), assistant(id=A), user(result_2), ...]
+</code></pre>
+<p>注意多个 assistant 记录<strong>共享同一个 <code>message.id</code></strong>。但在发送给 API 之前，<code>normalizeMessagesForAPI</code> 会将连续的 user 消息合并为一条。消息级别的预算必须按照 API 看到的分组方式工作，而不是内部的分散表示。</p>
+<p><code>collectCandidatesByMessage</code> 函数（第600-638行）实现了这个分组逻辑。它将消息按“assistant 消息边界“分组——只有<strong>未曾见过的</strong> assistant <code>message.id</code> 才创建新的分组边界：</p>
+<pre><code class="language-text">// utils/toolResultStorage.ts:624-635
+const seenAsstIds = new Set&lt;string&gt;()
+for (const message of messages) {
+  if (message.type === 'user') {
+    current.push(...collectCandidatesFromMessage(message))
+  } else if (message.type === 'assistant') {
+    if (!seenAsstIds.has(message.message.id)) {
+      flush()
+      seenAsstIds.add(message.message.id)
+    }
+  }
+}
+</code></pre>
+<p>这里有一个微妙的边界情况：当并行工具执行中发生中止（abort），<code>agent_progress</code> 消息可能插入到 tool_result 消息之间。如果在 progress 消息处创建分组边界，那些 tool_result 就会被拆分到不同的低于预算的小组中，绕过了聚合预算检查——但 <code>normalizeMessagesForAPI</code> 会在线路上把它们合并为一条超预算的大消息。代码通过只在 assistant 消息处分组（忽略 progress、attachment 等类型）来避免这个问题。</p>
+<h3 id="预算执行与状态冻结"><a class="header" href="#预算执行与状态冻结">预算执行与状态冻结</a></h3>
+<p>消息级别预算的核心机制是 <code>enforceToolResultBudget</code> 函数（第769-908行）。它的设计围绕一个关键约束：<strong>prompt cache 稳定性</strong>。一旦模型看到了某个工具结果（无论是完整内容还是替代预览），这个决策在后续所有 API 调用中必须保持一致。否则，前缀变化会导致 prompt cache 失效。</p>
+<p>这引出了“三态分区“机制：</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph CRS["ContentReplacementState"]
+        direction TB
+        S["seenIds: Set &amp;lt; string &amp;gt;&lt;br /&gt;replacements: Map &amp;lt; string, string &amp;gt;"]
+        subgraph States["三种状态"]
+            direction LR
+            MA["mustReapply&lt;br /&gt;在 seenIds 且有替换内容&lt;br /&gt;→ 重新应用缓存的替换"]
+            FR["frozen&lt;br /&gt;在 seenIds 但无替换&lt;br /&gt;→ 不可变更，原样保留"]
+            FH["fresh&lt;br /&gt;不在 seenIds 中的新结果&lt;br /&gt;→ 可被选中进行替换"]
+        S --&gt; States
+</code></pre>
+<p><strong>图 12-2：工具结果三态分区与状态转换</strong></p>
+<p>每轮 API 调用前的执行流程：</p>
+<ol>
+<li><strong>对每个消息分组</strong>，将候选的 tool_result 按上述三态分区</li>
+<li><strong>mustReapply</strong>：从 Map 中取出之前缓存的替代字符串，原样重新应用——零 I/O，字节级一致</li>
+<li><strong>frozen</strong>：之前看过但没有被替换的结果——不可再替换（否则会破坏 prompt cache 前缀）</li>
+<li><strong>fresh</strong>：本轮新增的结果——检查聚合预算，超预算时按大小降序选择最大的结果进行持久化</li>
+</ol>
+<p>选择哪些 fresh 结果进行替换的逻辑在 <code>selectFreshToReplace</code>（第675-692行）中：按大小降序排列，逐一选中直到剩余总量（frozen + 未选中的 fresh）降到预算限制以下。如果仅 frozen 结果就超过了预算，则接受超额——microcompact 最终会清理它们。</p>
+<h3 id="状态标记的时序"><a class="header" href="#状态标记的时序">状态标记的时序</a></h3>
+<p>代码中有一个精心设计的时序约束（第833-842行）。未被选中持久化的候选者<strong>立即同步</strong>标记为 seen（加入 <code>seenIds</code>），而被选中持久化的候选者则在 <code>await persistToolResult()</code> 完成后才标记——这保证了 <code>seenIds.has(id)</code> 和 <code>replacements.has(id)</code> 的一致性。注释解释了原因：如果一个 ID 出现在 <code>seenIds</code> 中但不在 <code>replacements</code> 中，它会被分类为 frozen（不可替换），导致完整内容被发送；而同时主线程可能发送的是预览——两边不一致会导致 prompt cache 失效。</p>
+<hr>
+<h2 id="123-token-计数规范-vs-粗略估算"><a class="header" href="#123-token-计数规范-vs-粗略估算">12.3 Token 计数：规范 vs 粗略估算</a></h2>
+<h3 id="两种计数机制"><a class="header" href="#两种计数机制">两种计数机制</a></h3>
+<p>Claude Code 维护两套 token 计数机制，适用于不同场景：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>特性</th><th>规范计数（API usage）</th><th>粗略估算</th></tr>
+</thead>
+<tbody>
+<tr><td>数据来源</td><td>API 响应中的 <code>usage</code> 字段</td><td>字符长度 / 字节-per-token 系数</td></tr>
+<tr><td>精确度</td><td>精确</td><td>偏差可达 ±50%</td></tr>
+<tr><td>可用时机</td><td>API 调用完成后</td><td>任何时刻</td></tr>
+<tr><td>用途</td><td>阈值判断、预算计算、计费</td><td>填补 API 调用间的空白</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 12-2：Token 计数两种机制对比</strong></p>
+<h3 id="规范计数从-api-usage-到上下文大小"><a class="header" href="#规范计数从-api-usage-到上下文大小">规范计数：从 API Usage 到上下文大小</a></h3>
+<p>API 响应的 <code>usage</code> 对象包含多个字段，<code>getTokenCountFromUsage</code> 函数（<code>utils/tokens.ts:46-53</code>）将它们组合为完整的上下文窗口大小：</p>
+<pre><code class="language-text">// utils/tokens.ts:46-53
+      // export function getTokenCountFromUsage(usage: Usage): number {
+  return (
+    usage.input_tokens +
+    (usage.cache_creation_input_tokens ?? 0) +
+    (usage.cache_read_input_tokens ?? 0) +
+    usage.output_tokens
+  )
+}
+</code></pre>
+<p>这个计算包含了四个组成部分：<code>input_tokens</code>（本次请求的非缓存输入）、<code>cache_creation_input_tokens</code>（本次新写入缓存的 token）、<code>cache_read_input_tokens</code>（从缓存读取的 token）和 <code>output_tokens</code>（模型生成的输出）。注意缓存相关的字段是可选的（<code>?? 0</code>），因为不是所有 API 提供方都返回这些字段。</p>
+<h3 id="粗略估算4-字节token-规则"><a class="header" href="#粗略估算4-字节token-规则">粗略估算：4 字节/token 规则</a></h3>
+<p>当 API usage 不可用时——例如在两次 API 调用之间新增了消息——Claude Code 使用字符长度除以经验系数来估算 token 数。核心估算函数在 <code>services/tokenEstimation.ts:203-208</code>：</p>
+<pre><code class="language-text">// services/tokenEstimation.ts:203-208
+      // export function roughTokenCountEstimation(
+  content: string,
+  bytesPerToken: number = 4,
+): number {
+  return Math.round(content.length / bytesPerToken)
+}
+</code></pre>
+<p>默认的 4 字节/token 是一个保守估算。Claude 的 tokenizer 对英文文本的实际比率约在 3.5-4.5 之间，取 4 作为经验中位数。但不同内容类型的实际比率差异很大：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>内容类型</th><th>字节/Token 系数</th><th>来源</th></tr>
+</thead>
+<tbody>
+<tr><td>普通文本（英文、代码）</td><td>4</td><td>默认值（<code>tokenEstimation.ts:204</code>）</td></tr>
+<tr><td>JSON / JSONL / JSONC</td><td>2</td><td><code>bytesPerTokenForFileType</code>（<code>tokenEstimation.ts:216-224</code>）</td></tr>
+<tr><td>图片（image block）</td><td>固定 2,000 token</td><td><code>roughTokenCountEstimationForBlock</code>（第400-412行）</td></tr>
+<tr><td>PDF 文档（document block）</td><td>固定 2,000 token</td><td>同上</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 12-3：文件类型感知的 Token 估算规则汇总</strong></p>
+<p>JSON 文件使用 2 而非 4 的原因在注释（第213-215行）中解释得很清楚：<strong>密集的 JSON 包含大量单字符 token</strong>（<code>{</code>、<code>}</code>、<code>:</code>、<code>,</code>、<code>"</code>），这使得每个 token 平均只对应约 2 个字节。如果仍然用 4 来估算，一个 100KB 的 JSON 文件会被估算为 25K token，而实际可能接近 50K——这个低估可能导致超大的工具结果未被持久化，悄悄进入上下文。</p>
+<p><code>bytesPerTokenForFileType</code>（第215-224行）根据文件扩展名返回不同的系数：</p>
+<pre><code class="language-text">// services/tokenEstimation.ts:215-224
+      // export function bytesPerTokenForFileType(fileExtension: string): number {
+  switch (fileExtension) {
+    case 'json':
+    case 'jsonl':
+    case 'jsonc':
+      return 2
+    default:
+      return 4
+  }
+}
+</code></pre>
+<h3 id="图片和文档的固定估算"><a class="header" href="#图片和文档的固定估算">图片和文档的固定估算</a></h3>
+<p>图片和 PDF 文档是特殊情况。API 对图片的实际 token 计费是 <code>(width × height) / 750</code>，图片会被缩放到最大 2000×2000 像素（约 5,333 token）。但在粗略估算中，Claude Code 统一使用 <strong>2,000 token</strong> 的固定值（第400-412行）。</p>
+<p>这里有一个重要的工程考量：如果图片或 PDF 的 <code>source.data</code>（base64 编码）被送入通用的 JSON 序列化路径，一个 1MB 的 PDF 会产生约 1.33M 的 base64 字符，按 4 字节/token 估算就是约 325K token——远高于 API 实际收费的 ~2,000 token。因此代码在通用估算之前显式检查 <code>block.type === 'image' || block.type === 'document'</code> 并提前返回固定值，避免灾难性的高估。</p>
+<hr>
+<h2 id="124-并行工具调用的-token-计数陷阱"><a class="header" href="#124-并行工具调用的-token-计数陷阱">12.4 并行工具调用的 Token 计数陷阱</a></h2>
+<h3 id="消息交错问题"><a class="header" href="#消息交错问题">消息交错问题</a></h3>
+<p>并行工具调用引入了一个微妙但严重的 token 计数问题。<code>tokenCountWithEstimation</code>——Claude Code 中用于阈值判断的<strong>规范函数</strong>——的实现（<code>utils/tokens.ts:226-261</code>）包含了对这个问题的详细分析。</p>
+<p>问题的根源在于消息数组的交错结构。当模型发起两个并行工具调用时，内部消息数组呈现如下形式：</p>
+<pre><code>索引:  ... i-3       i-2         i-1          i
+消息:  ... asst(A)   user(tr_1)  asst(A)      user(tr_2)
+            ↑ usage              ↑ 相同 usage
+</code></pre>
+<p>两个 assistant 记录<strong>共享同一个 <code>message.id</code> 和相同的 <code>usage</code></strong>（因为它们来自同一个 API 响应的不同 content block）。如果简单地从后往前找到第一个有 <code>usage</code> 的 assistant 消息（索引 i-1），然后估算它之后的消息（只有索引 i 处的 <code>user(tr_2)</code>），就会<strong>遗漏</strong>索引 i-2 处的 <code>user(tr_1)</code>。</p>
+<p>但在下一次 API 请求中，<code>user(tr_1)</code> 和 <code>user(tr_2)</code> <strong>都会</strong>出现在输入中。这意味着 <code>tokenCountWithEstimation</code> 会系统性地低估上下文大小。</p>
+<pre><code>             实际上下文中包含的内容
+    ┌──────────────────────────────────────┐
+    │ asst(A) user(tr_1) asst(A) user(tr_2)│
+    └──────────────────────────────────────┘
+              ↑                   ↑
+              遗漏!                只估算了这个
+
+             修正后的估算范围
+    ┌──────────────────────────────────────┐
+    │ asst(A) user(tr_1) asst(A) user(tr_2)│
+    └──────────────────────────────────────┘
+    ↑ 回溯到首个同 ID 的 assistant          ↑
+    从这里开始估算所有后续消息
+</code></pre>
+<p><strong>图 12-3：并行工具调用的 token 计数回溯修正</strong></p>
+<h3 id="同-id-回溯修正"><a class="header" href="#同-id-回溯修正">同 ID 回溯修正</a></h3>
+<p><code>tokenCountWithEstimation</code> 的解决方案是在找到最后一个有 usage 的 assistant 记录后，<strong>向前回溯</strong>到共享同一 <code>message.id</code> 的第一个 assistant 记录：</p>
+<pre><code class="language-text">// utils/tokens.ts:235-250
+const responseId = getAssistantMessageId(message)
+if (responseId) {
+  let j = i - 1
+  while (j &gt;= 0) {
+    const prior = messages[j]
+    const priorId = prior ? getAssistantMessageId(prior) : undefined
+    if (priorId === responseId) {
+      i = j  // 锚定到更早的同 ID 记录
+    } else if (priorId !== undefined) {
+      break  // 遇到不同 API 响应，停止回溯
+    }
+    j--
+  }
+}
+</code></pre>
+<p>注意回溯逻辑中的三种情况：</p>
+<ol>
+<li><code>priorId === responseId</code>：同一 API 响应的更早分片——将锚点移到这里</li>
+<li><code>priorId !== undefined</code>（且不同 ID）：遇到了另一个 API 响应——停止回溯</li>
+<li><code>priorId === undefined</code>：这是 user/tool_result/attachment 消息——可能是分片之间交错的工具结果，继续回溯</li>
+</ol>
+<p>回溯完成后，从锚点之后的所有消息（包括所有交错的 tool_result）都会被纳入粗略估算：</p>
+<pre><code class="language-text">// utils/tokens.ts:253-256
+return (
+  getTokenCountFromUsage(usage) +
+  roughTokenCountEstimationForMessages(messages.slice(i + 1))
+)
+</code></pre>
+<p>最终的上下文大小 = 最后一次 API 响应的精确 usage + 此后所有新增消息的粗略估算。这种“精确基线 + 增量估算“的混合方法平衡了精度和性能。</p>
+<h3 id="何时不应使用哪个函数"><a class="header" href="#何时不应使用哪个函数">何时不应使用哪个函数</a></h3>
+<p>源码中的注释（第118-121行，第207-212行）反复强调了函数选择的重要性：</p>
+<ul>
+<li><strong><code>tokenCountWithEstimation</code></strong>：<strong>规范函数</strong>，用于所有阈值比较（自动压缩触发、会话记忆初始化等）</li>
+<li><strong><code>tokenCountFromLastAPIResponse</code></strong>：只返回最后一次 API 调用的精确 token 总量，不包含新增消息的估算——不适合阈值判断</li>
+<li><strong><code>messageTokenCountFromLastAPIResponse</code></strong>：只返回 <code>output_tokens</code>——仅用于衡量模型单次生成了多少 token，不反映上下文窗口的使用量</li>
+</ul>
+<p>误用这些函数的后果是实际的：如果用 <code>messageTokenCountFromLastAPIResponse</code> 来判断是否需要压缩，返回值可能只有几千（一次助手回复的输出），而实际上下文已经超过 180K——压缩永远不会触发，最终导致 API 调用因超过窗口限制而失败。</p>
+<hr>
+<h2 id="125-辅助计数api-token-计数与-haiku-回退"><a class="header" href="#125-辅助计数api-token-计数与-haiku-回退">12.5 辅助计数：API token 计数与 Haiku 回退</a></h2>
+<h3 id="counttokens-api"><a class="header" href="#counttokens-api">countTokens API</a></h3>
+<p>除了粗略估算，Claude Code 还可以通过 API 获取精确的 token 计数。<code>countMessagesTokensWithAPI</code>（<code>services/tokenEstimation.ts:140-201</code>）调用 <code>anthropic.beta.messages.countTokens</code> 端点，传入完整的消息列表和工具定义，获取精确的 <code>input_tokens</code> 值。</p>
+<p>这个 API 用于需要精确计数的场景（如工具定义的 token 开销评估），但有延迟开销——它需要一次额外的 HTTP 往返。因此日常的阈值判断使用 <code>tokenCountWithEstimation</code> 的混合方法，只在特定场景下使用 API 计数。</p>
+<h3 id="haiku-回退方案"><a class="header" href="#haiku-回退方案">Haiku 回退方案</a></h3>
+<p>当 <code>countTokens</code> API 不可用（例如某些 Bedrock 配置）时，<code>countTokensViaHaikuFallback</code>（第251-325行）使用一种巧妙的替代方案：向 Haiku（小模型）发送一个 <code>max_tokens: 1</code> 的请求，利用返回的 <code>usage</code> 获取精确的输入 token 数。代价是消耗一次小模型调用的 API 费用，但获得了精确度。</p>
+<p>函数在选择回退模型时需要考虑多个平台约束：</p>
+<ul>
+<li><strong>Vertex 全局区域</strong>：Haiku 不可用，回退到 Sonnet</li>
+<li><strong>Bedrock + thinking blocks</strong>：Haiku 3.5 不支持 thinking，回退到 Sonnet</li>
+<li><strong>其他情况</strong>：使用 Haiku（成本最低）</li>
+</ul>
+<hr>
+<h2 id="126-端到端的-token-预算体系"><a class="header" href="#126-端到端的-token-预算体系">12.6 端到端的 Token 预算体系</a></h2>
+<p>将上述所有机制组合起来，Claude Code 的 token 预算形成一个多层防御体系：</p>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph L1["第1层：单工具结果持久化"]
+        L1D["工具执行 → 结果 &gt; 阈值？ → 持久化到磁盘 + 2KB 预览&lt;br /&gt;阈值 = min(工具声明值, 50K) 或 GrowthBook 覆盖&lt;br /&gt;特例：Read (Infinity), 图片 (跳过)"]
+    subgraph L2["第2层：单消息聚合预算"]
+        L2D["API 调用前 → tool_result 总量 &gt; 200K？&lt;br /&gt;→ 按大小降序持久化 fresh 结果，直到总量 ≤ 200K&lt;br /&gt;→ 状态冻结：seen 结果命运永不改变（prompt cache 稳定性）"]
+    subgraph L3["第3层：上下文窗口追踪"]
+        L3D["tokenCountWithEstimation() = 精确 usage + 增量粗略估算&lt;br /&gt;→ 驱动自动压缩、微压缩等决策&lt;br /&gt;→ 并行工具调用：同 ID 回溯修正，避免系统性低估"]
+    subgraph L4["第4层：自动压缩 / 微压缩（详见第9-11章）"]
+        L4D["上下文接近窗口限制 → 压缩历史消息 / 清理旧工具结果"]
+    L1 --&gt;|"未拦截则进入"| L2
+    L2 --&gt;|"未拦截则进入"| L3
+    L3 --&gt;|"超过阈值触发"| L4
+</code></pre>
+<p><strong>图 12-4：Token 预算的四层防御体系</strong></p>
+<p>每一层都有明确的职责边界和失败后的降级路径：</p>
+<ul>
+<li>第1层失败（持久化磁盘出错）→ 原样返回完整结果，第2层和第4层兜底</li>
+<li>第2层的 frozen 结果无法替换 → 接受超额，由第4层的 microcompact 最终清理</li>
+<li>第3层的粗略估算不准确 → 可能导致压缩触发过早或过晚，但不会导致数据丢失</li>
+</ul>
+<h3 id="growthbook-动态调参"><a class="header" href="#growthbook-动态调参">GrowthBook 动态调参</a></h3>
+<p>两个核心阈值都可以通过 GrowthBook feature flag 在运行时调整，无需发布新版本：</p>
+<ul>
+<li><strong><code>tengu_satin_quoll</code></strong>：单工具持久化阈值的 per-tool 覆盖 map</li>
+<li><strong><code>tengu_hawthorn_window</code></strong>：单消息聚合预算的全局覆盖值</li>
+</ul>
+<p><code>getPerMessageBudgetLimit</code>（第421-434行）展示了覆盖逻辑的防御性编码——对 GrowthBook 返回的值进行 <code>typeof</code>、<code>isFinite</code>、<code>&gt; 0</code> 三重检查，因为缓存层可能泄漏 <code>null</code>、<code>NaN</code> 或字符串类型的值。</p>
+<hr>
+<h2 id="127-用户能做什么"><a class="header" href="#127-用户能做什么">12.7 用户能做什么</a></h2>
+<h3 id="1271-控制工具输出大小"><a class="header" href="#1271-控制工具输出大小">12.7.1 控制工具输出大小</a></h3>
+<p>当你的 <code>grep</code> 或 <code>bash</code> 命令返回大量输出时（超过 50K 字符），结果会被持久化到磁盘，模型只能看到前 2KB 的预览。为了避免这种信息损失，尽量使用更精确的搜索条件——比如用 <code>grep -l</code>（只列文件名）替代全文搜索，或者用 <code>head -n 100</code> 限制命令输出。这样模型能看到完整结果，而不是被截断的预览。</p>
+<h3 id="1272-注意并行工具调用的累积效应"><a class="header" href="#1272-注意并行工具调用的累积效应">12.7.2 注意并行工具调用的累积效应</a></h3>
+<p>当模型同时发起多个搜索时，所有结果的聚合大小受 200K 字符限制。如果你要求模型“同时搜索这 10 个关键词“，部分结果可能因超出预算而被持久化。考虑将大规模搜索拆分为几轮较小的搜索，或者让模型逐步搜索以保持每轮结果在预算内。</p>
+<h3 id="1273-json-文件的特殊考量"><a class="header" href="#1273-json-文件的特殊考量">12.7.3 JSON 文件的特殊考量</a></h3>
+<p>JSON 文件的 token 密度是普通代码的 2 倍（每 token 约 2 字节 vs 4 字节）。这意味着一个 100KB 的 JSON 文件实际消耗约 50K token，而同等大小的 TypeScript 文件只消耗约 25K token。当你让模型读取大型 JSON 配置或数据文件时，要意识到它们对上下文窗口的压力更大。</p>
+<h3 id="1274-利用-read-工具的特殊地位"><a class="header" href="#1274-利用-read-工具的特殊地位">12.7.4 利用 Read 工具的特殊地位</a></h3>
+<p>Read 工具的输出永远不会被持久化到磁盘——它通过自己的 <code>maxTokens</code> 参数控制大小。这意味着通过 Read 读取的文件内容始终直接呈现给模型，不会被截断为 2KB 预览。如果你需要模型完整看到某个文件的内容，使用 Read 比 <code>cat</code> 命令更可靠。</p>
+<h3 id="1275-关注-token-计数的粗略估算偏差"><a class="header" href="#1275-关注-token-计数的粗略估算偏差">12.7.5 关注 token 计数的粗略估算偏差</a></h3>
+<p>Claude Code 在两次 API 调用之间使用粗略估算（字符数 / 4）来追踪上下文大小，偏差可达 ±50%。这意味着自动压缩的触发时机可能早于或晚于预期。如果你观察到压缩在意想不到的时机发生，这通常是估算偏差导致的正常行为，而非 bug。</p>
+<hr>
+<h2 id="128-设计洞察"><a class="header" href="#128-设计洞察">12.8 设计洞察</a></h2>
+<h3 id="保守估算-vs-激进估算"><a class="header" href="#保守估算-vs-激进估算">保守估算 vs 激进估算</a></h3>
+<p>Token 预算体系中反复出现的设计取舍是：<strong>宁可高估 token 数量，也不要低估</strong>。</p>
+<ul>
+<li>JSON 使用 2 字节/token 而非 4，是因为低估会导致超大结果未被持久化</li>
+<li>图片使用固定 2,000 token 而非 base64 长度估算，是因为后者会导致灾难性高估（上下文看起来“满“了但其实不满）</li>
+<li>并行工具调用的回溯修正，是因为遗漏 tool_result 会导致系统性低估</li>
+</ul>
+<p>这些选择体现了一个原则：<strong>token 预算是一个安全机制而非优化机制</strong>。高估的代价是提前触发压缩（轻微的性能损失），低估的代价是上下文窗口溢出（API 调用失败）。</p>
+<h3 id="prompt-cache-对预算设计的深层影响"><a class="header" href="#prompt-cache-对预算设计的深层影响">Prompt Cache 对预算设计的深层影响</a></h3>
+<p>消息级别预算的大部分复杂性——三态分区、状态冻结、字节级一致的重新应用——都源于一个外部约束：prompt cache 要求前缀稳定。如果没有 prompt cache，每轮 API 调用前可以自由地重新评估所有工具结果是否需要持久化。但 prompt cache 的存在意味着一旦模型“看到了“某个工具结果的完整内容，后续调用必须继续发送完整内容（否则前缀变化导致缓存失效）。</p>
+<p>这个约束将一个本可以是无状态的函数（“检查大小，超标则替换”）变成了一个<strong>有状态的状态机</strong>（<code>ContentReplacementState</code>），而且状态必须跨越会话恢复（resume）存活——这就是 <code>ContentReplacementRecord</code> 被持久化到 transcript 的原因。</p>
+<p>这是一个典型的例子：<strong>在 AI Agent 系统中，性能优化（prompt cache）会反向约束功能设计（预算执行），形成意想不到的架构耦合</strong>。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part3/ch11.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part4/ch13.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part3/ch11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part4/ch13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

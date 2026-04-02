@@ -1,3 +1,4 @@
 {
-  "outputDirectory": "docs/book/book"
+  "outputDirectory": "docs/book/book",
+  "buildCommand": "echo 'Using pre-built static files'"
 }

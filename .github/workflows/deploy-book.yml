@@ -32,6 +32,10 @@ jobs:
           source $HOME/.cargo/env
           mdbook build docs/book-en
 
+      - name: Prepare combined output
+        run: |
+          cp -r docs/book-en/book docs/book/book/en
+
       - name: Upload book artifact
         uses: actions/upload-artifact@v4
         with:

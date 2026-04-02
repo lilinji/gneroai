@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>前言 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+        <title>附录 B：环境变量参考 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
 
 
         <!-- Custom HTML head -->
@@ -12,34 +12,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="favicon-8114d1fc.png">
-        <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-2459343d.css">
-        <link rel="stylesheet" href="css/chrome-ae938929.css">
-        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="language-switcher-a43b6e13.css">
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-7fa999ac.js";
+            window.path_to_searchindex_js = "../searchindex-7fa999ac.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-056531fb.js"></script>
+        <script src="../toc-056531fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +106,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                     <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -175,32 +175,178 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="前言"><a class="header" href="#前言">前言</a></h1>
-<p align="center">
-  <img src="./assets/cover-zh.jpeg" alt="《马书》封面" width="420">
-</p>
-
-<p align="center">
-  <a href="./en/">Read in English (Preview)</a>
-</p>
-
-<p>《驾驭工程》，中文别名《马书》。</p>
-<p>我认为，Claude Code 源码最佳的“食用”姿势应该是转化为一本书，供自己系统学习。对我来说，看书学习比直接看源码更舒服，也更容易形成完整的认知框架。</p>
-<p>为了尽可能保证 AI 写作质量，这本书的提取过程并不是“把源码丢给模型直接生成”那么简单，而是按一条比较严格的工程流程推进的：</p>
-<ol>
-<li>先根据源码把 <code>DESIGN.md</code> 聊清楚，也就是先把整本书的大纲和设计定下来。</li>
-<li>然后为每一章编写 spec，基于我开源的 <code>agent-spec</code> 来约束章节目标、边界和验收标准。</li>
-<li>接着再做 plan，把具体执行步骤拆开。</li>
-<li>最后再叠加我自己的技术写作 skill，才让 AI 开始正式写作。</li>
-</ol>
-<p>这本书并不是为了出版，而是为了让我能更系统地学习 Claude Code。我对它的基本判断是：AI 肯定写不得十全十美，但只要把初始版本开源出来，大家就可以一边阅读、一边讨论、一边逐步完善它，把它共建成一本真正有价值的公版书。</p>
+                        <h1 id="附录-b环境变量参考"><a class="header" href="#附录-b环境变量参考">附录 B：环境变量参考</a></h1>
+<p>本附录列出 Claude Code v2.1.88 中用户可配置的关键环境变量。按功能域分组，仅列出影响用户可见行为的变量，省略内部遥测和平台检测类变量。</p>
+<h2 id="上下文压缩"><a class="header" href="#上下文压缩">上下文压缩</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_AUTO_COMPACT_WINDOW</code></td><td>覆盖上下文窗口大小（token）</td><td>模型默认值</td></tr>
+<tr><td><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code></td><td>以百分比覆盖自动压缩阈值（0-100）</td><td>计算值</td></tr>
+<tr><td><code>DISABLE_AUTO_COMPACT</code></td><td>完全禁用自动压缩</td><td><code>false</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="effort-与推理"><a class="header" href="#effort-与推理">Effort 与推理</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>有效值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_EFFORT_LEVEL</code></td><td>覆盖 effort 级别</td><td><code>low</code>、<code>medium</code>、<code>high</code>、<code>max</code>、<code>auto</code>、<code>unset</code></td></tr>
+<tr><td><code>CLAUDE_CODE_DISABLE_FAST_MODE</code></td><td>禁用 Fast Mode 加速输出</td><td><code>true</code>/<code>false</code></td></tr>
+<tr><td><code>DISABLE_INTERLEAVED_THINKING</code></td><td>禁用扩展思考</td><td><code>true</code>/<code>false</code></td></tr>
+<tr><td><code>MAX_THINKING_TOKENS</code></td><td>覆盖思考 token 上限</td><td>模型默认值</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="工具与输出限制"><a class="header" href="#工具与输出限制">工具与输出限制</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>BASH_MAX_OUTPUT_LENGTH</code></td><td>Bash 命令最大输出字符数</td><td>8,000</td></tr>
+<tr><td><code>CLAUDE_CODE_GLOB_TIMEOUT_SECONDS</code></td><td>Glob 搜索超时（秒）</td><td>默认值</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="权限与安全"><a class="header" href="#权限与安全">权限与安全</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>注意</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_DUMP_AUTO_MODE</code></td><td>导出 YOLO 分类器请求/响应</td><td>仅调试用</td></tr>
+<tr><td><code>CLAUDE_CODE_DISABLE_COMMAND_INJECTION_CHECK</code></td><td>禁用 Bash 命令注入检测</td><td>降低安全性</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="api-与认证"><a class="header" href="#api-与认证">API 与认证</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>安全等级</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ANTHROPIC_API_KEY</code></td><td>Anthropic API 认证密钥</td><td>凭证</td></tr>
+<tr><td><code>ANTHROPIC_BASE_URL</code></td><td>自定义 API 端点（代理支持）</td><td>可重定向</td></tr>
+<tr><td><code>ANTHROPIC_MODEL</code></td><td>覆盖默认模型</td><td>安全</td></tr>
+<tr><td><code>CLAUDE_CODE_USE_BEDROCK</code></td><td>通过 AWS Bedrock 路由推理</td><td>安全</td></tr>
+<tr><td><code>CLAUDE_CODE_USE_VERTEX</code></td><td>通过 Google Vertex AI 路由推理</td><td>安全</td></tr>
+<tr><td><code>CLAUDE_CODE_EXTRA_BODY</code></td><td>向 API 请求追加额外字段</td><td>高级用途</td></tr>
+<tr><td><code>ANTHROPIC_CUSTOM_HEADERS</code></td><td>自定义 HTTP 请求头</td><td>安全</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="模型选择"><a class="header" href="#模型选择">模型选择</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>示例</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code></td><td>自定义 Haiku 模型 ID</td><td>模型字符串</td></tr>
+<tr><td><code>ANTHROPIC_DEFAULT_SONNET_MODEL</code></td><td>自定义 Sonnet 模型 ID</td><td>模型字符串</td></tr>
+<tr><td><code>ANTHROPIC_DEFAULT_OPUS_MODEL</code></td><td>自定义 Opus 模型 ID</td><td>模型字符串</td></tr>
+<tr><td><code>ANTHROPIC_SMALL_FAST_MODEL</code></td><td>快速推理模型（如用于摘要）</td><td>模型字符串</td></tr>
+<tr><td><code>CLAUDE_CODE_SUBAGENT_MODEL</code></td><td>子 Agent 使用的模型</td><td>模型字符串</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="提示词缓存"><a class="header" href="#提示词缓存">提示词缓存</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_ENABLE_PROMPT_CACHING</code></td><td>启用提示词缓存</td><td><code>true</code></td></tr>
+<tr><td><code>DISABLE_PROMPT_CACHING</code></td><td>完全禁用提示词缓存</td><td><code>false</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="会话与调试"><a class="header" href="#会话与调试">会话与调试</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>用途</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_DEBUG_LOG_LEVEL</code></td><td>日志详细程度</td><td><code>silent</code>/<code>error</code>/<code>warn</code>/<code>info</code>/<code>verbose</code></td></tr>
+<tr><td><code>CLAUDE_CODE_PROFILE_STARTUP</code></td><td>启用启动性能剖析</td><td>调试</td></tr>
+<tr><td><code>CLAUDE_CODE_PROFILE_QUERY</code></td><td>启用查询管线剖析</td><td>调试</td></tr>
+<tr><td><code>CLAUDE_CODE_JSONL_TRANSCRIPT</code></td><td>将会话记录写为 JSONL</td><td>文件路径</td></tr>
+<tr><td><code>CLAUDE_CODE_TMPDIR</code></td><td>覆盖临时目录</td><td>路径</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="输出与格式"><a class="header" href="#输出与格式">输出与格式</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CODE_SIMPLE</code></td><td>最小系统提示词模式</td><td><code>false</code></td></tr>
+<tr><td><code>CLAUDE_CODE_DISABLE_TERMINAL_TITLE</code></td><td>禁用设置终端标题</td><td><code>false</code></td></tr>
+<tr><td><code>CLAUDE_CODE_NO_FLICKER</code></td><td>减少全屏模式闪烁</td><td><code>false</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="mcpmodel-context-protocol"><a class="header" href="#mcpmodel-context-protocol">MCP（Model Context Protocol）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>MCP_TIMEOUT</code></td><td>MCP 服务器连接超时（ms）</td><td>10,000</td></tr>
+<tr><td><code>MCP_TOOL_TIMEOUT</code></td><td>MCP 工具调用超时（ms）</td><td>30,000</td></tr>
+<tr><td><code>MAX_MCP_OUTPUT_TOKENS</code></td><td>MCP 工具输出 token 上限</td><td>默认值</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="网络与代理"><a class="header" href="#网络与代理">网络与代理</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>注意</th></tr>
+</thead>
+<tbody>
+<tr><td><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code></td><td>HTTP/HTTPS 代理</td><td>可重定向</td></tr>
+<tr><td><code>NO_PROXY</code></td><td>绕过代理的主机列表</td><td>安全</td></tr>
+<tr><td><code>NODE_EXTRA_CA_CERTS</code></td><td>额外 CA 证书</td><td>影响 TLS 信任</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="路径与配置"><a class="header" href="#路径与配置">路径与配置</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>变量</th><th>效果</th><th>默认值</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CLAUDE_CONFIG_DIR</code></td><td>覆盖 Claude 配置目录</td><td><code>~/.claude</code></td></tr>
+</tbody>
+</table>
+</div>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendix/a-file-index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
-                            <a rel="next prefetch" href="part1/ch01.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../appendix/c-glossary.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -210,8 +356,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendix/a-file-index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
-                    <a rel="next prefetch" href="part1/ch01.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../appendix/c-glossary.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -231,18 +380,18 @@
         </script>
 
 
-        <script src="elasticlunr-ef4e11c1.min.js"></script>
-        <script src="mark-09e88c2c.min.js"></script>
-        <script src="searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="clipboard-1626706a.min.js"></script>
-        <script src="highlight-abc7f01d.js"></script>
-        <script src="book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
-        <script src="mermaid-eefea253.min.js"></script>
-        <script src="mermaid-init-dc149b64.js"></script>
-        <script src="language-switcher-93f51b1a.js"></script>
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
 
 
 

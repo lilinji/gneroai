@@ -38,11 +38,6 @@ jobs:
           name: book
           path: docs/book/book
 
-      - name: Upload book-en artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: book-en
-          path: docs/book-en/book
 
   deploy-gh-pages:
     runs-on: ubuntu-latest
@@ -77,16 +72,9 @@ jobs:
           name: book
           path: docs/book/book
 
-      - name: Download book-en artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: book-en
-          path: docs/book-en/book
-
       - name: Deploy to Vercel
         run: |
           npm install -g vercel
           vercel deploy ./docs/book/book --yes --prod
-          vercel deploy ./docs/book-en/book --yes --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

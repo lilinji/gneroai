@@ -43,7 +43,6 @@ docs/book-en/book
 package.json
 package-lock.json
 pnpm-lock.yaml
-vercel.json
 node_modules/
 
 # Docusaurus (not needed for pure mdbook setup)

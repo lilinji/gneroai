@@ -22,17 +22,19 @@ jobs:
           source $HOME/.cargo/env
           cargo install mdbook
 
-      - name: Build book
+      - name: Build Chinese book
         run: |
           source $HOME/.cargo/env
-          mdbook build docs/book
+          cd docs/book
+          mdbook build
 
-      - name: Build book-en
+      - name: Build English book
         run: |
           source $HOME/.cargo/env
-          mdbook build docs/book-en
+          cd docs/book-en
+          mdbook build
 
-      - name: Prepare combined output
+      - name: Copy English book to Chinese book output
         run: |
           cp -r docs/book-en/book docs/book/book/en
 
@@ -41,7 +43,6 @@ jobs:
         with:
           name: book
           path: docs/book/book
-
 
   deploy-gh-pages:
     runs-on: ubuntu-latest

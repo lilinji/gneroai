@@ -35,6 +35,21 @@ bin-release/
 *.ipa
 *.apk
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# mdbook build outputs
+docs/book/book
+docs/book-en/book
+
+# Docusaurus (not needed for pure mdbook setup)
+docs/guides
+docs/plugins
+docs/static
+docusaurus.config.js
+sidebars-*.js
+/src/
+plugins/
+patches/
+.static/
+
+# IDE
+.idea/
+.settings/

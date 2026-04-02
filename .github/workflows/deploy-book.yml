@@ -74,6 +74,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download book artifact
         uses: actions/download-artifact@v4
@@ -85,6 +86,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git add public/
           if ! git diff --cached --quiet; then
             git commit -m "Update built book for Vercel [skip ci]"

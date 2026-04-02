@@ -1,0 +1,42 @@
+name: Deploy mdBook to GitHub Pages and Vercel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/book/src/**'
+      - 'docs/book/book.toml'
+      - '.github/workflows/deploy-book.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mdbook
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          cargo install mdbook
+
+      - name: Build mdbook
+        run: |
+          source $HOME/.cargo/env
+          mdbook build docs/book
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: ./docs/book/book
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+
+      - name: Deploy to Vercel
+        run: |
+          npm install -g vercel
+          vercel deploy ./docs/book/book --yes --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

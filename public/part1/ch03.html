@@ -1,0 +1,740 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>第3章：Agent Loop — 从用户输入到模型响应的完整生命周期 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="基于 Claude Code v2.1.88 逆向工程源码的 AI Agent 驾驭工程实战指南">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-7fa999ac.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-056531fb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="第3章agent-loop--从用户输入到模型响应的完整生命周期"><a class="header" href="#第3章agent-loop--从用户输入到模型响应的完整生命周期">第3章：Agent Loop — 从用户输入到模型响应的完整生命周期</a></h1>
+<blockquote>
+<p><em>“A loop is not a loop when every iteration reshapes the world it runs in.”</em></p>
+</blockquote>
+<p>本章是全书的锚点。从第5章的 API 调用构建到第9章的自动压缩策略，从第13章的流式响应处理到第16章的权限检查体系——几乎所有后续章节讨论的子系统，最终都在 <code>queryLoop()</code> 这个核心循环中被编排、协调、驱动。理解这个循环，就是理解 Claude Code 作为 AI Agent 的运转心脏。</p>
+<h2 id="31-为什么-agent-loop-不是简单的-repl"><a class="header" href="#31-为什么-agent-loop-不是简单的-repl">3.1 为什么 Agent Loop 不是简单的 REPL</a></h2>
+<p>传统的 REPL（Read-Eval-Print Loop）是一个无状态的三步循环：读取输入、求值、打印结果。每次迭代之间没有上下文传递，没有自动恢复，没有对自身状态的感知。</p>
+<p>Agent Loop 根本不同。看这张对比表：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>维度</th><th>传统 REPL</th><th>Claude Code Agent Loop</th></tr>
+</thead>
+<tbody>
+<tr><td>状态模型</td><td>无状态或仅保留历史</td><td>10 个可变字段的 <code>State</code> 类型，跨迭代传递</td></tr>
+<tr><td>循环退出</td><td>用户显式退出</td><td>7 种 <code>Continue</code> 转换 + 10 种 <code>Terminal</code> 终止原因</td></tr>
+<tr><td>错误处理</td><td>打印错误并继续</td><td>自动降级、模型切换、reactive compact、重试上限</td></tr>
+<tr><td>上下文管理</td><td>无</td><td>snip → microcompact → context collapse → autocompact 四级管线</td></tr>
+<tr><td>工具执行</td><td>无</td><td>流式并行执行、权限检查、结果预算裁剪</td></tr>
+<tr><td>对话容量</td><td>无限增长直到 OOM</td><td>token 预算追踪、自动压缩、blocking limit 硬限制</td></tr>
+</tbody>
+</table>
+</div>
+<p>Agent Loop 的每一次迭代都可能改变自身的运行条件：压缩会缩减消息数组，模型降级会切换推理后端，stop hook 会注入新的约束消息。这不是循环——这是一个<strong>自修改状态机</strong>（self-modifying state machine）。</p>
+<h2 id="32-queryloop-状态机总览"><a class="header" href="#32-queryloop-状态机总览">3.2 queryLoop 状态机总览</a></h2>
+<h3 id="321-入口query-与-queryloop"><a class="header" href="#321-入口query-与-queryloop">3.2.1 入口：<code>query()</code> 与 <code>queryLoop()</code></a></h3>
+<p>入口函数 <code>query()</code> 是一个薄包装器。它调用 <code>queryLoop()</code> 获得结果，然后通知所有已消费的命令完成生命周期：</p>
+<pre><code>restored-src/src/query.ts:219-238
+</code></pre>
+<pre><code class="language-text">export async function* query(params: QueryParams): AsyncGenerator&lt;...&gt; {
+  const consumedCommandUuids: string[] = []
+  const terminal = yield* queryLoop(params, consumedCommandUuids)
+  for (const uuid of consumedCommandUuids) {
+    notifyCommandLifecycle(uuid, 'completed')
+  }
+  return terminal
+}
+</code></pre>
+<p>真正的状态机在 <code>queryLoop()</code> 中（<code>restored-src/src/query.ts:241</code>）。它是一个 <code>while (true)</code> 循环，每次迭代通过 <code>state = next; continue</code> 进入下一轮，或通过 <code>return { reason: '...' }</code> 终止。</p>
+<h3 id="322-state-类型跨迭代的可变状态"><a class="header" href="#322-state-类型跨迭代的可变状态">3.2.2 State 类型：跨迭代的可变状态</a></h3>
+<p><code>State</code> 类型定义了循环在迭代之间需要携带的所有可变状态（<code>restored-src/src/query.ts:204-217</code>）：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>字段</th><th>类型</th><th>语义</th></tr>
+</thead>
+<tbody>
+<tr><td><code>messages</code></td><td><code>Message[]</code></td><td>当前对话消息数组，每轮迭代后追加 assistant 响应和 tool results</td></tr>
+<tr><td><code>toolUseContext</code></td><td><code>ToolUseContext</code></td><td>工具执行上下文，包含可用工具列表、权限模式、abort 信号等</td></tr>
+<tr><td><code>autoCompactTracking</code></td><td><code>AutoCompactTrackingState | undefined</code></td><td>自动压缩的追踪状态，记录是否已触发过压缩及连续失败次数</td></tr>
+<tr><td><code>maxOutputTokensRecoveryCount</code></td><td><code>number</code></td><td>当前已尝试的 max_output_tokens 恢复次数，上限为 3</td></tr>
+<tr><td><code>hasAttemptedReactiveCompact</code></td><td><code>boolean</code></td><td>是否已尝试过 reactive compact，防止重试死循环</td></tr>
+<tr><td><code>maxOutputTokensOverride</code></td><td><code>number | undefined</code></td><td>覆盖默认 max_output_tokens 的值，用于升级重试（如 8k → 64k）</td></tr>
+<tr><td><code>pendingToolUseSummary</code></td><td><code>Promise&lt;...&gt; | undefined</code></td><td>上一轮工具执行的摘要生成 Promise，在下一轮模型流式传输期间并行等待</td></tr>
+<tr><td><code>stopHookActive</code></td><td><code>boolean | undefined</code></td><td>标记 stop hook 是否处于活跃状态，避免重复触发</td></tr>
+<tr><td><code>turnCount</code></td><td><code>number</code></td><td>当前轮次计数，用于 <code>maxTurns</code> 限制检查</td></tr>
+<tr><td><code>transition</code></td><td><code>Continue | undefined</code></td><td>上一次迭代为何继续——让测试和调试能够断言恢复路径确实触发了</td></tr>
+</tbody>
+</table>
+</div>
+<p>注意设计上的一个关键决策：源码注释明确说明“Continue sites write <code>state = { ... }</code> instead of 9 separate assignments“（<code>restored-src/src/query.ts:267</code>）。这意味着每个继续点都必须显式构造完整的 <code>State</code> 对象。这种写法消除了“忘记重置某个字段“的 bug 类——在一个有 7 个继续点的循环中，这不是理论风险，而是必然会发生的事故。</p>
+<h3 id="323-continue-转换类型"><a class="header" href="#323-continue-转换类型">3.2.3 Continue 转换类型</a></h3>
+<p>循环内部有 7 个 <code>continue</code> 站点，每个都记录了转换原因。从源码中提取的完整枚举：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>Continue.reason</code></th><th>触发条件</th><th>典型行为</th></tr>
+</thead>
+<tbody>
+<tr><td><code>next_turn</code></td><td>模型返回了 <code>tool_use</code> block</td><td>追加 assistant + tool_result，递增 turnCount，开始下一轮</td></tr>
+<tr><td><code>max_output_tokens_escalate</code></td><td>模型输出被截断，且尚未升级过</td><td>将 maxOutputTokensOverride 设为 64k，原样重试同一请求</td></tr>
+<tr><td><code>max_output_tokens_recovery</code></td><td>输出截断且升级已用完，恢复次数 &lt; 3</td><td>注入 meta 消息要求模型继续，递增恢复计数</td></tr>
+<tr><td><code>reactive_compact_retry</code></td><td>prompt-too-long 或 media-size 错误</td><td>触发 reactive compact 压缩后重试</td></tr>
+<tr><td><code>collapse_drain_retry</code></td><td>prompt-too-long 且有待提交的 context collapse</td><td>执行所有暂存的 collapse，然后重试</td></tr>
+<tr><td><code>stop_hook_blocking</code></td><td>stop hook 返回了阻塞错误</td><td>将阻塞错误注入消息流，让模型修正</td></tr>
+<tr><td><code>token_budget_continuation</code></td><td>token budget 尚未耗尽</td><td>注入 nudge 消息鼓励模型继续工作</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="324-terminal-终止原因"><a class="header" href="#324-terminal-终止原因">3.2.4 Terminal 终止原因</a></h3>
+<p>循环通过 <code>return</code> 终止，返回值包含 <code>reason</code> 字段。从源码提取的完整枚举：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>Terminal.reason</code></th><th>语义</th></tr>
+</thead>
+<tbody>
+<tr><td><code>completed</code></td><td>模型正常完成（无 tool_use），或 API 错误但恢复已耗尽</td></tr>
+<tr><td><code>blocking_limit</code></td><td>token 数触达硬限制，无法继续</td></tr>
+<tr><td><code>prompt_too_long</code></td><td>prompt-too-long 错误且所有恢复手段（collapse drain + reactive compact）均失败</td></tr>
+<tr><td><code>image_error</code></td><td>图片尺寸/格式错误</td></tr>
+<tr><td><code>model_error</code></td><td>模型调用抛出非预期异常</td></tr>
+<tr><td><code>aborted_streaming</code></td><td>用户在流式响应期间中断</td></tr>
+<tr><td><code>aborted_tools</code></td><td>用户在工具执行期间中断</td></tr>
+<tr><td><code>stop_hook_prevented</code></td><td>stop hook 阻止了继续</td></tr>
+<tr><td><code>hook_stopped</code></td><td>工具执行时 hook 阻止了后续操作</td></tr>
+<tr><td><code>max_turns</code></td><td>达到最大轮次限制</td></tr>
+</tbody>
+</table>
+</div>
+<p>下面的流程图展示了状态机的完整拓扑：</p>
+<pre><code class="language-mermaid">flowchart TD
+    Entry["queryLoop() Entry&lt;br /&gt;初始化 State, budgetTracker, config"] --&gt; Loop
+
+    subgraph Loop["while (true)"]
+        direction TB
+        Start["解构 state&lt;br /&gt;yield stream_request_start"] --&gt; Phase1
+        Phase1["阶段 1: 上下文预处理&lt;br /&gt;applyToolResultBudget → snipCompact&lt;br /&gt;→ microcompact → contextCollapse&lt;br /&gt;→ autocompact"] --&gt; Phase2
+        Phase2{"阶段 2: Blocking limit&lt;br /&gt;token 数 &gt; 硬限制?"}
+        Phase2 --&gt;|YES| T_Blocking["return blocking_limit"]
+        Phase2 --&gt;|NO| Phase3
+        Phase3["阶段 3: API 调用&lt;br /&gt;callModel + attemptWithFallback&lt;br /&gt;流式响应 → assistantMessages + toolUseBlocks"] --&gt; Phase4
+        Phase4{"阶段 4: 中断检查&lt;br /&gt;aborted?"}
+        Phase4 --&gt;|YES| T_Aborted["return aborted_*"]
+        Phase4 --&gt;|NO| Branch
+        Branch{"needsFollowUp?"}
+        Branch --&gt;|"false（无 tool_use）"| Phase5
+        Branch --&gt;|"true（有 tool_use）"| Phase6
+
+        Phase5["阶段 5: 恢复与终止判定&lt;br /&gt;prompt-too-long → collapse drain / reactive compact&lt;br /&gt;max_output_tokens → escalate / recovery x3&lt;br /&gt;stop hooks → blocking errors 注入&lt;br /&gt;token budget → nudge 继续"]
+        Phase5 --&gt;|恢复成功| Continue1["state = next; continue"]
+        Phase5 --&gt;|全部耗尽| T_Completed["return completed"]
+
+        Phase6["阶段 6: 工具执行&lt;br /&gt;StreamingToolExecutor / runTools"] --&gt; Phase7
+        Phase7["阶段 7: 附件注入&lt;br /&gt;memory prefetch / skill discovery / commands"] --&gt; Phase8
+        Phase8{"阶段 8: 继续判定&lt;br /&gt;maxTurns?"}
+        Phase8 --&gt;|未达上限| Continue2["state = next_turn; continue"]
+        Phase8 --&gt;|达到上限| T_MaxTurns["return max_turns"]
+
+    Continue1 --&gt; Start
+    Continue2 --&gt; Start
+</code></pre>
+<p>以下是原始 ASCII 版本，供需要纯文本阅读环境的读者参考：</p>
+<details>
+<summary>ASCII 流程图（点击展开）</summary>
+<pre><code>┌──────────────────────────────────────────────────────────────────────┐
+│                        queryLoop() Entry                            │
+│  初始化 State, budgetTracker, config, pendingMemoryPrefetch         │
+└──────────────┬───────────────────────────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────────────────┐
+│              while (true) {                      │
+│  解构 state → messages, toolUseContext, ...       │
+│  yield { type: 'stream_request_start' }          │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 1: 上下文预处理                      │     │
+│  │ applyToolResultBudget                    │     │
+│  │ → snipCompact (HISTORY_SNIP)             │     │
+│  │ → microcompact                           │     │
+│  │ → contextCollapse (CONTEXT_COLLAPSE)     │     │
+│  │ → autocompact ───── 详见第9章 ──────────  │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │                                 │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 2: Blocking limit 检查              │     │
+│  │ token 数 &gt; 硬限制 ?                      │     │
+│  │   YES → return {reason:'blocking_limit'} │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │ NO                              │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 3: API 调用 ── 详见第5章和第13章 ──  │     │
+│  │ attemptWithFallback 循环                  │     │
+│  │ callModel({                              │     │
+│  │   messages: prependUserContext(...)       │     │
+│  │   systemPrompt: appendSystemContext(...) │     │
+│  │ })                                       │     │
+│  │                                          │     │
+│  │ 流式响应 → assistantMessages[]           │     │
+│  │         → toolUseBlocks[]                │     │
+│  │ FallbackTriggeredError → 切换模型重试     │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │                                 │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 4: 中断检查                         │     │
+│  │ abortController.signal.aborted ?        │     │
+│  │   YES → return {reason:'aborted_*'}     │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │ NO                              │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 5: needsFollowUp == false 分支      │     │
+│  │ (模型未返回 tool_use)                    │     │
+│  │                                          │     │
+│  │ ┌─ prompt-too-long 恢复 ──────────────┐ │     │
+│  │ │ collapse drain → reactive compact   │ │     │
+│  │ │ 成功 → state=next; continue         │ │     │
+│  │ └────────────────────────────────────-┘ │     │
+│  │ ┌─ max_output_tokens 恢复 ────────────┐ │     │
+│  │ │ escalate(8k→64k) → recovery(×3)    │ │     │
+│  │ │ 成功 → state=next; continue         │ │     │
+│  │ └────────────────────────────────────-┘ │     │
+│  │ ┌─ stop hooks ── 详见第16章 ──────────┐ │     │
+│  │ │ blockingErrors → state=next;continue│ │     │
+│  │ └────────────────────────────────────-┘ │     │
+│  │ ┌─ token budget check ────────────────┐ │     │
+│  │ │ budget未尽 → state=next; continue   │ │     │
+│  │ └────────────────────────────────────-┘ │     │
+│  │                                          │     │
+│  │ return { reason: 'completed' }           │     │
+│  └──────────────────────────────────────-──┘     │
+│                 │                                 │
+│           needsFollowUp == true                  │
+│                 │                                 │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 6: 工具执行                         │     │
+│  │ streamingToolExecutor.getRemainingResults│     │
+│  │ 或 runTools() ── 详见第4章(工具执行编排) ─ │     │
+│  │ → toolResults[]                         │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │                                 │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 7: 附件注入                         │     │
+│  │ getAttachmentMessages()                 │     │
+│  │ pendingMemoryPrefetch consume           │     │
+│  │ skillDiscoveryPrefetch consume          │     │
+│  │ queuedCommands drain                    │     │
+│  └──────────────┬──────────────────────────┘     │
+│                 │                                 │
+│                 ▼                                 │
+│  ┌─────────────────────────────────────────┐     │
+│  │ 阶段 8: 继续判定                         │     │
+│  │ maxTurns check                          │     │
+│  │ state = { reason: 'next_turn', ... }    │     │
+│  │ continue                                │     │
+│  └─────────────────────────────────────────┘     │
+│                                                  │
+└──────────────────────────────────────────────────┘
+</code></pre>
+</details>
+<h2 id="33-单次迭代的完整流程"><a class="header" href="#33-单次迭代的完整流程">3.3 单次迭代的完整流程</a></h2>
+<p>让我们跟踪一次迭代的每个阶段，从头到尾。</p>
+<h3 id="331-上下文预处理管线"><a class="header" href="#331-上下文预处理管线">3.3.1 上下文预处理管线</a></h3>
+<p>每次迭代开始时，原始 <code>messages</code> 数组要经过四到五级处理才能送往 API。这些阶段按严格顺序执行，且顺序不可互换。</p>
+<p><strong>第一级：工具结果预算裁剪（Tool Result Budget）</strong></p>
+<pre><code>restored-src/src/query.ts:379-394
+</code></pre>
+<p><code>applyToolResultBudget()</code> 对聚合工具结果施加大小限制。它在所有压缩阶段之前运行，因为后续的 cached microcompact 仅通过 <code>tool_use_id</code> 操作，不检查内容——先裁剪内容不会干扰它。</p>
+<p><strong>第二级：History Snip</strong></p>
+<pre><code>restored-src/src/query.ts:401-410
+</code></pre>
+<p><code>snipCompactIfNeeded()</code> 是一种轻量级压缩：它截断（snip）历史中的旧消息，释放 token 空间。关键的是，它返回 <code>tokensFreed</code> 值——这个值会被传递给 autocompact，让后者的阈值判断能感知 snip 已经释放的空间。</p>
+<p><strong>第三级：Microcompact</strong></p>
+<pre><code>restored-src/src/query.ts:414-426
+</code></pre>
+<p>Microcompact 是一种细粒度压缩，在 autocompact 之前运行。它还支持一种“缓存编辑“模式（<code>CACHED_MICROCOMPACT</code>），利用 API 的 cache 删除机制实现零额外 API 调用的压缩。</p>
+<p><strong>第四级：Context Collapse</strong></p>
+<pre><code>restored-src/src/query.ts:440-447
+</code></pre>
+<p>Context Collapse（上下文折叠）是一种读时投影（read-time projection）机制。源码注释揭示了一个精妙的设计：</p>
+<blockquote>
+<p><em>“Nothing is yielded — the collapsed view is a read-time projection over the REPL’s full history. Summary messages live in the collapse store, not the REPL array.”</em>（<code>restored-src/src/query.ts:434-436</code>）</p>
+</blockquote>
+<p>这意味着折叠不改变原始消息数组，而是在每次迭代时重新投影。折叠结果通过 <code>state.messages</code> 在继续点传递，下一次 <code>projectView()</code> 因为归档消息已经不在输入中而成为空操作。</p>
+<p><strong>第五级：Autocompact</strong>（详见第9章）</p>
+<pre><code>restored-src/src/query.ts:454-468
+</code></pre>
+<p>自动压缩是最重量级的预处理步骤。它在 context collapse 之后运行——如果折叠已经把 token 数降到阈值以下，autocompact 就成为空操作，保留了更细粒度的上下文而不是生成单一摘要。</p>
+<p>这五级管线的设计遵循一个原则：<strong>从轻到重、从局部到全局</strong>。每一级都试图在不丢失太多信息的前提下释放空间，只有前面的级别不够时，后面的级别才会启动。</p>
+<h3 id="332-上下文注入prependusercontext-与-appendsystemcontext"><a class="header" href="#332-上下文注入prependusercontext-与-appendsystemcontext">3.3.2 上下文注入：prependUserContext 与 appendSystemContext</a></h3>
+<p>消息预处理完成后，上下文通过两个函数注入到 API 请求中：</p>
+<p><strong><code>appendSystemContext</code></strong>（<code>restored-src/src/utils/api.ts:437-447</code>）：</p>
+<pre><code class="language-text">      // export function appendSystemContext(
+  systemPrompt: SystemPrompt,
+  context: { [k: string]: string },
+): string[] {
+  return [
+    ...systemPrompt,
+    Object.entries(context)
+      .map(([key, value]) =&gt; `${key}: ${value}`)
+      .join('\n'),
+  ].filter(Boolean)
+}
+</code></pre>
+<p>系统上下文被追加到系统提示词（system prompt）的末尾。这些内容（如当前日期、工作目录等）享受系统提示词的特殊缓存位置——API 的 prompt caching 对系统提示词最为友好。</p>
+<p><strong><code>prependUserContext</code></strong>（<code>restored-src/src/utils/api.ts:449-474</code>）：</p>
+<pre><code class="language-text">      // export function prependUserContext(
+  messages: Message[],
+  context: { [k: string]: string },
+): Message[] {
+  // ...
+  return [
+    createUserMessage({
+      content: `&lt;system-reminder&gt;\n...\n&lt;/system-reminder&gt;\n`,
+      isMeta: true,
+    }),
+    ...messages,
+  ]
+}
+</code></pre>
+<p>用户上下文被包裹在 <code>&lt;system-reminder&gt;</code> 标签中，作为<strong>第一条用户消息前置</strong>到消息数组。这个位置选择不是随意的——它确保上下文出现在所有对话之前，且标记为 <code>isMeta: true</code>（不显示在用户 UI 中）。附带一句重要的提示文本：“this context may or may not be relevant to your tasks”——这给了模型忽略不相关上下文的自由度。</p>
+<p>注意调用时序（<code>restored-src/src/query.ts:660</code>）：</p>
+<pre><code class="language-text">messages: prependUserContext(messagesForQuery, userContext),
+systemPrompt: fullSystemPrompt,  // 已经 appendSystemContext 过
+</code></pre>
+<p><code>prependUserContext</code> 在 API 调用时才执行，不在预处理管线中。这意味着用户上下文不参与 token 计数和压缩决策——它是“透明的“注入。</p>
+<h3 id="333-消息标准化管线"><a class="header" href="#333-消息标准化管线">3.3.3 消息标准化管线</a></h3>
+<p>在 API 调用的构建阶段（<code>restored-src/src/services/api/claude.ts:1259-1314</code>），消息经过一条四步标准化管线。这条管线的职责是将 Claude Code 内部的丰富消息类型转换为 Anthropic API 能接受的严格格式。</p>
+<p><strong>第一步：<code>normalizeMessagesForAPI()</code></strong>（<code>restored-src/src/utils/messages.ts:1989</code>）</p>
+<p>这是最复杂的标准化步骤。它完成以下工作：</p>
+<ol>
+<li><strong>附件重排序</strong>：通过 <code>reorderAttachmentsForAPI()</code> 将附件消息上移，直到碰到 tool_result 或 assistant 消息</li>
+<li><strong>虚拟消息过滤</strong>：移除 <code>isVirtual</code> 标记的显示专用消息（如 REPL 内部工具调用）</li>
+<li><strong>系统/进度消息剥离</strong>：过滤 <code>progress</code> 类型和非 <code>local_command</code> 的 <code>system</code> 消息</li>
+<li><strong>合成错误消息处理</strong>：检测 PDF/图片/请求过大的错误，向后查找并从源用户消息中剥离对应的媒体块</li>
+<li><strong>工具输入标准化</strong>：通过 <code>normalizeToolInputForAPI</code> 处理工具输入格式</li>
+<li><strong>消息合并</strong>：相邻的同角色消息被合并（API 要求严格的 user/assistant 交替）</li>
+</ol>
+<p><strong>第二步：<code>ensureToolResultPairing()</code></strong>（<code>restored-src/src/utils/messages.ts:5133</code>）</p>
+<p>修复 <code>tool_use</code> / <code>tool_result</code> 的配对不匹配。这种不匹配在恢复远程会话（remote/teleport sessions）时特别常见。它为孤立的 <code>tool_use</code> 插入合成错误 <code>tool_result</code>，并剥离引用不存在 <code>tool_use</code> 的孤立 <code>tool_result</code>。</p>
+<p><strong>第三步：<code>stripAdvisorBlocks()</code></strong>（<code>restored-src/src/utils/messages.ts:5466</code>）</p>
+<p>剥离 advisor blocks。这些 block 需要特定的 beta header 才能被 API 接受（<code>restored-src/src/services/api/claude.ts:1304</code>）：</p>
+<pre><code class="language-text">if (!betas.includes(ADVISOR_BETA_HEADER)) {
+  messagesForAPI = stripAdvisorBlocks(messagesForAPI)
+}
+</code></pre>
+<p><strong>第四步：<code>stripExcessMediaItems()</code></strong>（<code>restored-src/src/services/api/claude.ts:956</code>）</p>
+<p>API 限制每个请求最多 100 个媒体项（图片 + 文档）。这个函数静默地从最旧的消息开始移除多余的媒体项，而不是报错——这在 Cowork/CCD 等场景中很重要，因为硬报错难以恢复。</p>
+<p>整条管线的执行顺序不是随意的。源码注释解释了为什么标准化要在 <code>ensureToolResultPairing</code> 之前（<code>restored-src/src/services/api/claude.ts:1272-1276</code>）：</p>
+<blockquote>
+<p><em>“normalizeMessagesForAPI uses isToolSearchEnabledNoModelCheck() because it’s called from ~20 places (analytics, feedback, sharing, etc.), many of which don’t have model context.”</em></p>
+</blockquote>
+<p>这揭示了一个架构事实：<code>normalizeMessagesForAPI</code> 是一个被广泛复用的函数，它的接口不能随意添加参数。模型特定的后处理（如 tool search 字段剥离）必须作为独立步骤在它之后运行。</p>
+<h3 id="334-api-调用阶段详见第5章和第13章"><a class="header" href="#334-api-调用阶段详见第5章和第13章">3.3.4 API 调用阶段（详见第5章和第13章）</a></h3>
+<p>API 调用被包裹在一个 <code>attemptWithFallback</code> 循环中（<code>restored-src/src/query.ts:650-953</code>）：</p>
+<pre><code class="language-text">let attemptWithFallback = true
+while (attemptWithFallback) {
+  attemptWithFallback = false
+  try {
+    for await (const message of deps.callModel({
+      messages: prependUserContext(messagesForQuery, userContext),
+      systemPrompt: fullSystemPrompt,
+      // ...
+    })) {
+      // 处理流式响应消息
+    }
+  } catch (innerError) {
+    if (innerError instanceof FallbackTriggeredError &amp;&amp; fallbackModel) {
+      currentModel = fallbackModel
+      attemptWithFallback = true
+      // 清理孤立消息, 重置 executor
+      continue
+    }
+    throw innerError
+  }
+}
+</code></pre>
+<p>这里有几个精妙的设计值得注意：</p>
+<p><strong>消息不可变性</strong>。流式消息在 yield 前被克隆：原始 <code>message</code> 推入 <code>assistantMessages</code> 数组（回传给 API），而克隆版本（带 backfilled observable input）被 yield 给 SDK 调用者。源码注释（<code>restored-src/src/query.ts:744-746</code>）直接说明了原因：“mutating it would break prompt caching (byte mismatch)”。</p>
+<p><strong>错误扣留（Withholding）机制</strong>。可恢复的错误（prompt-too-long、max-output-tokens、media-size）在流式阶段被扣留——不立即 yield 给调用者。只有在后续的恢复逻辑确认无法恢复时，才会释放给调用者。这防止了 SDK 消费者（如 Desktop/Cowork）过早终止会话。</p>
+<p><strong>Tombstone 处理</strong>。当流式降级（streaming fallback）发生时，已经 yield 的部分消息会被作为 tombstone 通知删除（<code>restored-src/src/query.ts:716-718</code>）。这解决了一个微妙的问题：部分消息（尤其是 thinking blocks）携带的签名在降级后会导致 API 报 “thinking blocks cannot be modified” 错误。</p>
+<h3 id="335-工具执行阶段详见第4章"><a class="header" href="#335-工具执行阶段详见第4章">3.3.5 工具执行阶段（详见第4章）</a></h3>
+<p>模型响应完成后，如果存在 <code>tool_use</code> blocks，循环进入工具执行阶段（<code>restored-src/src/query.ts:1363-1408</code>）。</p>
+<p>Claude Code 支持两种工具执行模式：</p>
+<ol>
+<li><strong>流式并行执行</strong>（<code>StreamingToolExecutor</code>）：工具在模型流式响应过程中就开始执行。在 API 调用阶段，每个 <code>tool_use</code> block 到达时就被 <code>addTool()</code> 推入执行器（<code>restored-src/src/query.ts:841-843</code>）。流式结束后，<code>getRemainingResults()</code> 收集所有已完成和未完成的结果。</li>
+<li><strong>批量执行</strong>（<code>runTools()</code>）：所有 tool_use blocks 收集完毕后一次性执行。</li>
+</ol>
+<p>工具执行的结果会经过 <code>normalizeMessagesForAPI</code> 标准化后追加到 <code>toolResults</code> 数组。</p>
+<h3 id="336-stop-hooks-与继续判定"><a class="header" href="#336-stop-hooks-与继续判定">3.3.6 Stop Hooks 与继续判定</a></h3>
+<p>当模型响应不包含 tool_use（<code>needsFollowUp == false</code>）时，循环进入终止判定路径。这条路径包含多层恢复逻辑和 hook 检查。</p>
+<p><strong>Stop Hooks</strong>（<code>restored-src/src/query.ts:1267-1306</code>）：</p>
+<pre><code class="language-text">const stopHookResult = yield* handleStopHooks(
+  messagesForQuery, assistantMessages,
+  systemPrompt, userContext, systemContext,
+  toolUseContext, querySource, stopHookActive,
+)
+</code></pre>
+<p>如果 stop hook 返回 <code>blockingErrors</code>，循环注入这些错误消息并继续（<code>transition: { reason: 'stop_hook_blocking' }</code>），让模型有机会修正。这是 Claude Code 权限体系的关键执行点——详见第16章。</p>
+<p><strong>Token Budget Check</strong>（<code>restored-src/src/query.ts:1308-1355</code>）：</p>
+<p>当 <code>TOKEN_BUDGET</code> 特性开启时，循环检查当前轮次的 token 消耗是否在预算内。如果模型“提前完成“但预算还有剩余，循环注入 nudge 消息（<code>transition: { reason: 'token_budget_continuation' }</code>）鼓励模型继续工作。这个机制还支持“递减回报“（diminishing returns）检测——如果模型的增量输出不再有实质贡献，即使预算未耗尽也会提前停止。</p>
+<h3 id="337-附件注入与轮次准备"><a class="header" href="#337-附件注入与轮次准备">3.3.7 附件注入与轮次准备</a></h3>
+<p>工具执行完成后，循环在进入下一轮之前注入附件（<code>restored-src/src/query.ts:1580-1628</code>）：</p>
+<ol>
+<li><strong>队列命令处理</strong>：从全局命令队列中拉取当前 agent 地址的命令（区分主线程和子 agent），转换为附件消息</li>
+<li><strong>Memory prefetch 消费</strong>：如果内存预取（在循环入口启动的 <code>startRelevantMemoryPrefetch</code>）已完成且本轮尚未消费，将结果注入</li>
+<li><strong>Skill discovery 消费</strong>：如果技能发现预取已完成，将结果注入</li>
+</ol>
+<p>这些注入利用了模型流式响应和工具执行的延迟——它们在后台并行运行，到这里时通常已经完成。</p>
+<h2 id="34-中止重试降级"><a class="header" href="#34-中止重试降级">3.4 中止/重试/降级</a></h2>
+<h3 id="341-fallbacktriggerederror-与模型切换"><a class="header" href="#341-fallbacktriggerederror-与模型切换">3.4.1 FallbackTriggeredError 与模型切换</a></h3>
+<p>当 API 调用因高负载等原因失败时，<code>FallbackTriggeredError</code> 被抛出（<code>restored-src/src/query.ts:894-950</code>）。处理流程：</p>
+<ol>
+<li>切换 <code>currentModel</code> 为 <code>fallbackModel</code></li>
+<li>清空 <code>assistantMessages</code>、<code>toolResults</code>、<code>toolUseBlocks</code></li>
+<li>丢弃并重建 <code>StreamingToolExecutor</code>（防止孤立 tool_result 泄漏）</li>
+<li>更新 <code>toolUseContext.options.mainLoopModel</code></li>
+<li>剥离 thinking signature blocks（因为它们是模型绑定的，在降级模型上会 400）</li>
+<li>yield 系统消息通知用户</li>
+</ol>
+<p>关键的是，这个降级发生在 <code>attemptWithFallback</code> 循环内部。它设置 <code>attemptWithFallback = true</code> 并 <code>continue</code>，在同一轮迭代中立即重试——不需要重新进入外部的 <code>while (true)</code> 循环。</p>
+<h3 id="342-max_output_tokens-恢复三次机会"><a class="header" href="#342-max_output_tokens-恢复三次机会">3.4.2 max_output_tokens 恢复：三次机会</a></h3>
+<p>当模型输出被截断时，恢复策略分两层：</p>
+<p><strong>第一层：Escalation（升级）</strong>。如果当前使用的是默认的 8k 上限且尚未覆盖过，直接将 <code>maxOutputTokensOverride</code> 设为 64k（<code>ESCALATED_MAX_TOKENS</code>），原样重试同一请求。这是“免费“的恢复——不需要多轮对话。</p>
+<p><strong>第二层：Multi-turn recovery（多轮恢复）</strong>。如果升级后仍然截断，注入一条元消息：</p>
+<pre><code>"Output token limit hit. Resume directly — no apology, no recap of what you were doing.
+Pick up mid-thought if that is where the cut happened.
+Break remaining work into smaller pieces."
+</code></pre>
+<p>这条消息精心措辞：禁止道歉（浪费 token）、禁止回顾（重复信息）、要求拆分工作（降低单次输出需求）。最多重试 3 次（<code>MAX_OUTPUT_TOKENS_RECOVERY_LIMIT</code>，<code>restored-src/src/query.ts:164</code>）。</p>
+<h3 id="343-reactive-compactprompt-too-long-的最后防线"><a class="header" href="#343-reactive-compactprompt-too-long-的最后防线">3.4.3 Reactive Compact：prompt-too-long 的最后防线</a></h3>
+<p>当 API 返回 prompt-too-long 错误时，恢复策略也分两层：</p>
+<ol>
+<li><strong>Context Collapse Drain</strong>：首先尝试提交所有暂存的 context collapse。这是廉价操作，保留了细粒度上下文</li>
+<li><strong>Reactive Compact</strong>：如果 drain 不够，执行完整的 reactive compact。标记 <code>hasAttemptedReactiveCompact = true</code> 防止重试死循环</li>
+</ol>
+<p>如果两者都失败，错误被释放给调用者，循环终止。源码注释特别强调了为什么不能在这里运行 stop hooks（<code>restored-src/src/query.ts:1169-1172</code>）：</p>
+<blockquote>
+<p><em>“Do NOT fall through to stop hooks: the model never produced a valid response, so hooks have nothing meaningful to evaluate. Running stop hooks on prompt-too-long creates a death spiral: error → hook blocking → retry → error → …”</em></p>
+</blockquote>
+<h2 id="35-单次迭代序列图"><a class="header" href="#35-单次迭代序列图">3.5 单次迭代序列图</a></h2>
+<pre><code>User          queryLoop         PreProcess       API          Tools          StopHooks
+ │                │                  │              │              │              │
+ │   messages     │                  │              │              │              │
+ │───────────────&gt;│                  │              │              │              │
+ │                │                  │              │              │              │
+ │                │ applyToolResult  │              │              │              │
+ │                │ Budget           │              │              │              │
+ │                │─────────────────&gt;│              │              │              │
+ │                │                  │              │              │              │
+ │                │  snipCompact     │              │              │              │
+ │                │─────────────────&gt;│              │              │              │
+ │                │                  │              │              │              │
+ │                │  microcompact    │              │              │              │
+ │                │─────────────────&gt;│              │              │              │
+ │                │                  │              │              │              │
+ │                │  contextCollapse │              │              │              │
+ │                │─────────────────&gt;│              │              │              │
+ │                │                  │              │              │              │
+ │                │  autocompact     │              │              │              │
+ │                │─────────────────&gt;│              │              │              │
+ │                │  messagesForQuery│              │              │              │
+ │                │&lt;─────────────────│              │              │              │
+ │                │                  │              │              │              │
+ │                │ prependUserContext               │              │              │
+ │                │ appendSystemContext              │              │              │
+ │                │                  │              │              │              │
+ │                │  callModel(...)  │              │              │              │
+ │                │────────────────────────────────&gt;│              │              │
+ │                │                  │              │              │              │
+ │                │  stream messages │              │              │              │
+ │&lt;───────────────│&lt;────────────────────────────────│              │              │
+ │  (yield)       │                  │              │              │              │
+ │                │                  │              │  tool_use?   │              │
+ │                │                  │              │              │              │
+ │                │──────── needsFollowUp ─────────────────────────&gt;│              │
+ │                │         runTools / StreamingToolExecutor        │              │
+ │&lt;───────────────│&lt;───────────────────────────────────────────────│              │
+ │  (yield results)                  │              │              │              │
+ │                │                  │              │              │              │
+ │                │  attachments (memory, skills, commands)        │              │
+ │                │                  │              │              │              │
+ │                │   state = { reason: 'next_turn', ... }        │              │
+ │                │   continue ──────────────────────────&gt; 下一轮迭代             │
+ │                │                  │              │              │              │
+ │          ──── OR ── needsFollowUp == false ────────────────────&gt;│              │
+ │                │                  │              │              │              │
+ │                │  handleStopHooks │              │              │              │
+ │                │────────────────────────────────────────────────────────────&gt;│
+ │                │  blockingErrors? │              │              │              │
+ │                │&lt;───────────────────────────────────────────────────────────│
+ │                │                  │              │              │              │
+ │                │  return { reason: 'completed' }│              │              │
+ │&lt;───────────────│                  │              │              │              │
+</code></pre>
+<h2 id="36-模式提炼"><a class="header" href="#36-模式提炼">3.6 模式提炼</a></h2>
+<p>读完 <code>queryLoop()</code> 的 1730 行源码，几个深层模式浮现出来：</p>
+<h3 id="模式一显式状态重建而非增量修改"><a class="header" href="#模式一显式状态重建而非增量修改">模式一：显式状态重建而非增量修改</a></h3>
+<p>每个 <code>continue</code> 站点都构造完整的新 <code>State</code> 对象。没有 <code>state.maxOutputTokensRecoveryCount++</code>，只有 <code>state = { ..., maxOutputTokensRecoveryCount: maxOutputTokensRecoveryCount + 1, ... }</code>。这带来了三个好处：</p>
+<ol>
+<li><strong>遗忘免疫</strong>：不可能忘记重置某个字段</li>
+<li><strong>可审计性</strong>：每个继续点的完整意图在一个对象字面量中可见</li>
+<li><strong>可测试性</strong>：<code>transition</code> 字段让测试能断言恢复路径是否触发</li>
+</ol>
+<h3 id="模式二扣留-释放withhold-release"><a class="header" href="#模式二扣留-释放withhold-release">模式二：扣留-释放（Withhold-Release）</a></h3>
+<p>可恢复错误不立即暴露给消费者。它们被扣留（pushed to <code>assistantMessages</code> but not yielded），只有在所有恢复手段耗尽后才被释放。这个模式解决了一个现实问题：SDK 消费者（Desktop、Cowork）会在看到错误时终止会话——如果恢复成功，过早暴露错误就是一次不必要的中断。</p>
+<h3 id="模式三从轻到重的分层恢复"><a class="header" href="#模式三从轻到重的分层恢复">模式三：从轻到重的分层恢复</a></h3>
+<p>无论是上下文压缩（snip → microcompact → collapse → autocompact）还是错误恢复（escalate → multi-turn → reactive compact），策略总是从最轻量（信息损失最小）的手段开始，逐步升级到更重量级的手段。这不仅是性能优化，更是信息保留策略——每一级都在“用最少的代价换最大的空间“。</p>
+<h3 id="模式四后台并行化的滑动窗口"><a class="header" href="#模式四后台并行化的滑动窗口">模式四：后台并行化的滑动窗口</a></h3>
+<p>内存预取在循环入口启动，工具摘要在工具执行后异步启动，技能发现在迭代开始时异步启动——它们都在模型流式响应的 5-30 秒窗口期内完成计算。这种“在等待中完成准备工作“的模式将延迟隐藏得几乎不可见。</p>
+<h3 id="模式五死循环保护的单次尝试守卫"><a class="header" href="#模式五死循环保护的单次尝试守卫">模式五：死循环保护的单次尝试守卫</a></h3>
+<p><code>hasAttemptedReactiveCompact</code>、<code>maxOutputTokensRecoveryCount</code>、<code>state.transition?.reason !== 'collapse_drain_retry'</code>——这些守卫确保每种恢复策略最多执行一次（或有限次）。在一个 <code>while (true)</code> 循环中，没有这些守卫就是在邀请无限循环。源码注释中反复出现的 “death spiral” 一词（<code>restored-src/src/query.ts:1171</code>、<code>1295</code>）表明这不是理论担忧——这些守卫是从实际生产事故中学来的。</p>
+<h2 id="用户能做什么"><a class="header" href="#用户能做什么">用户能做什么</a></h2>
+<p>如果你正在构建自己的 AI Agent 系统，以下是从 <code>queryLoop()</code> 设计中可以直接借鉴的实践：</p>
+<ul>
+<li><strong>为每种恢复策略设置单次尝试守卫。</strong> 在 <code>while (true)</code> 循环中，每种自动恢复（压缩、重试、降级）都必须有布尔标记或计数器防止无限循环。用 <code>hasAttempted*</code> 命名，让意图一目了然。</li>
+<li><strong>采用“从轻到重“的分层压缩策略。</strong> 不要在上下文超限时直接执行全量摘要。先尝试裁剪旧消息（snip）、再微压缩（microcompact）、再折叠（collapse）、最后才全量压缩（autocompact）。每一层都保留尽可能多的上下文信息。</li>
+<li><strong>用完整状态重建替代增量修改。</strong> 在循环的每个 <code>continue</code> 站点构造完整的新状态对象，而非逐字段修改。这消除了“忘记重置字段“的 bug 类，尤其在有多个继续路径时。</li>
+<li><strong>扣留可恢复错误。</strong> 不要在第一时间将错误暴露给上层消费者。先尝试所有恢复手段，只有全部失败后才释放错误。这避免了上层因看到错误而过早终止会话。</li>
+<li><strong>利用模型响应的等待窗口做并行预取。</strong> 在发起 API 调用的同时启动内存预取、技能发现等异步任务。模型生成响应的 5-30 秒窗口是“免费“的计算时间。</li>
+<li><strong>记录转换原因（transition reason）。</strong> 在状态中记录每次循环继续的原因（如 <code>next_turn</code>、<code>reactive_compact_retry</code>），既方便调试，也让自动化测试能断言特定恢复路径是否被触发。</li>
+</ul>
+<h2 id="37-本章小结"><a class="header" href="#37-本章小结">3.7 本章小结</a></h2>
+<p><code>queryLoop()</code> 是 Claude Code 的心跳。它不是简单地在用户和模型之间传递消息，而是在每次迭代中主动管理上下文容量、编排工具执行、处理错误恢复、执行权限检查。理解了这个循环的拓扑结构和转换语义，后续章节中讨论的每一个子系统——autocompact（第9章）、API 调用构建（第5章）、流式响应处理（第13章）、权限检查（第16章）——都能在心智模型中找到它们被调用的精确位置和时机。</p>
+<p>这个循环最深刻的设计特征是：它知道自己可能失败，并为此做好了准备。不是“如果一切顺利“的乐观路径，而是“当事情出错时如何优雅地恢复“的防御性设计。这正是将一个 demo 级别的 AI 聊天界面变成生产级 AI Agent 的关键工程决策。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../part1/ch02.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../part1/ch04.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../part1/ch02.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../part1/ch04.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

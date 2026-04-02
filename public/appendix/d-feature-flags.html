@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>前言 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
+        <title>附录 D：89 个 Feature Flag 完整清单 - 驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</title>
 
 
         <!-- Custom HTML head -->
@@ -12,34 +12,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="favicon-8114d1fc.png">
-        <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-2459343d.css">
-        <link rel="stylesheet" href="css/chrome-ae938929.css">
-        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="language-switcher-a43b6e13.css">
+        <link rel="stylesheet" href="../language-switcher-a43b6e13.css">
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-7fa999ac.js";
+            window.path_to_searchindex_js = "../searchindex-7fa999ac.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-056531fb.js"></script>
+        <script src="../toc-056531fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +106,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                     <h1 class="menu-title">驾驭工程 — 从 Claude Code 源码到 AI 编码最佳实践</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -175,34 +175,179 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="前言"><a class="header" href="#前言">前言</a></h1>
-<p align="center">
-  <img src="./assets/cover-zh.jpeg" alt="《马书》封面" width="420">
-</p>
-
-<p align="center">
-  <a href="./en/">Read in English (Preview)</a>
-</p>
-
-<p>《驾驭工程》，中文别名《马书》。</p>
-<p>我认为，Claude Code 源码最佳的“食用”姿势应该是转化为一本书，供自己系统学习。对我来说，看书学习比直接看源码更舒服，也更容易形成完整的认知框架。</p>
-<p>为了尽可能保证 AI 写作质量，这本书的提取过程并不是“把源码丢给模型直接生成”那么简单，而是按一条比较严格的工程流程推进的：</p>
-<ol>
-<li>先根据源码把 <code>DESIGN.md</code> 聊清楚，也就是先把整本书的大纲和设计定下来。</li>
-<li>然后为每一章编写 spec，基于我开源的 <code>agent-spec</code> 来约束章节目标、边界和验收标准。</li>
-<li>接着再做 plan，把具体执行步骤拆开。</li>
-<li>最后再叠加我自己的技术写作 skill，才让 AI 开始正式写作。</li>
-</ol>
-<p>这本书并不是为了出版，而是为了让我能更系统地学习 Claude Code。我对它的基本判断是：AI 肯定写不得十全十美，但只要把初始版本开源出来，大家就可以一边阅读、一边讨论、一边逐步完善它，把它共建成一本真正有价值的公版书。</p>
+                        <h1 id="附录-d89-个-feature-flag-完整清单"><a class="header" href="#附录-d89-个-feature-flag-完整清单">附录 D：89 个 Feature Flag 完整清单</a></h1>
+<p>本附录列出 Claude Code v2.1.88 源码中通过 <code>feature()</code> 函数门控的全部 Feature Flag，按功能域分类。引用次数反映该 flag 在源码中出现的频率，可粗略推断实现深度（详见第23章的成熟度推断方法）。</p>
+<h2 id="自主-agent-与后台运行19-个"><a class="header" href="#自主-agent-与后台运行19-个">自主 Agent 与后台运行（19 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>AGENT_MEMORY_SNAPSHOT</code></td><td>2</td><td>Agent 记忆快照</td></tr>
+<tr><td><code>AGENT_TRIGGERS</code></td><td>11</td><td>定时触发器（本地 cron）</td></tr>
+<tr><td><code>AGENT_TRIGGERS_REMOTE</code></td><td>2</td><td>远程定时触发器（云端 cron）</td></tr>
+<tr><td><code>BG_SESSIONS</code></td><td>11</td><td>后台会话管理（ps/logs/attach/kill）</td></tr>
+<tr><td><code>BUDDY</code></td><td>15</td><td>伴侣模式：浮动 UI 气泡</td></tr>
+<tr><td><code>BUILTIN_EXPLORE_PLAN_AGENTS</code></td><td>1</td><td>内置探索/计划 agent 类型</td></tr>
+<tr><td><code>COORDINATOR_MODE</code></td><td>32</td><td>协调器模式：跨 agent 任务协调</td></tr>
+<tr><td><code>FORK_SUBAGENT</code></td><td>4</td><td>子 agent fork 执行模式</td></tr>
+<tr><td><code>KAIROS</code></td><td>84</td><td>助手模式核心：后台自主 agent、tick 唤醒</td></tr>
+<tr><td><code>KAIROS_BRIEF</code></td><td>17</td><td>简报模式：向用户发送进度消息</td></tr>
+<tr><td><code>KAIROS_CHANNELS</code></td><td>13</td><td>频道系统：多通道通信</td></tr>
+<tr><td><code>KAIROS_DREAM</code></td><td>1</td><td>autoDream 记忆整理触发</td></tr>
+<tr><td><code>KAIROS_GITHUB_WEBHOOKS</code></td><td>2</td><td>GitHub Webhook 订阅：PR 事件触发</td></tr>
+<tr><td><code>KAIROS_PUSH_NOTIFICATION</code></td><td>2</td><td>推送通知：向用户推送状态更新</td></tr>
+<tr><td><code>MONITOR_TOOL</code></td><td>5</td><td>监控工具：后台进程监控</td></tr>
+<tr><td><code>PROACTIVE</code></td><td>21</td><td>自主工作模式：终端焦点感知、主动行动</td></tr>
+<tr><td><code>TORCH</code></td><td>1</td><td>Torch 命令</td></tr>
+<tr><td><code>ULTRAPLAN</code></td><td>2</td><td>超级计划：结构化任务分解 UI</td></tr>
+<tr><td><code>VERIFICATION_AGENT</code></td><td>4</td><td>验证 agent：自动验证任务完成状态</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="远程控制与分布式执行10-个"><a class="header" href="#远程控制与分布式执行10-个">远程控制与分布式执行（10 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>BRIDGE_MODE</code></td><td>14</td><td>桥接模式核心：远程控制协议</td></tr>
+<tr><td><code>CCR_AUTO_CONNECT</code></td><td>3</td><td>Claude Code Remote 自动连接</td></tr>
+<tr><td><code>CCR_MIRROR</code></td><td>3</td><td>CCR 镜像模式：只读远程镜像</td></tr>
+<tr><td><code>CCR_REMOTE_SETUP</code></td><td>1</td><td>CCR 远程设置命令</td></tr>
+<tr><td><code>CONNECTOR_TEXT</code></td><td>7</td><td>连接器文本块处理</td></tr>
+<tr><td><code>DAEMON</code></td><td>1</td><td>守护进程模式：后台 daemon worker</td></tr>
+<tr><td><code>DOWNLOAD_USER_SETTINGS</code></td><td>5</td><td>从云端下载用户配置</td></tr>
+<tr><td><code>LODESTONE</code></td><td>3</td><td>协议注册（lodestone:// handler）</td></tr>
+<tr><td><code>UDS_INBOX</code></td><td>14</td><td>Unix Domain Socket 收件箱</td></tr>
+<tr><td><code>UPLOAD_USER_SETTINGS</code></td><td>1</td><td>上传用户配置到云端</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="多媒体与交互17-个"><a class="header" href="#多媒体与交互17-个">多媒体与交互（17 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ALLOW_TEST_VERSIONS</code></td><td>2</td><td>允许测试版本</td></tr>
+<tr><td><code>ANTI_DISTILLATION_CC</code></td><td>1</td><td>反蒸馏保护</td></tr>
+<tr><td><code>AUTO_THEME</code></td><td>1</td><td>自动主题切换</td></tr>
+<tr><td><code>BUILDING_CLAUDE_APPS</code></td><td>1</td><td>构建 Claude Apps 技能</td></tr>
+<tr><td><code>CHICAGO_MCP</code></td><td>12</td><td>Computer Use MCP 集成</td></tr>
+<tr><td><code>HISTORY_PICKER</code></td><td>1</td><td>历史选择器 UI</td></tr>
+<tr><td><code>MESSAGE_ACTIONS</code></td><td>2</td><td>消息操作（复制/编辑快捷键）</td></tr>
+<tr><td><code>NATIVE_CLIENT_ATTESTATION</code></td><td>1</td><td>原生客户端认证</td></tr>
+<tr><td><code>NATIVE_CLIPBOARD_IMAGE</code></td><td>2</td><td>原生剪贴板图片支持</td></tr>
+<tr><td><code>NEW_INIT</code></td><td>2</td><td>新版初始化流程</td></tr>
+<tr><td><code>POWERSHELL_AUTO_MODE</code></td><td>2</td><td>PowerShell 自动模式</td></tr>
+<tr><td><code>QUICK_SEARCH</code></td><td>1</td><td>快速搜索 UI</td></tr>
+<tr><td><code>REVIEW_ARTIFACT</code></td><td>1</td><td>审查工件</td></tr>
+<tr><td><code>TEMPLATES</code></td><td>5</td><td>任务模板/分类</td></tr>
+<tr><td><code>TERMINAL_PANEL</code></td><td>3</td><td>终端面板</td></tr>
+<tr><td><code>VOICE_MODE</code></td><td>11</td><td>语音模式：流式语音转文字</td></tr>
+<tr><td><code>WEB_BROWSER_TOOL</code></td><td>1</td><td>Web 浏览器工具（Bun WebView）</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="上下文与性能优化16-个"><a class="header" href="#上下文与性能优化16-个">上下文与性能优化（16 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ABLATION_BASELINE</code></td><td>1</td><td>消融测试基线</td></tr>
+<tr><td><code>BASH_CLASSIFIER</code></td><td>33</td><td>Bash 命令分类器</td></tr>
+<tr><td><code>BREAK_CACHE_COMMAND</code></td><td>2</td><td>强制打断缓存命令</td></tr>
+<tr><td><code>CACHED_MICROCOMPACT</code></td><td>12</td><td>缓存微压缩策略</td></tr>
+<tr><td><code>COMPACTION_REMINDERS</code></td><td>1</td><td>压缩提醒机制</td></tr>
+<tr><td><code>CONTEXT_COLLAPSE</code></td><td>16</td><td>上下文折叠：精细化上下文管理</td></tr>
+<tr><td><code>FILE_PERSISTENCE</code></td><td>3</td><td>文件持久化计时</td></tr>
+<tr><td><code>HISTORY_SNIP</code></td><td>15</td><td>历史截断命令</td></tr>
+<tr><td><code>OVERFLOW_TEST_TOOL</code></td><td>2</td><td>溢出测试工具</td></tr>
+<tr><td><code>PROMPT_CACHE_BREAK_DETECTION</code></td><td>9</td><td>Prompt Cache 断裂检测</td></tr>
+<tr><td><code>REACTIVE_COMPACT</code></td><td>4</td><td>响应式压缩：按需触发</td></tr>
+<tr><td><code>STREAMLINED_OUTPUT</code></td><td>1</td><td>精简输出模式</td></tr>
+<tr><td><code>TOKEN_BUDGET</code></td><td>4</td><td>Token 预算追踪 UI</td></tr>
+<tr><td><code>TREE_SITTER_BASH</code></td><td>3</td><td>Tree-sitter Bash 解析器</td></tr>
+<tr><td><code>TREE_SITTER_BASH_SHADOW</code></td><td>5</td><td>Tree-sitter Bash 影子模式（A/B）</td></tr>
+<tr><td><code>ULTRATHINK</code></td><td>1</td><td>超级思考模式</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="记忆与知识管理13-个"><a class="header" href="#记忆与知识管理13-个">记忆与知识管理（13 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>AWAY_SUMMARY</code></td><td>2</td><td>离开摘要：离开时生成进度</td></tr>
+<tr><td><code>COWORKER_TYPE_TELEMETRY</code></td><td>2</td><td>协作者类型遥测</td></tr>
+<tr><td><code>ENHANCED_TELEMETRY_BETA</code></td><td>2</td><td>增强遥测 Beta</td></tr>
+<tr><td><code>EXPERIMENTAL_SKILL_SEARCH</code></td><td>19</td><td>实验性远程技能搜索</td></tr>
+<tr><td><code>EXTRACT_MEMORIES</code></td><td>7</td><td>自动记忆提取</td></tr>
+<tr><td><code>MCP_RICH_OUTPUT</code></td><td>3</td><td>MCP 富文本输出</td></tr>
+<tr><td><code>MCP_SKILLS</code></td><td>9</td><td>MCP 服务器技能发现</td></tr>
+<tr><td><code>MEMORY_SHAPE_TELEMETRY</code></td><td>3</td><td>记忆结构遥测</td></tr>
+<tr><td><code>RUN_SKILL_GENERATOR</code></td><td>1</td><td>技能生成器</td></tr>
+<tr><td><code>SKILL_IMPROVEMENT</code></td><td>1</td><td>技能自动改进</td></tr>
+<tr><td><code>TEAMMEM</code></td><td>44</td><td>团队记忆同步</td></tr>
+<tr><td><code>WORKFLOW_SCRIPTS</code></td><td>6</td><td>工作流脚本</td></tr>
+<tr><td><code>TRANSCRIPT_CLASSIFIER</code></td><td>69</td><td>会话记录分类器（auto 模式）</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="基础设施与遥测14-个"><a class="header" href="#基础设施与遥测14-个">基础设施与遥测（14 个）</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>引用数</th><th>功能描述</th></tr>
+</thead>
+<tbody>
+<tr><td><code>COMMIT_ATTRIBUTION</code></td><td>11</td><td>Git 提交归属追踪</td></tr>
+<tr><td><code>HARD_FAIL</code></td><td>2</td><td>硬失败模式</td></tr>
+<tr><td><code>IS_LIBC_GLIBC</code></td><td>1</td><td>glibc 运行时检测</td></tr>
+<tr><td><code>IS_LIBC_MUSL</code></td><td>1</td><td>musl 运行时检测</td></tr>
+<tr><td><code>PERFETTO_TRACING</code></td><td>1</td><td>Perfetto 性能追踪</td></tr>
+<tr><td><code>SHOT_STATS</code></td><td>8</td><td>工具调用统计分布</td></tr>
+<tr><td><code>SLOW_OPERATION_LOGGING</code></td><td>1</td><td>慢操作日志</td></tr>
+<tr><td><code>UNATTENDED_RETRY</code></td><td>1</td><td>无人值守重试</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="统计摘要"><a class="header" href="#统计摘要">统计摘要</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>分类</th><th>数量</th><th>最高引用 Flag</th></tr>
+</thead>
+<tbody>
+<tr><td>自主 Agent 与后台运行</td><td>19</td><td>KAIROS (84)</td></tr>
+<tr><td>远程控制与分布式执行</td><td>10</td><td>BRIDGE_MODE (14), UDS_INBOX (14)</td></tr>
+<tr><td>多媒体与交互</td><td>17</td><td>CHICAGO_MCP (12)</td></tr>
+<tr><td>上下文与性能优化</td><td>16</td><td>TRANSCRIPT_CLASSIFIER (69)</td></tr>
+<tr><td>记忆与知识管理</td><td>13</td><td>TEAMMEM (44)</td></tr>
+<tr><td>基础设施与遥测</td><td>14</td><td>COMMIT_ATTRIBUTION (11)</td></tr>
+<tr><td><strong>总计</strong></td><td><strong>89</strong></td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>引用次数 Top 5</strong>：KAIROS (84) &gt; TRANSCRIPT_CLASSIFIER (69) &gt; TEAMMEM (44) &gt; BASH_CLASSIFIER (33) &gt; COORDINATOR_MODE (32)</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-
-                            <a rel="next prefetch" href="part1/ch01.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            <a rel="prev" href="../appendix/c-glossary.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
+
 
                         <div style="clear: both"></div>
                     </nav>
@@ -210,10 +355,10 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-
-                    <a rel="next prefetch" href="part1/ch01.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    <a rel="prev" href="../appendix/c-glossary.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
+
             </nav>
 
         </div>
@@ -231,18 +376,18 @@
         </script>
 
 
-        <script src="elasticlunr-ef4e11c1.min.js"></script>
-        <script src="mark-09e88c2c.min.js"></script>
-        <script src="searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="clipboard-1626706a.min.js"></script>
-        <script src="highlight-abc7f01d.js"></script>
-        <script src="book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
-        <script src="mermaid-eefea253.min.js"></script>
-        <script src="mermaid-init-dc149b64.js"></script>
-        <script src="language-switcher-93f51b1a.js"></script>
+        <script src="../mermaid-eefea253.min.js"></script>
+        <script src="../mermaid-init-dc149b64.js"></script>
+        <script src="../language-switcher-93f51b1a.js"></script>
 
 
 
